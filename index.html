@@ -1,88 +1,332 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#111111">
+
     <title>MUSIC Lyrics</title>
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            background: #111;
+            padding:
+                env(safe-area-inset-top)
+                16px
+                env(safe-area-inset-bottom)
+                16px;
+
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top,
+                    #252525 0%,
+                    #111 45%,
+                    #080808 100%
+                );
+
             color: white;
-            font-family: Arial, sans-serif;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "SF Pro Display",
+                "SF Pro Text",
+                Arial,
+                sans-serif;
+
             text-align: center;
+            overflow-x: hidden;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
         h1 {
-            margin-top: 35px;
-            font-size: 38px;
+            margin: 28px 0 8px;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -1px;
         }
 
-        button {
-            margin-top: 20px;
-            padding: 18px 30px;
-            font-size: 21px;
-            border: none;
-            border-radius: 15px;
-            background: white;
-            color: #111;
+        .subtitle {
+            color: #888;
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        /* QUESTION MARK BUTTON */
+
+        .identify-button {
+            width: 92px;
+            height: 92px;
+
+            margin: 18px auto 22px;
+
+            border-radius: 50%;
+            border: 3px solid white;
+
+            background: rgba(255, 255, 255, 0.04);
+            color: white;
+
+            font-size: 48px;
+            font-weight: 500;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
             cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+
+            -webkit-tap-highlight-color: transparent;
+
+            box-shadow:
+                0 0 0 rgba(255, 255, 255, 0);
         }
 
-        #song {
-            margin-top: 25px;
-            font-size: 22px;
+        .identify-button:hover {
+            transform: scale(1.05);
         }
+
+        .identify-button:active {
+            transform: scale(0.92);
+        }
+
+        .identify-button:focus {
+            outline: none;
+        }
+
+        /* RAINBOW LISTENING ANIMATION */
+
+        .identify-button.listening {
+            animation: rainbowPulse 1.5s infinite;
+        }
+
+        @keyframes rainbowPulse {
+            0% {
+                transform: scale(1);
+                border-color: #ff0000;
+                box-shadow:
+                    0 0 12px #ff0000,
+                    0 0 25px rgba(255, 0, 0, 0.4);
+            }
+
+            16% {
+                border-color: #ff7f00;
+                box-shadow:
+                    0 0 18px #ff7f00,
+                    0 0 35px rgba(255, 127, 0, 0.4);
+            }
+
+            33% {
+                border-color: #ffff00;
+                box-shadow:
+                    0 0 22px #ffff00,
+                    0 0 40px rgba(255, 255, 0, 0.4);
+            }
+
+            50% {
+                transform: scale(1.15);
+                border-color: #00ff00;
+                box-shadow:
+                    0 0 28px #00ff00,
+                    0 0 50px rgba(0, 255, 0, 0.45);
+            }
+
+            66% {
+                border-color: #00ffff;
+                box-shadow:
+                    0 0 22px #00ffff,
+                    0 0 40px rgba(0, 255, 255, 0.4);
+            }
+
+            83% {
+                border-color: #0066ff;
+                box-shadow:
+                    0 0 20px #0066ff,
+                    0 0 35px rgba(0, 102, 255, 0.4);
+            }
+
+            100% {
+                transform: scale(1);
+                border-color: #ff00ff;
+                box-shadow:
+                    0 0 15px #ff00ff,
+                    0 0 30px rgba(255, 0, 255, 0.4);
+            }
+        }
+
+        /* STATUS */
 
         #status {
-            margin-top: 15px;
-            color: #aaa;
+            margin: 8px auto 18px;
+            min-height: 24px;
+
+            color: #999;
+            font-size: 15px;
+            line-height: 1.4;
+
+            transition: color 0.2s ease;
         }
 
+        /* SONG INFORMATION */
+
+        #song {
+            margin: 12px auto 20px;
+
+            max-width: 90%;
+
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.35;
+
+            color: white;
+        }
+
+        /* LYRICS */
+
         #lyrics {
-            margin: 30px auto;
+            margin: 20px auto;
+
+            width: 100%;
             max-width: 700px;
+
             height: 55vh;
+            min-height: 300px;
+
             overflow-y: auto;
-            font-size: 24px;
-            line-height: 1.8;
+
+            font-size: 23px;
+            line-height: 1.7;
+
             scroll-behavior: smooth;
+
+            padding:
+                30px 8px
+                120px 8px;
+
+            scrollbar-width: none;
+        }
+
+        #lyrics::-webkit-scrollbar {
+            display: none;
         }
 
         .line {
             opacity: 0.35;
-            transition: 0.2s;
-            padding: 8px;
+
+            transition:
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                background 0.25s ease;
+
+            padding: 10px 12px;
+
+            margin: 3px 0;
+
             cursor: pointer;
-            border-radius: 10px;
+
+            border-radius: 14px;
+
+            -webkit-tap-highlight-color: transparent;
         }
 
         .line:hover {
-            opacity: 0.7;
-            background: #222;
+            opacity: 0.75;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .line:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .current {
             opacity: 1;
+
             font-size: 32px;
-            font-weight: bold;
+            font-weight: 700;
+
+            color: white;
+
+            background:
+                rgba(255, 255, 255, 0.06);
+
+            transform: scale(1.02);
+        }
+
+        /* IPHONE-SIZED SCREEN */
+
+        @media (max-width: 500px) {
+
+            h1 {
+                margin-top: 24px;
+                font-size: 30px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .identify-button {
+                width: 88px;
+                height: 88px;
+                font-size: 46px;
+            }
+
+            #song {
+                font-size: 20px;
+            }
+
+            #lyrics {
+                height: 58vh;
+                font-size: 21px;
+            }
+
+            .current {
+                font-size: 29px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <h1>🎵 Music Lyrics</h1>
+    <div class="app">
 
-    <button onclick="identifySong()">
-        🎤 Identify Song
-    </button>
+        <h1>🎵 Music Lyrics</h1>
 
-    <div id="status">
-        Tap the button to identify a song
+        <div class="subtitle">
+            Identify a song and follow along
+        </div>
+
+        <button
+            class="identify-button"
+            onclick="identifySong()"
+            aria-label="Identify Song"
+        >
+            ?
+        </button>
+
+        <div id="status">
+            Tap the button to identify a song
+        </div>
+
+        <div id="song"></div>
+
+        <div id="lyrics"></div>
+
     </div>
-
-    <div id="song"></div>
-
-    <div id="lyrics"></div>
 
     <script>
 
@@ -91,8 +335,10 @@
         let syncTimer = null;
         let currentIndex = 0;
 
-
         async function identifySong() {
+
+            const button =
+                document.querySelector(".identify-button");
 
             const status =
                 document.getElementById("status");
@@ -105,13 +351,17 @@
 
             clearInterval(syncTimer);
 
+            /*
+             * START RAINBOW LISTENING ANIMATION
+             */
+            button.classList.add("listening");
+
             status.innerText =
                 "🎧 Listening for 8 seconds...";
 
             songDisplay.innerText = "";
 
             lyricsDisplay.innerHTML = "";
-
 
             try {
 
@@ -120,12 +370,10 @@
                         audio: true
                     });
 
-
                 const recorder =
                     new MediaRecorder(stream);
 
                 const audioChunks = [];
-
 
                 recorder.ondataavailable =
                     event => {
@@ -136,16 +384,18 @@
 
                     };
 
-
                 recorder.start();
-
 
                 setTimeout(() => {
 
                     recorder.stop();
 
-                }, 8000);
+                    /*
+                     * STOP RAINBOW ANIMATION
+                     */
+                    button.classList.remove("listening");
 
+                }, 8000);
 
                 recorder.onstop =
                     async () => {
@@ -156,10 +406,8 @@
                                 track.stop()
                             );
 
-
                         status.innerText =
                             "🔎 Identifying song...";
-
 
                         const audioBlob =
                             new Blob(
@@ -170,17 +418,14 @@
                                 }
                             );
 
-
                         const formData =
                             new FormData();
-
 
                         formData.append(
                             "audio",
                             audioBlob,
                             "music.webm"
                         );
-
 
                         const response =
                             await fetch(
@@ -191,10 +436,8 @@
                                 }
                             );
 
-
                         const data =
                             await response.json();
-
 
                         if (data.error) {
 
@@ -205,12 +448,10 @@
                             return;
                         }
 
-
                         songDisplay.innerText =
                             data.song.title +
                             " — " +
                             data.song.artist;
-
 
                         if (
                             !data.lyrics ||
@@ -223,36 +464,32 @@
                             return;
                         }
 
-
                         parseLyrics(
                             data.lyrics.syncedLyrics
                         );
-
 
                         startTime =
                             parseTimecode(
                                 data.song.timecode
                             );
 
-
                         status.innerText =
                             "🎵 Synced! Tap any lyric to resync.";
-
 
                         startSynchronization();
 
                     };
 
-
             } catch (error) {
 
                 console.error(error);
+
+                button.classList.remove("listening");
 
                 status.innerText =
                     "❌ Microphone permission failed.";
 
             }
-
         }
 
 
@@ -263,7 +500,6 @@
             const parts =
                 timecode.split(":");
 
-
             if (parts.length === 2) {
 
                 return (
@@ -273,9 +509,7 @@
 
             }
 
-
             return 0;
-
         }
 
 
@@ -283,10 +517,8 @@
 
             lyricLines = [];
 
-
             const lines =
                 text.split("\n");
-
 
             for (const line of lines) {
 
@@ -295,22 +527,17 @@
                         /^\[(\d+):(\d+\.\d+)\](.*)$/
                     );
 
-
                 if (!match) continue;
-
 
                 const minutes =
                     parseInt(match[1]);
 
-
                 const seconds =
                     parseFloat(match[2]);
-
 
                 const time =
                     minutes * 60 +
                     seconds;
-
 
                 lyricLines.push({
 
@@ -320,18 +547,14 @@
                         match[3].trim()
 
                 });
-
             }
-
 
             lyricLines.sort(
                 (a, b) =>
                     a.time - b.time
             );
 
-
             showLyrics();
-
         }
 
 
@@ -340,9 +563,7 @@
             const lyricsDisplay =
                 document.getElementById("lyrics");
 
-
             lyricsDisplay.innerHTML = "";
-
 
             lyricLines.forEach(
                 (line, index) => {
@@ -352,20 +573,16 @@
                             "div"
                         );
 
-
                     div.className =
                         index === currentIndex
                             ? "line current"
                             : "line";
 
-
                     div.dataset.index =
                         index;
 
-
                     div.innerText =
                         line.text;
-
 
                     /*
                      * TAP A LYRIC TO SYNC
@@ -376,14 +593,11 @@
 
                     };
 
-
                     lyricsDisplay.appendChild(
                         div
                     );
-
                 }
             );
-
         }
 
 
@@ -391,47 +605,22 @@
 
             if (!lyricLines[index]) return;
 
-
-            /*
-             * This lyric is now the exact
-             * position where the song is.
-             */
-
             currentIndex = index;
-
-
-            /*
-             * Reset our clock so this lyric
-             * becomes the new synchronization
-             * point.
-             */
 
             startTime =
                 lyricLines[index].time;
-
-
-            /*
-             * Restart the synchronization timer.
-             */
 
             clearInterval(syncTimer);
 
             startSynchronization();
 
-
-            /*
-             * Highlight the selected lyric.
-             */
-
             updateCurrentLine(
                 lyricLines[index].time
             );
 
-
             document.getElementById("status").innerText =
                 "🔄 Synced to: " +
                 lyricLines[index].text;
-
         }
 
 
@@ -439,14 +628,11 @@
 
             clearInterval(syncTimer);
 
-
             const start =
                 Date.now();
 
-
             const baseSongTime =
                 startTime;
-
 
             syncTimer =
                 setInterval(() => {
@@ -455,26 +641,21 @@
                         (Date.now() - start)
                         / 1000;
 
-
                     const currentTime =
                         baseSongTime +
                         elapsed;
-
 
                     updateCurrentLine(
                         currentTime
                     );
 
-
                 }, 100);
-
         }
 
 
         function updateCurrentLine(time) {
 
             let newIndex = 0;
-
 
             for (
                 let i = 0;
@@ -493,18 +674,14 @@
                     break;
 
                 }
-
             }
 
-
             currentIndex = newIndex;
-
 
             const elements =
                 document.querySelectorAll(
                     ".line"
                 );
-
 
             elements.forEach(
                 (element, index) => {
@@ -515,7 +692,6 @@
 
                         element.className =
                             "line current";
-
 
                         element.scrollIntoView({
                             behavior: "smooth",
@@ -528,10 +704,8 @@
                             "line";
 
                     }
-
                 }
             );
-
         }
 
     </script>
