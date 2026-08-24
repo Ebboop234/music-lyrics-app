@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MUSIC Lyrics</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 35px;
+            font-size: 38px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 18px 30px;
+            font-size: 21px;
+            border: none;
+            border-radius: 15px;
+            background: white;
+            color: #111;
+            cursor: pointer;
+        }
+
+        #song {
+            margin-top: 25px;
+            font-size: 22px;
+        }
+
+        #status {
+            margin-top: 15px;
+            color: #aaa;
+        }
+
+        #lyrics {
+            margin: 30px auto;
+            max-width: 700px;
+            height: 55vh;
+            overflow-y: auto;
+            font-size: 24px;
+            line-height: 1.8;
+            scroll-behavior: smooth;
+        }
+
+        .line {
+            opacity: 0.35;
+            transition: 0.2s;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
+        .line:hover {
+            opacity: 0.7;
+            background: #222;
+        }
+
+        .current {
+            opacity: 1;
+            font-size: 32px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎵 Music Lyrics</h1>
+
+    <button onclick="identifySong()">
+        🎤 Identify Song
+    </button>
+
+    <div id="status">
+        Tap the button to identify a song
+    </div>
+
+    <div id="song"></div>
+
+    <div id="lyrics"></div>
+
+    <script>
+
+        let lyricLines = [];
+        let startTime = 0;
+        let syncTimer = null;
+        let currentIndex = 0;
+
+
+        async function identifySong() {
+
+            const status =
+                document.getElementById("status");
+
+            const songDisplay =
+                document.getElementById("song");
+
+            const lyricsDisplay =
+                document.getElementById("lyrics");
+
+            clearInterval(syncTimer);
+
+            status.innerText =
+                "🎧 Listening for 8 seconds...";
+
+            songDisplay.innerText = "";
+
+            lyricsDisplay.innerHTML = "";
+
+
+            try {
+
+                const stream =
+                    await navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    });
+
+
+                const recorder =
+                    new MediaRecorder(stream);
+
+                const audioChunks = [];
+
+
+                recorder.ondataavailable =
+                    event => {
+
+                        audioChunks.push(
+                            event.data
+                        );
+
+                    };
+
+
+                recorder.start();
+
+
+                setTimeout(() => {
+
+                    recorder.stop();
+
+                }, 8000);
+
+
+                recorder.onstop =
+                    async () => {
+
+                        stream
+                            .getTracks()
+                            .forEach(track =>
+                                track.stop()
+                            );
+
+
+                        status.innerText =
+                            "🔎 Identifying song...";
+
+
+                        const audioBlob =
+                            new Blob(
+                                audioChunks,
+                                {
+                                    type:
+                                        recorder.mimeType
+                                }
+                            );
+
+
+                        const formData =
+                            new FormData();
+
+
+                        formData.append(
+                            "audio",
+                            audioBlob,
+                            "music.webm"
+                        );
+
+
+                        const response =
+                            await fetch(
+                                "/identify",
+                                {
+                                    method: "POST",
+                                    body: formData
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (data.error) {
+
+                            status.innerText =
+                                "❌ " +
+                                data.error;
+
+                            return;
+                        }
+
+
+                        songDisplay.innerText =
+                            data.song.title +
+                            " — " +
+                            data.song.artist;
+
+
+                        if (
+                            !data.lyrics ||
+                            !data.lyrics.syncedLyrics
+                        ) {
+
+                            status.innerText =
+                                "⚠️ No synchronized lyrics found.";
+
+                            return;
+                        }
+
+
+                        parseLyrics(
+                            data.lyrics.syncedLyrics
+                        );
+
+
+                        startTime =
+                            parseTimecode(
+                                data.song.timecode
+                            );
+
+
+                        status.innerText =
+                            "🎵 Synced! Tap any lyric to resync.";
+
+
+                        startSynchronization();
+
+                    };
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                status.innerText =
+                    "❌ Microphone permission failed.";
+
+            }
+
+        }
+
+
+        function parseTimecode(timecode) {
+
+            if (!timecode) return 0;
+
+            const parts =
+                timecode.split(":");
+
+
+            if (parts.length === 2) {
+
+                return (
+                    parseInt(parts[0]) * 60 +
+                    parseFloat(parts[1])
+                );
+
+            }
+
+
+            return 0;
+
+        }
+
+
+        function parseLyrics(text) {
+
+            lyricLines = [];
+
+
+            const lines =
+                text.split("\n");
+
+
+            for (const line of lines) {
+
+                const match =
+                    line.match(
+                        /^\[(\d+):(\d+\.\d+)\](.*)$/
+                    );
+
+
+                if (!match) continue;
+
+
+                const minutes =
+                    parseInt(match[1]);
+
+
+                const seconds =
+                    parseFloat(match[2]);
+
+
+                const time =
+                    minutes * 60 +
+                    seconds;
+
+
+                lyricLines.push({
+
+                    time: time,
+
+                    text:
+                        match[3].trim()
+
+                });
+
+            }
+
+
+            lyricLines.sort(
+                (a, b) =>
+                    a.time - b.time
+            );
+
+
+            showLyrics();
+
+        }
+
+
+        function showLyrics() {
+
+            const lyricsDisplay =
+                document.getElementById("lyrics");
+
+
+            lyricsDisplay.innerHTML = "";
+
+
+            lyricLines.forEach(
+                (line, index) => {
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    div.className =
+                        index === currentIndex
+                            ? "line current"
+                            : "line";
+
+
+                    div.dataset.index =
+                        index;
+
+
+                    div.innerText =
+                        line.text;
+
+
+                    /*
+                     * TAP A LYRIC TO SYNC
+                     */
+                    div.onclick = () => {
+
+                        syncToLyric(index);
+
+                    };
+
+
+                    lyricsDisplay.appendChild(
+                        div
+                    );
+
+                }
+            );
+
+        }
+
+
+        function syncToLyric(index) {
+
+            if (!lyricLines[index]) return;
+
+
+            /*
+             * This lyric is now the exact
+             * position where the song is.
+             */
+
+            currentIndex = index;
+
+
+            /*
+             * Reset our clock so this lyric
+             * becomes the new synchronization
+             * point.
+             */
+
+            startTime =
+                lyricLines[index].time;
+
+
+            /*
+             * Restart the synchronization timer.
+             */
+
+            clearInterval(syncTimer);
+
+            startSynchronization();
+
+
+            /*
+             * Highlight the selected lyric.
+             */
+
+            updateCurrentLine(
+                lyricLines[index].time
+            );
+
+
+            document.getElementById("status").innerText =
+                "🔄 Synced to: " +
+                lyricLines[index].text;
+
+        }
+
+
+        function startSynchronization() {
+
+            clearInterval(syncTimer);
+
+
+            const start =
+                Date.now();
+
+
+            const baseSongTime =
+                startTime;
+
+
+            syncTimer =
+                setInterval(() => {
+
+                    const elapsed =
+                        (Date.now() - start)
+                        / 1000;
+
+
+                    const currentTime =
+                        baseSongTime +
+                        elapsed;
+
+
+                    updateCurrentLine(
+                        currentTime
+                    );
+
+
+                }, 100);
+
+        }
+
+
+        function updateCurrentLine(time) {
+
+            let newIndex = 0;
+
+
+            for (
+                let i = 0;
+                i < lyricLines.length;
+                i++
+            ) {
+
+                if (
+                    lyricLines[i].time <= time
+                ) {
+
+                    newIndex = i;
+
+                } else {
+
+                    break;
+
+                }
+
+            }
+
+
+            currentIndex = newIndex;
+
+
+            const elements =
+                document.querySelectorAll(
+                    ".line"
+                );
+
+
+            elements.forEach(
+                (element, index) => {
+
+                    if (
+                        index === currentIndex
+                    ) {
+
+                        element.className =
+                            "line current";
+
+
+                        element.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                    } else {
+
+                        element.className =
+                            "line";
+
+                    }
+
+                }
+            );
+
+        }
+
+    </script>
+
+</body>
+</html>
