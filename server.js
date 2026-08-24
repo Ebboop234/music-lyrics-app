@@ -43,7 +43,6 @@ app.post("/identify", upload.single("audio"), async (req, res) => {
 
         const data = await response.json();
 
-        // Delete temporary recording
         if (fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
@@ -56,7 +55,6 @@ app.post("/identify", upload.single("audio"), async (req, res) => {
 
         const song = data.result;
 
-        // Get synchronized lyrics
         const lyricsResponse = await fetch(
             "https://lrclib.net/api/get?" +
             "track_name=" +
@@ -89,8 +87,10 @@ app.post("/identify", upload.single("audio"), async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
     console.log(
-        "🎵 Music Lyrics server running on port 3000"
+        `🎵 Music Lyrics server running on port ${PORT}`
     );
 });
