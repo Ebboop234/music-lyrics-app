@@ -1,0 +1,47 @@
+{
+    "app-id": "re.fossplant.songrec",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "50",
+    "sdk": "org.gnome.Sdk",
+    "command": "songrec",
+    "sdk-extensions" : [
+        "org.freedesktop.Sdk.Extension.rust-stable",
+        "org.freedesktop.Sdk.Extension.llvm22"
+    ],
+    "finish-args": [
+        "--share=network",
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--device=all",
+        "--talk-name=org.kde.StatusNotifierWatcher",
+        "--socket=pulseaudio",
+        "--filesystem=xdg-run/pipewire-0"
+    ],
+    "build-options": {
+        "append-path" : "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm22/bin",
+        "prepend-ld-library-path": "/usr/lib/sdk/llvm22/lib",
+        "env" : {
+            "CARGO_HOME" : "/run/build/songrec/.cargo"
+        }
+    },
+    "modules": [
+        {
+            "name": "songrec",
+            "buildsystem": "simple",
+            "build-commands": [
+                "cargo --offline fetch --verbose",
+                "cargo --offline build --release --verbose --no-default-features -F gui,ffmpeg,pulse,mpris",
+                "install -Dm755 ./target/release/songrec -t /app/bin/",
+                "cp -r ./packaging/rootfs/usr/share /app/",
+                "cp -r ./translations/locale /app/share/"
+            ],
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": "../../"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+[Desktop Entry]
+Categories=GTK;Audio;AudioVideo;
+Exec=songrec gui %f
+Icon=re.fossplant.songrec
+# See https://github.com/lemenkov/shared-mime-info/blob/master/freedesktop.org.xml.in
+# regarding the applicable mime types
+MimeType=audio/mpeg;audio/x-wav;audio/x-vorbis+ogg;audio/flac;
+StartupNotify=true
+X-GNOME-UsesNotifications=true
+X-Purism-FormFactor=Workstation;Mobile;
+StartupWMClass=songrec
+Terminal=false
+Type=Application
+Version=1.0
+
+Name=SongRec
+
+Comment=An open-source Shazam client for Linux, written in Rust
+
+Keywords=Rust;GTK;Shazam;Client;Audio;Song;Recognition;Fingerprinting;
+
+# See https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
+# regarding the general layout of the current file

@@ -1,0 +1,600 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Mu7ammed Basha <dash-unbeaten-five@duck.com>, 2026.
+# Mu7ammed Basha <mu7basha@users.noreply.weblate.fossplant.re>, 2026.
+# Marin <25437947+marin-m@users.noreply.github.com>, 2026.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-26 02:11+0000\n"
+"PO-Revision-Date: 2026-03-09 12:56+0000\n"
+"Last-Translator: Mu7ammed Basha <mu7basha@users.noreply.weblate.fossplant."
+"re>\n"
+"Language-Team: Arabic <https://weblate.fossplant.re/projects/songrec/songrec/"
+"ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#: src/cli_main.rs:118
+msgid "Available device:"
+msgstr "الجهاز المتاح:"
+
+#: src/cli_main.rs:136
+msgid "Exiting: audio device not found"
+msgstr "جارٍ المغادرة: لم يُعثر على جهاز صوت"
+
+#: src/cli_main.rs:142
+msgid "Exiting: no audio devices found!"
+msgstr "جارٍ المغادرة: لم يُعثر على أجهزة صوت!"
+
+#: src/cli_main.rs:147
+#, c-format
+msgid "Using device %s"
+msgstr ""
+
+#: src/cli_main.rs:171
+msgid "Error: Network unreachable"
+msgstr "خطأ: تعذر الاتصال بالشبكة"
+
+#: src/cli_main.rs:174
+msgid "Warning: Network unreachable"
+msgstr "تحذير: تعذر الاتصال بالشبكة"
+
+#: src/cli_main.rs:179 src/core/http_task.rs:54 src/core/http_task.rs:63
+#: src/core/http_task.rs:75 src/core/http_task.rs:110
+#: src/gui/main_window.rs:898 src/gui/main_window.rs:910
+msgid "No match for this song"
+msgstr "لم يُعثر على أغنية مُطابِقة"
+
+#: src/cli_main.rs:180
+msgid "Error:"
+msgstr "خطأ:"
+
+#: src/cli_main.rs:187
+msgid "Recording started!"
+msgstr "بدأ التسجيل!"
+
+#: src/main.rs:74
+msgid "An open-source Shazam client for Linux, written in Rust."
+msgstr "عميل Shazam مفتوح المصدر على لينكس، مكتوب بلغة Rust."
+
+#: src/main.rs:94
+msgid ""
+"-v: Set the log level to DEBUG instead of INFO for SongRec-related messages\n"
+"-vv: Set the log level to DEBUG for SongRec-related messages and INFO for "
+"library-related messages\n"
+"-vvv: Set the log level to TRACE"
+msgstr ""
+"(v-): عيّن مستوى السجل إلى DEBUG بدلًا من INFO لرسائل SongRec ذات صلة\n"
+"(vv-): عيّن مستوى السجل إلى DEBUG لرسائل SongRec ذات صلة وINFO للرسائل "
+"المتعلقة بالمكتبة\n"
+"(vvv-): عيّن مستوى السجل إلى TRACE"
+
+#: src/main.rs:100
+msgid ""
+"Run as a command-line program listening the microphone and printing "
+"recognized songs to stdout, exposing current song info via MPRIS"
+msgstr ""
+"شغّل كبرنامج سطر أوامر يستمع للميكروفون ويطبع الأغاني التي تم التعرف عليها "
+"إلى stdout، واعرض الأغنية الحالية عبر MPRIS"
+
+#: src/main.rs:106 src/main.rs:152 src/main.rs:207
+msgid "List available audio devices and quit"
+msgstr "أنشئ قائمة بأجهزة الصوت الحالية ثم غادر"
+
+#: src/main.rs:112 src/main.rs:159 src/main.rs:213
+msgid "Specify the audio device to use"
+msgstr "حدد جهاز صوت لإستخدامه"
+
+#: src/main.rs:120 src/main.rs:167 src/main.rs:221
+msgid ""
+"Shazam interval between requests in seconds (increase if you are rate-"
+"limited)"
+msgstr "الفاصل الزمني بين طلبات Shazam بالثواني (زود إن تم تقييد استخدامك)"
+
+#: src/main.rs:128 src/main.rs:175
+msgid "Enable printing full song info in JSON"
+msgstr "تفعيل طباعة المعلومات الكاملة للأغنية لملف JSON"
+
+#: src/main.rs:135 src/main.rs:182
+msgid "Enable printing full song info in the CSV format"
+msgstr "تفعيل طباعة معلومات الأغنية كاملة في ملف CSV"
+
+#: src/main.rs:141 src/main.rs:261 src/main.rs:282
+msgid "Disable MPRIS support"
+msgstr "تعطيل دعم MPRIS"
+
+#: src/main.rs:146
+msgid "Recognize one song from a sound file or microphone and print its info."
+msgstr "تعرف على أغنية واحدة من ملف صوت أو عبر الميكروفون ثم اطبع معلوماتها."
+
+#: src/main.rs:187
+msgid "Recognize a file instead of using mic input"
+msgstr "تعرف على ملف بدل استخدام إدخال الميكروفون"
+
+#: src/main.rs:192
+msgid ""
+"Generate a Shazam fingerprint from a sound file, perform song recognition "
+"towards Shazam's servers and print obtained information to the standard "
+"output."
+msgstr ""
+"ولِّد بصمة Shazam من ملف صوت، نفذ التعرف على الأغاني عبر خوادم Shazam واطبع "
+"المعلومات التي تم الحصول عليها إلى إخراج اعتيادي."
+
+#: src/main.rs:196
+msgid "The audio file to recognize."
+msgstr "ملف الصوت المستخدم للتعرف."
+
+#: src/main.rs:201
+msgid ""
+"Recognize a currently playing song using the microphone and print obtained "
+"information to the standard output"
+msgstr ""
+"تعرف على الأغنية المُشغَّلة حاليًا باستخدام الميكروفون واطبع المعلومات التي تم "
+"الحصول عليها لإخراج اعتيادي"
+
+#: src/main.rs:226
+msgid ""
+"Generate a Shazam fingerprint from a sound file, and print it to the "
+"standard output."
+msgstr "ولِّد بصمة Shazam من ملف صوت، واطبعه إلى إخراج اعتيادي."
+
+#: src/main.rs:230
+msgid "The .WAV or .MP3 file to generate an audio fingerprint for."
+msgstr "ملف WAV. أو MP3. المستخدم لتوليد بصمة الصوت."
+
+#: src/main.rs:235
+msgid ""
+"Take a data-URI Shazam fingerprint, perform song recognition towards "
+"Shazam's servers and print obtained information to the standard output."
+msgstr ""
+"خذ رابط بيانات بصمة Shazam، نفذ التعرف على الأغاني عبر خوادم Shazam واطبع "
+"المعلومات التي تم الحصول عليها لإخراج اعتيادي."
+
+#: src/main.rs:239
+msgid "The data-URI Shazam fingerprint to recognize."
+msgstr "رابط بيانات بصمة Shazam المستخدم للتعرف."
+
+#: src/main.rs:251
+msgid "The default action. Display a GUI."
+msgstr "الإجراء الافتراضي. عرض واجهة مستخدم رسومية."
+
+#: src/main.rs:255 src/main.rs:276
+msgid "An optional audio file to recognize on the launch of the application."
+msgstr "ملف صوت اختياري للتعرف عليه عند تشغيل التطبيق."
+
+#: src/main.rs:267 src/main.rs:288
+msgid "Disable PipeWire native support"
+msgstr ""
+
+#: src/main.rs:272
+msgid ""
+"Launch the GUI, but don't recognize audio through the microphone as soon as "
+"it is launched (rather than expecting the user to click on a button)."
+msgstr ""
+"شغّل واجهة المستخدم الرسومية، لكن لا تتعرف على الصوتيات عبر الميكروفون مباشرةً "
+"بعد التشغيل (بدلًا من ذلك توقع من المستخدم أن يضغط زرًا)."
+
+#: src/core/http_task.rs:117 src/core/fingerprinting/communication.rs:124
+msgid "Your IP has been rate-limited"
+msgstr "تم تقييد استخدام عنوان IP خاصتك"
+
+#: src/core/microphone_thread.rs:68
+msgid "Audio error:"
+msgstr "خطأ في الصوت:"
+
+#: src/core/microphone_thread.rs:159 src/core/microphone_thread.rs:164
+msgid "Audio error: No input device available"
+msgstr ""
+
+#: src/core/preferences.rs:58 src/core/preferences.rs:77
+#: src/gui/main_window.rs:295 src/gui/interface.blp:123
+#: src/gui/interface.blp:574 src/gui/interface.blp:624
+msgid "Search on YouTube"
+msgstr "ابحث على YouTube"
+
+#: src/core/preferences.rs:93
+msgid "When parsing the preferences file:"
+msgstr "عند تحليل ملف التفضيلات:"
+
+#: src/core/preferences.rs:161
+msgid "When saving the preferences file:"
+msgstr "عند حفظ ملف التفضيلات:"
+
+#: src/core/fingerprinting/signature_format.rs:84
+msgid "Invalid sample rate in decoded Shazam packet"
+msgstr "معدل العينة غير صالح في فك ترميز حزمة Shazam"
+
+#: src/core/fingerprinting/signature_format.rs:125
+msgid "Invalid frequency band in decoded Shazam packet"
+msgstr "نطاق التردد غير صالح في فك ترميز حزمة Shazam"
+
+#: src/core/fingerprinting/signature_format.rs:201
+msgid "Invalid sample rate passed when encoding Shazam packet"
+msgstr "عبَر معدل عينة غير صالح أثناء ترميز حزمة Shazam"
+
+#: src/gui/main_window.rs:253
+msgid "Application error"
+msgstr "خطأ في التطبيق"
+
+#: src/gui/main_window.rs:274
+msgid "Network error"
+msgstr "خطأ في الشبكة"
+
+#: src/gui/main_window.rs:348
+msgid "Unable to enable notification icon"
+msgstr "تعذر تفعيل أيقونة الإشعار"
+
+#: src/gui/main_window.rs:804 src/gui/main_window.rs:885
+msgid "Unable to enable MPRIS support"
+msgstr "تعذر تفعيل دعم MPRIS"
+
+#: src/gui/main_window.rs:907
+msgid "_Ok"
+msgstr "_حسنًا"
+
+#: src/gui/main_window.rs:983
+msgid "Song recognized"
+msgstr "الأغنية عُرِفت"
+
+#: src/gui/main_window.rs:1120
+msgid "Are you sure you want to wipe history?"
+msgstr "هل ترغب في محو السجل؟"
+
+#: src/gui/main_window.rs:1126
+msgid "_Yes"
+msgstr "_نعم"
+
+#: src/gui/main_window.rs:1127
+msgid "_Cancel"
+msgstr ""
+
+#: src/gui/song_history_interface.rs:95
+msgid "Error when reading the song history on the disk:"
+msgstr "حدث خطأ أثناء قراءة سجل الأغاني على القرص:"
+
+#: src/gui/song_history_interface.rs:165
+msgid "Error when reading the favorites on the disk:"
+msgstr "حدث خطأ أثناء قراءة المفضلات على القرص:"
+
+#: src/plugins/ksni.rs:48
+msgid "Open SongRec"
+msgstr "فتح SongRec"
+
+#: src/plugins/ksni.rs:56
+msgid "Quit..."
+msgstr "مغادرة..."
+
+#: packaging/freedesktop/re.fossplant.songrec.desktop.in:17
+msgid "SongRec"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.desktop.in:19
+msgid "An open-source Shazam client for Linux, written in Rust"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.desktop.in:21
+msgid "Rust;GTK;Shazam;Client;Audio;Song;Recognition;Fingerprinting;"
+msgstr ""
+
+#: src/gui/interface.blp:26
+msgid "Recognize songs"
+msgstr "التعرف على الأغاني"
+
+#: src/gui/interface.blp:32
+msgid "Recognize from file"
+msgstr "التعرف من ملف"
+
+#: src/gui/interface.blp:39
+msgid "Pick a file..."
+msgstr "اختر ملفًا..."
+
+#: src/gui/interface.blp:61
+msgid "Recognize from microphone"
+msgstr "التعرف عبر الميكروفون"
+
+#: src/gui/interface.blp:69
+msgid "Recognize from my speakers"
+msgstr "التعرف عبر السماعات"
+
+#: src/gui/interface.blp:76
+msgid "Shazam servers are not reachable, are you connected?"
+msgstr "تعذر الوصول لخوادم Shazam، هل أنت متصل بالشبكة؟"
+
+#: src/gui/interface.blp:83
+msgid "ERROR: Your IP has been rate-limited"
+msgstr "خطأ: تم تقييد استخدام عنوان IP خاصتك"
+
+#: src/gui/interface.blp:90
+msgid "Recognition results"
+msgstr "نتائج التعرف"
+
+#: src/gui/interface.blp:130
+msgid "Search..."
+msgstr "ابحث..."
+
+#: src/gui/interface.blp:146
+msgid "Refresh available devices"
+msgstr "إنعاش قائمة الأجهزة المتوفرة"
+
+#: src/gui/interface.blp:149
+msgid "Audio input"
+msgstr "إدخال الصوت"
+
+#: src/gui/interface.blp:165
+msgid "Device"
+msgstr "الجهاز"
+
+#: src/gui/interface.blp:182
+msgid "Volume:"
+msgstr "مستوى الصوت:"
+
+#: src/gui/interface.blp:198
+msgid "History options..."
+msgstr "خيارات السجل..."
+
+#: src/gui/interface.blp:201
+msgid "Recognition history"
+msgstr "سجل التعرف"
+
+#: src/gui/interface.blp:230 src/gui/interface.blp:324
+msgid "Song name"
+msgstr "اسم الأغنية"
+
+#: src/gui/interface.blp:241 src/gui/interface.blp:335
+msgid "Album"
+msgstr "الألبوم"
+
+#: src/gui/interface.blp:254 src/gui/interface.blp:348
+msgid "Recognition date"
+msgstr "تاريخ التعرف"
+
+#: src/gui/interface.blp:269
+msgid "View favorites"
+msgstr "عرض المفضلات"
+
+#: src/gui/interface.blp:288
+msgid "Application menu"
+msgstr "قائمة التطبيق"
+
+#: src/gui/interface.blp:363 src/gui/interface.blp:526
+msgid "Export to CSV"
+msgstr "تصدير إلى ملف CSV"
+
+#: src/gui/interface.blp:370
+msgid "Favorites"
+msgstr "المفضلات"
+
+#: src/gui/interface.blp:377
+msgid "General preferences"
+msgstr "التفضيلات العامة"
+
+#: src/gui/interface.blp:381
+msgid "Notify when a new song is recognized or network error is encountered"
+msgstr "نبهني عند التعرف على أغنية جديدة أو عند حدوث خطأ في الاتصال"
+
+#: src/gui/interface.blp:382 src/gui/interface.blp:481
+msgid "Show notifications"
+msgstr "إرسال الإشعارات"
+
+#: src/gui/interface.blp:388
+msgid ""
+"Bump a song to the top of the history list and remove the former entry when "
+"the same song is detected multiple times"
+msgstr ""
+"ضع أغنيةً أعلى قائمة السجل واحذف العنصر السابق عند العثور على نفس الأغنية "
+"لعدة مرات"
+
+#: src/gui/interface.blp:390
+msgid "No duplicates in history"
+msgstr "لا تطابقات في السجل"
+
+#: src/gui/interface.blp:396
+msgid ""
+"When closing the window, minimize to system tray using KSNI instead of "
+"closing the app. Please note that you may have to increase the \"request "
+"interval\" setting when leaving SongRec running in the background to reduce "
+"your changes of getting rate-limited."
+msgstr ""
+"عند إغلاق النافذة، صغِّرها إلى لوحة النظام بإستحدام KSNI بدلًا من إغلاق التطبيق "
+"بالكامل. خذ في الاعتبار زيادة إعداد «الفاصل الزمني بين الطلبات» عند تشغيل "
+"SongRec في الخلفية؛ لتقليل احتمالية تقييد استخدامك."
+
+#: src/gui/interface.blp:398
+msgid "Minimize to system tray"
+msgstr "تصغير إلى لوحة النظام"
+
+#: src/gui/interface.blp:404
+msgid "Network preferences"
+msgstr "تفضيلات الشبكة"
+
+#: src/gui/interface.blp:420
+msgid "By default 8, increase if you are rate-limited"
+msgstr "القيمة الإفتراضية 8، زودها أن تم تقييد استخدامك"
+
+#: src/gui/interface.blp:421
+msgid "Shazam interval between requests in seconds"
+msgstr "الفاصل الزمني بين طلبات Shazam بالثواني"
+
+#: src/gui/interface.blp:429
+msgid ""
+"MPRIS will display information about recognized songs in places like the "
+"GNOME or KDE control panel"
+msgstr ""
+"سيعرض MPRIS معلومات حول الأغاني التي تم التعرف عليها في أماكن مثل قائمة "
+"الإشعارات في جنوم أو كِيدِي"
+
+#: src/gui/interface.blp:431
+msgid "Enable MPRIS"
+msgstr "تفعيل MPRIS"
+
+#: src/gui/interface.blp:437
+msgid "Search preferences"
+msgstr ""
+
+#: src/gui/interface.blp:440
+msgid "Custom search engine action"
+msgstr ""
+
+#: src/gui/interface.blp:445
+msgid "Custom search engine URL"
+msgstr ""
+
+#: src/gui/interface.blp:456
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: src/gui/interface.blp:486
+msgid "_Preferences..."
+msgstr "ال_تفضيلات..."
+
+#: src/gui/interface.blp:493
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: src/gui/interface.blp:498
+msgid "About..."
+msgstr "_حول..."
+
+#: src/gui/interface.blp:531
+msgid "Delete history"
+msgstr "محو السجل"
+
+#: src/gui/interface.blp:536
+msgid "Select a file to recognize"
+msgstr "اختر ملفًا لبدء التعرف"
+
+#: src/gui/interface.blp:548 src/gui/interface.blp:598
+msgid "Copy artist and track"
+msgstr "انسخ اسم الفنان والألبوم"
+
+#: src/gui/interface.blp:554 src/gui/interface.blp:604
+msgid "Copy artist"
+msgstr "انسخ اسم الفنان"
+
+#: src/gui/interface.blp:560 src/gui/interface.blp:610
+msgid "Copy track name"
+msgstr "انسخ اسم المسار"
+
+#: src/gui/interface.blp:566 src/gui/interface.blp:616
+msgid "Copy album"
+msgstr "انسخ اسم الألبوم"
+
+#: src/gui/interface.blp:582
+msgid "Delete from History"
+msgstr "محو من السجل"
+
+#: src/gui/interface.blp:588
+msgid "Add to Favorites"
+msgstr "إضافة للمفضلات"
+
+#: src/gui/interface.blp:632
+msgid "Remove from Favorites"
+msgstr "محو من المفضلات"
+
+#: src/gui/shortcuts-dialog.blp:6
+msgctxt "General section in the Shortcuts window"
+msgid "General"
+msgstr ""
+
+#: src/gui/shortcuts-dialog.blp:10
+msgctxt "In the shortcuts window"
+msgid "Close the application"
+msgstr ""
+
+#: src/gui/shortcuts-dialog.blp:15
+msgctxt "In the shortcuts window"
+msgid "Recognize from a file"
+msgstr ""
+
+#: src/gui/shortcuts-dialog.blp:20
+msgctxt "In the shortcuts window"
+msgid "Show preferences"
+msgstr ""
+
+#: src/gui/shortcuts-dialog.blp:25
+msgctxt "In the shortcuts window"
+msgid "Display shortcuts"
+msgstr ""
+
+#: src/gui/shortcuts-dialog.blp:30
+msgctxt "In the shortcuts window"
+msgid "Show menu"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:11
+msgid "Recognize songs from audio easily"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:13
+msgid ""
+"SongRec is an unofficial Shazam client for Linux, written in Rust. It allows "
+"you to easily recognize songs from your speakers, microphone or audio files."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:14
+msgid "Features:"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:15
+msgid "- Recognize tracks from an arbitrary audio file."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:16
+msgid "- Recognize audio from the microphone."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:17
+msgid "- Usage from both GUI and command line."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:18
+msgid ""
+"- Provide an history of the recognized songs on the GUI, exportable to CSV."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:19
+msgid ""
+"- Continuous song detection from the microphone, with the ability to choose "
+"your input device."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:20
+msgid ""
+"- Ability to recognize songs from your speakers rather than your microphone."
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:25
+msgid "SongRec's main window"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:29
+msgid "SongRec's favourites window"
+msgstr ""
+
+#: packaging/freedesktop/re.fossplant.songrec.metainfo.xml.in:33
+msgid "SongRec's main window, on GNOME in dark mode"
+msgstr ""
+
+#~ msgid "_No"
+#~ msgstr "_لا"
+
+#~ msgid ""
+#~ "By default the last 12 seconds of music are fingerprinted and sent to "
+#~ "Shazam. Editing may have an impact on reliability"
+#~ msgstr ""
+#~ "إفتراضيًا تبصم أخر 12 ثانية من الأغنية ثم تُرسَل إلى Shazam. التعديل قد يؤثر "
+#~ "على جودة التعرف"
+
+#~ msgid "Shazam buffer size in seconds"
+#~ msgstr "حجم الذاكرة المؤقتة لـShazam بالثواني"
+
+#~ msgid "Using device"
+#~ msgstr "الجهاز المُستخدَم"
