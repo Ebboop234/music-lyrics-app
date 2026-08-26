@@ -1,35 +1,39 @@
-# ================================
-# Stage 1: Build SongRec
-# ================================
+# ---------- SongRec build ----------
 FROM rust:1.88-bookworm AS songrec-builder
 
 RUN apt-get update && apt-get install -y \
+    build-essential \
     pkg-config \
+    libgtk-4-dev \
+    libadwaita-1-dev \
     libpipewire-0.3-dev \
     libasound2-dev \
     libsoup-3.0-dev \
     libglib2.0-dev \
-    libsqlite3-dev \
     libssl-dev \
+    libsqlite3-dev \
+    libdbus-1-dev \
+    libudev-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /build/SongRec
+WORKDIR /build
 
-COPY SongRec/Cargo.toml SongRec/Cargo.lock ./
+COPY SongRec/Cargo.toml SongRec/Cargo.lock* ./
 COPY SongRec/src ./src
-COPY SongRec/build.rs ./
+COPY SongRec/build.rs ./build.rs
+COPY SongRec/packaging ./packaging
 COPY SongRec/python-version ./python-version
+COPY SongRec/translations ./translations
 
 RUN cargo build --release
 
 
-# ================================
-# Stage 2: Run Node.js app
-# ================================
+# ---------- Node server ----------
 FROM node:22-bookworm
 
 RUN apt-get update && apt-get install -y \
-    ffmpeg \
+    libgtk-4-1 \
+    libadwaita-1-0 \
     libpipewire-0.3-0 \
     libasound2 \
     libsoup-3.0-0 \
@@ -39,23 +43,19 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install Node dependencies
 COPY package*.json ./
-RUN npm install
 
-# Copy the application
+RUN npm install --omit=dev
+
 COPY . .
 
-# Copy the freshly-built SongRec executable
 COPY --from=songrec-builder \
-    /build/SongRec/target/release/songrec \
+    /build/target/release/songrec \
     /app/SongRec/target/release/songrec
 
-# Make SongRec executable
-RUN chmod +x /app/SongRec/target/release/songrec
+RUN mkdir -p uploads
 
-# Make uploads directory
-RUN mkdir -p /app/uploads
+ENV SONGREC_PATH=/app/SongRec/target/release/songrec
 
 EXPOSE 3000
 
