@@ -1,19 +1,46 @@
 # ==========================================
 # BUILD SONGREC
 # ==========================================
-FROM rust:1.88-bookworm AS songrec-builder
+FROM ubuntu:26.04 AS songrec-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+    curl \
     build-essential \
     pkg-config \
+    git \
+    libgtk-4-dev \
+    libadwaita-1-dev \
+    libpipewire-0.3-dev \
     libasound2-dev \
+    libsoup-3.0-dev \
+    libglib2.0-dev \
     libssl-dev \
     libsqlite3-dev \
     libdbus-1-dev \
     libudev-dev \
+    libpulse-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswresample-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# ==========================================
+# INSTALL RUST
+# ==========================================
+
+RUN curl --proto '=https' \
+    --tlsv1.2 \
+    -sSf https://sh.rustup.rs \
+    | sh -s -- -y --default-toolchain 1.88
+
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# ==========================================
+# BUILD SONGREC
+# ==========================================
 
 WORKDIR /build
 
@@ -24,13 +51,19 @@ COPY SongRec/packaging ./packaging
 COPY SongRec/python-version ./python-version
 COPY SongRec/translations ./translations
 
-# Build SongRec without GUI, PipeWire, PulseAudio, MPRIS, or FFmpeg
-RUN cargo build --release --no-default-features
+# IMPORTANT:
+# soup3 is required by SongRec's fingerprinting code,
+# so we keep it enabled.
+#
+# We disable the desktop GUI and other unnecessary
+# desktop features, but keep FFmpeg for audio decoding.
 
+RUN cargo build --release --no-default-features -F ffmpeg
 
 # ==========================================
 # NODE SERVER
 # ==========================================
+
 FROM node:22-bookworm
 
 WORKDIR /app
@@ -41,6 +74,7 @@ RUN npm install --omit=dev
 
 COPY . .
 
+# Copy compiled SongRec executable
 COPY --from=songrec-builder \
     /build/target/release/songrec \
     /app/SongRec/target/release/songrec
