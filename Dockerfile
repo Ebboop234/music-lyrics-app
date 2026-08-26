@@ -1,4 +1,7 @@
-FROM rust:1.85-bookworm AS songrec-builder
+# ================================
+# Stage 1: Build SongRec
+# ================================
+FROM rust:1.88-bookworm AS songrec-builder
 
 RUN apt-get update && apt-get install -y \
     pkg-config \
@@ -20,6 +23,9 @@ COPY SongRec/python-version ./python-version
 RUN cargo build --release
 
 
+# ================================
+# Stage 2: Run Node.js app
+# ================================
 FROM node:22-bookworm
 
 RUN apt-get update && apt-get install -y \
@@ -33,17 +39,23 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Install Node dependencies
 COPY package*.json ./
 RUN npm install
 
+# Copy the application
 COPY . .
 
+# Copy the freshly-built SongRec executable
 COPY --from=songrec-builder \
     /build/SongRec/target/release/songrec \
     /app/SongRec/target/release/songrec
 
+# Make SongRec executable
 RUN chmod +x /app/SongRec/target/release/songrec
-RUN mkdir -p uploads
+
+# Make uploads directory
+RUN mkdir -p /app/uploads
 
 EXPOSE 3000
 
