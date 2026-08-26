@@ -186,6 +186,8 @@
 
             font-size: 15px;
             line-height: 1.4;
+
+            max-width: 95%;
         }
 
         /* ALBUM ART */
@@ -396,12 +398,10 @@
 
 
     /*
-     * LYRICS TIMING ADJUSTMENT
+     * LYRIC TIMING ADJUSTMENT
      *
-     * Positive number = move lyrics forward
-     * Negative number = move lyrics backward
-     *
-     * We are starting with +4 seconds.
+     * Positive = move lyrics forward
+     * Negative = move lyrics backward
      */
 
     const LYRIC_OFFSET = 4;
@@ -459,20 +459,34 @@
         songDisplay.innerText =
             "";
 
-
         lyricsDisplay.innerHTML =
             "";
 
-
         albumArtContainer.style.display =
             "none";
-
 
         albumArt.src =
             "";
 
 
+        console.log(
+            "🎤 Starting microphone..."
+        );
+
+
         try {
+
+            if (
+                !navigator.mediaDevices ||
+                !navigator.mediaDevices.getUserMedia
+            ) {
+
+                throw new Error(
+                    "Microphone is not supported by this browser."
+                );
+
+            }
+
 
             const stream =
                 await navigator
@@ -482,10 +496,47 @@
                     });
 
 
+            console.log(
+                "✅ Microphone permission granted."
+            );
+
+
+            let mimeType =
+                "";
+
+
+            if (
+                MediaRecorder.isTypeSupported(
+                    "audio/webm;codecs=opus"
+                )
+            ) {
+
+                mimeType =
+                    "audio/webm;codecs=opus";
+
+            }
+
+            else if (
+                MediaRecorder.isTypeSupported(
+                    "audio/webm"
+                )
+            ) {
+
+                mimeType =
+                    "audio/webm";
+
+            }
+
+
             const recorder =
-                new MediaRecorder(
-                    stream
-                );
+                mimeType
+                    ? new MediaRecorder(
+                        stream,
+                        { mimeType }
+                    )
+                    : new MediaRecorder(
+                        stream
+                    );
 
 
             const audioChunks = [];
@@ -503,30 +554,35 @@
                             event.data
                         );
 
+                        console.log(
+                            "🎤 Audio chunk:",
+                            event.data.size,
+                            "bytes"
+                        );
+
                     }
 
                 };
 
 
-            recorder.start();
+            recorder.onerror =
+                event => {
 
-
-            setTimeout(
-                () => {
-
-                    recorder.stop();
-
-                    button.classList.remove(
-                        "listening"
+                    console.error(
+                        "❌ Recorder error:",
+                        event
                     );
 
-                },
-                8000
-            );
+                };
 
 
             recorder.onstop =
                 async () => {
+
+                    console.log(
+                        "🛑 Recording stopped."
+                    );
+
 
                     stream
                         .getTracks()
@@ -536,8 +592,13 @@
                         );
 
 
+                    button.classList.remove(
+                        "listening"
+                    );
+
+
                     status.innerText =
-                        "🔎 Identifying song...";
+                        "🔎 Preparing audio...";
 
 
                     const audioBlob =
@@ -548,6 +609,26 @@
                                     recorder.mimeType
                             }
                         );
+
+
+                    console.log(
+                        "📦 Audio blob:",
+                        audioBlob.size,
+                        "bytes",
+                        audioBlob.type
+                    );
+
+
+                    if (
+                        audioBlob.size === 0
+                    ) {
+
+                        status.innerText =
+                            "❌ No audio was recorded.";
+
+                        return;
+
+                    }
 
 
                     const formData =
@@ -561,160 +642,306 @@
                     );
 
 
-                    const response =
-                        await fetch(
-                            "/identify-shazam",
-                            {
-                                method:
-                                    "POST",
-
-                                body:
-                                    formData
-                            }
-                        );
-
-
-                    const data =
-                        await response.json();
-
-
-                    if (data.error) {
-
-                        status.innerText =
-                            "❌ " +
-                            data.error;
-
-                        return;
-                    }
-
-
-                    /* SONG */
-
-                    songDisplay.innerText =
-                        data.song.title +
-                        " — " +
-                        data.song.artist;
-
-
-                    /* ALBUM ART */
-
-                    if (
-                        data.song.artwork
-                    ) {
-
-                        albumArt.src =
-                            data.song.artwork;
-
-                        albumArt.onload =
-                            () => {
-
-                                albumArtContainer
-                                    .style
-                                    .display =
-                                    "block";
-
-                            };
-
-                    }
-
-
-                    /*
-                     * SHAZAM MATCH POSITION
-                     */
-
-                    songPosition =
-                        Number(
-                            data.song.matchOffset
-                        );
-
-
-                    if (
-                        !Number.isFinite(
-                            songPosition
-                        )
-                    ) {
-
-                        songPosition = 0;
-
-                    }
-
-
-                    /*
-                     * APPLY LYRIC OFFSET
-                     */
-
-                    songPosition +=
-                        LYRIC_OFFSET;
-
-
                     console.log(
-                        "🎯 Shazam position:",
-                        data.song.matchOffset
-                    );
-
-
-                    console.log(
-                        "🎯 Lyric position:",
-                        songPosition
-                    );
-
-
-                    /* LYRICS */
-
-                    if (
-                        !data.lyrics ||
-                        !data.lyrics.syncedLyrics
-                    ) {
-
-                        status.innerText =
-                            "⚠️ No synchronized lyrics found.";
-
-                        return;
-                    }
-
-
-                    parseLyrics(
-                        data.lyrics.syncedLyrics
-                    );
-
-
-                    /*
-                     * FIND THE CORRECT LINE
-                     */
-
-                    currentIndex =
-                        findCurrentLyric(
-                            songPosition
-                        );
-
-
-                    updateCurrentLine(
-                        songPosition
+                        "📤 Sending audio to /identify-shazam..."
                     );
 
 
                     status.innerText =
-                        "🎵 Synced!";
+                        "📤 Sending audio to server...";
 
 
-                    startSynchronization();
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/identify-shazam",
+                                {
+                                    method:
+                                        "POST",
+
+                                    body:
+                                        formData
+                                }
+                            );
+
+
+                        console.log(
+                            "📥 Server responded:",
+                            response.status,
+                            response.statusText
+                        );
+
+
+                        status.innerText =
+                            "📥 Server responded. Reading result...";
+
+
+                        const responseText =
+                            await response.text();
+
+
+                        console.log(
+                            "📄 Server response:",
+                            responseText
+                        );
+
+
+                        let data;
+
+
+                        try {
+
+                            data =
+                                JSON.parse(
+                                    responseText
+                                );
+
+                        }
+
+                        catch (
+                            jsonError
+                        ) {
+
+                            console.error(
+                                "❌ JSON parse error:",
+                                jsonError
+                            );
+
+                            throw new Error(
+                                "Server returned invalid data."
+                            );
+
+                        }
+
+
+                        if (
+                            !response.ok
+                        ) {
+
+                            throw new Error(
+                                data.error ||
+                                "Server error " +
+                                response.status
+                            );
+
+                        }
+
+
+                        if (
+                            data.error
+                        ) {
+
+                            throw new Error(
+                                data.error
+                            );
+
+                        }
+
+
+                        if (
+                            !data.song
+                        ) {
+
+                            throw new Error(
+                                "Song information was not returned."
+                            );
+
+                        }
+
+
+                        console.log(
+                            "🎵 Song:",
+                            data.song
+                        );
+
+
+                        /* SONG */
+
+                        songDisplay.innerText =
+                            data.song.title +
+                            " — " +
+                            data.song.artist;
+
+
+                        /* ALBUM ART */
+
+                        if (
+                            data.song.artwork
+                        ) {
+
+                            console.log(
+                                "🖼️ Album artwork found."
+                            );
+
+
+                            albumArt.src =
+                                data.song.artwork;
+
+
+                            albumArt.onload =
+                                () => {
+
+                                    albumArtContainer
+                                        .style
+                                        .display =
+                                        "block";
+
+                                };
+
+                        }
+
+
+                        /*
+                         * SHAZAM MATCH POSITION
+                         */
+
+                        songPosition =
+                            Number(
+                                data.song.matchOffset
+                            );
+
+
+                        if (
+                            !Number.isFinite(
+                                songPosition
+                            )
+                        ) {
+
+                            songPosition = 0;
+
+                        }
+
+
+                        console.log(
+                            "🎯 Shazam match position:",
+                            songPosition,
+                            "seconds"
+                        );
+
+
+                        /*
+                         * MOVE LYRICS FORWARD
+                         */
+
+                        songPosition +=
+                            LYRIC_OFFSET;
+
+
+                        console.log(
+                            "🎯 Adjusted lyric position:",
+                            songPosition,
+                            "seconds"
+                        );
+
+
+                        /* LYRICS */
+
+                        if (
+                            !data.lyrics ||
+                            !data.lyrics.syncedLyrics
+                        ) {
+
+                            status.innerText =
+                                "⚠️ No synchronized lyrics found.";
+
+                            return;
+
+                        }
+
+
+                        parseLyrics(
+                            data.lyrics.syncedLyrics
+                        );
+
+
+                        currentIndex =
+                            findCurrentLyric(
+                                songPosition
+                            );
+
+
+                        updateCurrentLine(
+                            songPosition
+                        );
+
+
+                        status.innerText =
+                            "🎵 Synced!";
+
+
+                        startSynchronization();
+
+                    }
+
+                    catch (
+                        error
+                    ) {
+
+                        console.error(
+                            "❌ Upload/identification error:",
+                            error
+                        );
+
+
+                        button.classList.remove(
+                            "listening"
+                        );
+
+
+                        status.innerText =
+                            "❌ " +
+                            error.message;
+
+                    }
 
                 };
 
+
+            recorder.start();
+
+
+            console.log(
+                "▶️ Recording started."
+            );
+
+
+            setTimeout(
+                () => {
+
+                    if (
+                        recorder.state ===
+                        "recording"
+                    ) {
+
+                        recorder.stop();
+
+                    }
+
+                },
+                8000
+            );
+
         }
 
-        catch (error) {
+        catch (
+            error
+        ) {
 
             console.error(
+                "❌ Microphone error:",
                 error
             );
+
 
             button.classList.remove(
                 "listening"
             );
 
+
             status.innerText =
-                "❌ Microphone permission failed.";
+                "❌ " +
+                error.message;
 
         }
 
@@ -725,7 +952,9 @@
        PARSE LYRICS
     ========================= */
 
-    function parseLyrics(text) {
+    function parseLyrics(
+        text
+    ) {
 
         lyricLines = [];
 
@@ -744,8 +973,12 @@
                 );
 
 
-            if (!match) {
+            if (
+                !match
+            ) {
+
                 continue;
+
             }
 
 
@@ -786,6 +1019,13 @@
         );
 
 
+        console.log(
+            "📖 Parsed",
+            lyricLines.length,
+            "lyric lines."
+        );
+
+
         showLyrics();
 
     }
@@ -814,7 +1054,9 @@
 
                 index = i;
 
-            } else {
+            }
+
+            else {
 
                 break;
 
@@ -901,6 +1143,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -993,6 +1236,7 @@
         ) {
 
             return;
+
         }
 
 
