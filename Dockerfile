@@ -1,32 +1,23 @@
 # ==========================================
-# BUILD SONGREC
+# BUILD SONGREC WITHOUT GUI
 # ==========================================
-FROM ubuntu:25.04 AS songrec-builder
+FROM rust:1.88-bookworm AS songrec-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    curl \
     build-essential \
     pkg-config \
-    git \
-    libgtk-4-dev \
-    libadwaita-1-dev \
-    libpipewire-0.3-dev \
     libasound2-dev \
-    libsoup-3.0-dev \
-    libglib2.0-dev \
+    libpulse-dev \
     libssl-dev \
-    libsqlite3-dev \
     libdbus-1-dev \
-    libudev-dev \
+    libclang-dev \
+    ffmpeg \
+    gettext \
+    sed \
+    grep \
     && rm -rf /var/lib/apt/lists/*
-
-# Rust 1.88
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y --default-toolchain 1.88
-
-ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /build
 
@@ -37,7 +28,9 @@ COPY SongRec/packaging ./packaging
 COPY SongRec/python-version ./python-version
 COPY SongRec/translations ./translations
 
-RUN cargo build --release
+# Build SongRec WITHOUT the GTK desktop GUI.
+# We only need the command-line recognition functionality.
+RUN cargo build --release --no-default-features -F ffmpeg
 
 
 # ==========================================
@@ -53,6 +46,7 @@ RUN npm install --omit=dev
 
 COPY . .
 
+# Copy the SongRec command-line binary
 COPY --from=songrec-builder \
     /build/target/release/songrec \
     /app/SongRec/target/release/songrec
