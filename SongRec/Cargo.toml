@@ -12,68 +12,167 @@ rust-version = "1.88"
 authors = ["marin-m"]
 edition = "2024"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 fern = "0.7"
 humantime = "2.3"
 log = { version = "0.4.29", features = ["kv", "kv_std"] }
 rustfft = { version = "6.4.1" }
-realfft = "3.5.0" # Fast Fourier transform
+realfft = "3.5.0"
 async-channel = "2.5.0"
-byteorder = "1.3.4" # Used for reading and writing binary structures
-crc32fast = "1.2.0" # Used for the CRC-32 checksum in the binary signature
+byteorder = "1.3.4"
+crc32fast = "1.2.0"
 base64 = "0.22.1"
-rodio = { version = "0.22.2", default-features = false, features = [
-    "vorbis", "hound", "minimp3", "symphonia-aiff", "symphonia-alac",
-    "symphonia-aac", "symphonia-mkv", "flac"
-]} # For reading WAV/MP3/FLAC/OGG files, resampling and playing audio.
-clap = { version = "4.5.56", features = ["cargo"] } # For argument parsing
-serde_json = "1.0.57" # For decoding and encoding JSON
+
+rodio = {
+    version = "0.22.2",
+    default-features = false,
+    features = [
+        "vorbis",
+        "hound",
+        "minimp3",
+        "symphonia-aiff",
+        "symphonia-alac",
+        "symphonia-aac",
+        "symphonia-mkv",
+        "flac"
+    ]
+}
+
+clap = { version = "4.5.56", features = ["cargo"] }
+serde_json = "1.0.57"
 uuid = { version = "1.23.0", features = ["v4"] }
 glib = { version = "0.21", features = ["log", "v2_66"] }
 serde = { version = "1.0.115", features = ["derive"] }
 csv = "1.1.3"
 rand = "0.10.0"
+
 gettext-sys = { version = "0.26.0", features = ["gettext-system"] }
 gettext-rs = { version = "0.7.7" }
 tempfile = "3.27.0"
-# GUI deps
-gtk = { version = "0.10.3", package = "gtk4", features = ["v4_14", "blueprint"], optional = true }
-adw = { version = "0.8.1", package = "libadwaita", features = ["v1_8"], optional = true }
-gdk = { version = "0.10.3", package = "gdk4", optional = true }
-gio = { version = "0.21.5", features = ["v2_74"], optional = true }
-percent-encoding = { version = "2.1.0", optional = true } # For percent-encoding contents in URLs
-chrono = { version = "0.4.13" } # For formatting dates
-directories = { version = "6.0" }
+
+# GUI dependencies
+gtk = {
+    version = "0.10.3",
+    package = "gtk4",
+    features = ["v4_14", "blueprint"],
+    optional = true
+}
+
+adw = {
+    version = "0.8.1",
+    package = "libadwaita",
+    features = ["v1_8"],
+    optional = true
+}
+
+gdk = {
+    version = "0.10.3",
+    package = "gdk4",
+    optional = true
+}
+
+gio = {
+    version = "0.21.5",
+    features = ["v2_74"],
+    optional = true
+}
+
+percent-encoding = {
+    version = "2.1.0",
+    optional = true
+}
+
+chrono = "0.4.13"
+directories = "6.0"
 toml = "1.0.1"
-app_dirs = { version = "1.2.1" } # For obtaining and creating either the %APPDATA%, the dotfile path or similar
-soup3 = { version = "0.8.0", features = [ "v3_4" ], optional = true }
-image = { version = "0.25.9", default-features = false, features = ["png"] }
+app_dirs = "1.2.1"
+
+# REQUIRED by SongRec fingerprinting
+soup3 = {
+    version = "0.8.0",
+    features = ["v3_4"]
+}
+
+[target.'cfg(target_os = "linux")'.dependencies]
+
+cpal = { version = "0.18.1" }
+
+pulsectl-rs = {
+    version = "0.3.2",
+    optional = true
+}
+
+ksni = {
+    version = "0.3",
+    default-features = false,
+    features = ["async-io"],
+    optional = true
+}
+
+libpulse-binding = {
+    version = "2.24.0",
+    optional = true
+}
+
+mpris-server = {
+    version = "0.9.0",
+    optional = true
+}
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+
+cpal = { version = "0.18.1" }
+
+image = {
+    version = "0.25.9",
+    default-features = false,
+    features = ["png"]
+}
 
 [build-dependencies]
-gettext-sys = { version = "0.26.0", features = ["gettext-system"] }
+
+gettext-sys = {
+    version = "0.26.0",
+    features = ["gettext-system"]
+}
+
 gettext-rs = { version = "0.7.7" }
+
 tempfile = "3.27.0"
+
 clap_mangen = "0.3.0"
-clap = { version = "4.5.56", features = ["cargo"] }
+
+clap = {
+    version = "4.5.56",
+    features = ["cargo"]
+}
+
 flate2 = "1.1.9"
+
 glib-build-tools = "0.21.0"
 
 [features]
-default = ["gui", "ffmpeg", "pulse", "mpris", "pipewire" ]
-gui = ["gtk", "adw", "gdk", "gio", "percent-encoding", "ksni", "soup3"]
-pulse = [ "pulsectl-rs", "libpulse-binding" ]
-mpris = [ "mpris-server" ]
+
+default = ["gui", "ffmpeg", "pulse", "mpris", "pipewire"]
+
+gui = [
+    "gtk",
+    "adw",
+    "gdk",
+    "gio",
+    "percent-encoding",
+    "ksni"
+]
+
+pulse = [
+    "pulsectl-rs",
+    "libpulse-binding"
+]
+
+mpris = [
+    "mpris-server"
+]
+
 pipewire = []
+
 ffmpeg = []
-
-[target.'cfg(target_os = "linux")'.dependencies]
-cpal = { version = "0.18.1" }
-pulsectl-rs = { version = "0.3.2", optional = true }
-ksni = { version = "0.3", default-features = false, features = ["async-io"], optional = true }
-libpulse-binding = { version = "2.24.0", optional = true }
-mpris-server = { version = "0.9.0", optional = true }
-
-[target.'cfg(not(target_os = "linux"))'.dependencies]
-cpal = { version = "0.18.1" }
