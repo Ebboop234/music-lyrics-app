@@ -48,7 +48,7 @@ chrono = { version = "0.4.13" } # For formatting dates
 directories = { version = "6.0" }
 toml = "1.0.1"
 app_dirs = { version = "1.2.1" } # For obtaining and creating either the %APPDATA%, the dotfile path or similar
-soup3 = { version = "0.8.0", features = [ "v3_4" ] }
+soup3 = { version = "0.8.0", features = [ "v3_4" ], optional = true }
 image = { version = "0.25.9", default-features = false, features = ["png"] }
 
 [build-dependencies]
@@ -62,14 +62,14 @@ glib-build-tools = "0.21.0"
 
 [features]
 default = ["gui", "ffmpeg", "pulse", "mpris", "pipewire" ]
-gui = ["gtk", "adw", "gdk", "gio", "percent-encoding", "ksni"]
+gui = ["gtk", "adw", "gdk", "gio", "percent-encoding", "ksni", "soup3"]
 pulse = [ "pulsectl-rs", "libpulse-binding" ]
 mpris = [ "mpris-server" ]
 pipewire = []
 ffmpeg = []
 
 [target.'cfg(target_os = "linux")'.dependencies]
-cpal = { version = "0.18.1", features = ["pipewire"] }
+cpal = { version = "0.18.1" }
 pulsectl-rs = { version = "0.3.2", optional = true }
 ksni = { version = "0.3", default-features = false, features = ["async-io"], optional = true }
 libpulse-binding = { version = "2.24.0", optional = true }
