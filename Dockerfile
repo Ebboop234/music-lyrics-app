@@ -1,7 +1,7 @@
 # ==========================================
 # BUILD SONGREC
 # ==========================================
-FROM ubuntu:26.04 AS songrec-builder
+FROM node:22-bookwormAS songrec-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
