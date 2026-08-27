@@ -1,7 +1,7 @@
 # ==========================================
 # BUILD SONGREC
 # ==========================================
-FROM node:22-bookworm AS songrec-builder
+FROM ubuntu:26.04 AS songrec-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -26,7 +26,8 @@ RUN apt-get update && apt-get install -y \
     libavformat-dev \
     libavutil-dev \
     libswresample-dev \
-    ffmpeg \
+    clang \
+    libclang-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # ==========================================
@@ -53,30 +54,39 @@ COPY SongRec/packaging ./packaging
 COPY SongRec/python-version ./python-version
 COPY SongRec/translations ./translations
 
-# IMPORTANT:
-# soup3 is required by SongRec's fingerprinting code,
-# so we keep it enabled.
-#
-# We disable the desktop GUI and other unnecessary
-# desktop features, but keep FFmpeg for audio decoding.
-
 RUN cargo build --release --no-default-features -F ffmpeg
 
 # ==========================================
 # NODE SERVER
 # ==========================================
 
-FROM node:22-bookworm
+FROM ubuntu:26.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install runtime libraries + Node.js
 RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
     ffmpeg \
     libsoup-3.0-0 \
-    libglib2.0-0 \
     libgtk-4-1 \
     libadwaita-1-0 \
-    libpulse0 \
     libpipewire-0.3-0 \
+    libasound2 \
+    libpulse0 \
+    libglib2.0-0 \
+    libssl3 \
+    libsqlite3-0 \
+    libdbus-1-3 \
+    libudev1 \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+# ==========================================
+# NODE APP
+# ==========================================
 
 WORKDIR /app
 
@@ -86,7 +96,10 @@ RUN npm install --omit=dev
 
 COPY . .
 
-# Copy compiled SongRec executable
+# ==========================================
+# COPY SONGREC
+# ==========================================
+
 COPY --from=songrec-builder \
     /build/target/release/songrec \
     /app/SongRec/target/release/songrec

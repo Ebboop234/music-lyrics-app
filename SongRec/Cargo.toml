@@ -58,8 +58,8 @@ toml = "1.0.1"
 app_dirs = "1.2.1"
 
 # Required by SongRec fingerprinting/network code
-soup3 = { version = "0.8.0", features = ["v3_4"] }
 
+soup3 = { version = "0.8.0", features = ["v3_4"] }
 image = { version = "0.25.9", default-features = false, features = ["png"] }
 
 [build-dependencies]
