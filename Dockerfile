@@ -73,7 +73,7 @@ RUN apt-get update && apt-get install -y \
     libgtk-4-1 \
     libadwaita-1-0 \
     libpipewire-0.3-0 \
-    libasound2 \
+    libasound2t64 \
     libpulse0 \
     libglib2.0-0 \
     libssl3 \
