@@ -1,7 +1,7 @@
 # ==========================================
 # BUILD SONGREC
 # ==========================================
-FROM node:22-bookwormAS songrec-builder
+FROM node:22-bookworm AS songrec-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
