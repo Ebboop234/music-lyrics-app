@@ -10,7 +10,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const uploadDir = path.join(__dirname, "uploads");
-const libsDir = path.join(__dirname, "libs");
 
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -22,9 +21,9 @@ const upload = multer({
     dest: uploadDir
 });
 
-/* =========================================
-   CONVERT AUDIO TO WAV
-   ========================================= */
+/* =====================================================
+   FFMPEG
+===================================================== */
 
 function convertToWav(inputFile, outputFile) {
     return new Promise((resolve, reject) => {
@@ -49,10 +48,7 @@ function convertToWav(inputFile, outputFile) {
             },
             (error, stdout, stderr) => {
                 if (error) {
-                    console.error(
-                        "FFmpeg error:",
-                        stderr || error.message
-                    );
+                    console.error("FFmpeg error:", stderr);
 
                     reject(
                         new Error(
@@ -70,9 +66,9 @@ function convertToWav(inputFile, outputFile) {
     });
 }
 
-/* =========================================
-   RUN SONGREC
-   ========================================= */
+/* =====================================================
+   SONGREC
+===================================================== */
 
 function runSongRec(wavFile) {
     return new Promise((resolve, reject) => {
@@ -88,7 +84,7 @@ function runSongRec(wavFile) {
         if (!fs.existsSync(songrec)) {
             reject(
                 new Error(
-                    "SongRec executable not found at: " +
+                    "SongRec executable not found: " +
                     songrec
                 )
             );
@@ -96,19 +92,7 @@ function runSongRec(wavFile) {
             return;
         }
 
-        console.log(
-            "Running SongRec:",
-            songrec
-        );
-
-        const env = {
-            ...process.env,
-
-            LD_LIBRARY_PATH:
-                libsDir +
-                ":" +
-                (process.env.LD_LIBRARY_PATH || "")
-        };
+        console.log("Running SongRec:", songrec);
 
         execFile(
             songrec,
@@ -118,7 +102,6 @@ function runSongRec(wavFile) {
                 wavFile
             ],
             {
-                env: env,
                 timeout: 60000,
                 maxBuffer: 20 * 1024 * 1024
             },
@@ -135,17 +118,11 @@ function runSongRec(wavFile) {
                 );
 
                 if (error) {
-
-                    console.error(
-                        "SongRec error:",
-                        error
-                    );
-
                     reject(
                         new Error(
                             stderr ||
                             error.message ||
-                            "SongRec failed."
+                            "SongRec failed"
                         )
                     );
 
@@ -158,9 +135,9 @@ function runSongRec(wavFile) {
     });
 }
 
-/* =========================================
-   FIND JSON INSIDE SONGREC OUTPUT
-   ========================================= */
+/* =====================================================
+   JSON
+===================================================== */
 
 function extractJson(text) {
 
@@ -172,9 +149,7 @@ function extractJson(text) {
 
     try {
         return JSON.parse(text);
-    } catch (error) {
-        // Continue below.
-    }
+    } catch (_) {}
 
     const firstBrace =
         text.indexOf("{");
@@ -195,15 +170,12 @@ function extractJson(text) {
             );
 
         try {
-
             return JSON.parse(
                 possibleJson
             );
-
         } catch (error) {
-
             console.error(
-                "Could not parse extracted JSON:",
+                "JSON parse error:",
                 error.message
             );
         }
@@ -212,9 +184,9 @@ function extractJson(text) {
     return null;
 }
 
-/* =========================================
-   FIND SONG INFORMATION
-   ========================================= */
+/* =====================================================
+   TRACK
+===================================================== */
 
 function findTrack(data) {
 
@@ -230,9 +202,8 @@ function findTrack(data) {
     }
 
     if (
-        data.matches &&
         Array.isArray(data.matches) &&
-        data.matches.length > 0
+        data.matches.length
     ) {
         return data.matches[0];
     }
@@ -274,68 +245,9 @@ function findTrack(data) {
     return search(data);
 }
 
-/* =========================================
-   EXTRACT SHAZAM MATCH POSITION
-   ========================================= */
-
-function findMatchPosition(data) {
-
-    if (!data) {
-        return 0;
-    }
-
-    const possibleKeys = [
-        "offset",
-        "matchOffset",
-        "matchPosition",
-        "position"
-    ];
-
-    function search(object) {
-
-        if (
-            !object ||
-            typeof object !== "object"
-        ) {
-            return null;
-        }
-
-        for (
-            const key of possibleKeys
-        ) {
-
-            if (
-                typeof object[key] === "number" &&
-                object[key] > 0
-            ) {
-                return object[key];
-            }
-        }
-
-        for (
-            const key of Object.keys(object)
-        ) {
-
-            const result =
-                search(object[key]);
-
-            if (
-                typeof result === "number" &&
-                result > 0
-            ) {
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-    return search(data) || 0;
-}
-
-/* =========================================
-   EXTRACT ALBUM
-   ========================================= */
+/* =====================================================
+   ALBUM
+===================================================== */
 
 function findAlbum(data) {
 
@@ -365,7 +277,6 @@ function findAlbum(data) {
                     item.title === "Album" &&
                     typeof item.text === "string"
                 ) {
-
                     return item.text;
                 }
             }
@@ -389,9 +300,9 @@ function findAlbum(data) {
     return search(data);
 }
 
-/* =========================================
-   EXTRACT ARTWORK
-   ========================================= */
+/* =====================================================
+   ARTWORK
+===================================================== */
 
 function findArtwork(data) {
 
@@ -408,7 +319,7 @@ function findArtwork(data) {
             return "";
         }
 
-        const possibleKeys = [
+        const keys = [
             "coverart",
             "coverArt",
             "artwork",
@@ -417,14 +328,13 @@ function findArtwork(data) {
         ];
 
         for (
-            const key of possibleKeys
+            const key of keys
         ) {
 
             if (
                 typeof object[key] === "string" &&
                 object[key].startsWith("http")
             ) {
-
                 return object[key];
             }
         }
@@ -447,222 +357,196 @@ function findArtwork(data) {
     return search(data);
 }
 
-/* =========================================
-   LYRICS
-   ========================================= */
+/* =====================================================
+   MATCH POSITION
+===================================================== */
 
-async function getLyrics(title, artist) {
+function findMatchPosition(data) {
 
-    /*
-     * =========================================
-     * 1. TRY LRCLIB
-     * =========================================
-     */
+    if (!data) {
+        return 0;
+    }
 
-    try {
+    const keys = [
+        "offset",
+        "matchOffset",
+        "matchPosition",
+        "position"
+    ];
 
-        console.log(
-            "🎵 Trying LRCLIB..."
-        );
+    function search(object) {
 
-        const url =
-            "https://lrclib.net/api/get?" +
-            new URLSearchParams({
-                track_name: title,
-                artist_name: artist
-            });
+        if (
+            !object ||
+            typeof object !== "object"
+        ) {
+            return null;
+        }
 
-        const response =
-            await fetch(
-                url,
-                {
-                    headers: {
-                        "User-Agent":
-                            "MusicLyricsApp/1.0"
-                    }
-                }
-            );
+        for (
+            const key of keys
+        ) {
 
-        console.log(
-            "LRCLIB status:",
-            response.status
-        );
-
-        if (response.ok) {
-
-            const result =
-                await response.json();
-
-            if (result) {
-
-                /*
-                 * SYNCHRONIZED LYRICS
-                 */
-
-                if (
-                    typeof result.syncedLyrics === "string" &&
-                    result.syncedLyrics.trim()
-                ) {
-
-                    console.log(
-                        "✅ LRCLIB synced lyrics found!"
-                    );
-
-                    return {
-                        syncedLyrics:
-                            result.syncedLyrics,
-
-                        plainLyrics:
-                            result.plainLyrics || null
-                    };
-                }
-
-                /*
-                 * PLAIN LYRICS
-                 */
-
-                if (
-                    typeof result.plainLyrics === "string" &&
-                    result.plainLyrics.trim()
-                ) {
-
-                    console.log(
-                        "⚠️ LRCLIB found lyrics, but they are not synchronized."
-                    );
-
-                    return {
-                        syncedLyrics: null,
-
-                        plainLyrics:
-                            result.plainLyrics
-                    };
-                }
+            if (
+                typeof object[key] === "number"
+            ) {
+                return object[key];
             }
         }
 
-        console.log(
-            "⚠️ LRCLIB did not find lyrics."
-        );
+        for (
+            const key of Object.keys(object)
+        ) {
 
-    } catch (error) {
+            const result =
+                search(object[key]);
 
-        console.error(
-            "LRCLIB error:",
-            error.message
-        );
+            if (
+                typeof result === "number"
+            ) {
+                return result;
+            }
+        }
+
+        return null;
     }
 
-    /*
-     * =========================================
-     * 2. TRY AUDD IF TOKEN EXISTS
-     * =========================================
-     */
+    return search(data) || 0;
+}
+
+/* =====================================================
+   LYRICS
+===================================================== */
+
+async function getLyrics(title, artist) {
 
     const token =
         process.env.AUDD_TOKEN ||
         process.env.AUDD_API_TOKEN;
 
-    if (token) {
+    if (!token) {
+        console.log(
+            "No AUDD token configured."
+        );
 
-        try {
-
-            console.log(
-                "🎵 Trying AUDD..."
-            );
-
-            const params =
-                new URLSearchParams();
-
-            params.append(
-                "api_token",
-                token
-            );
-
-            params.append(
-                "q",
-                `${title} ${artist}`
-            );
-
-            const response =
-                await fetch(
-                    "https://api.audd.io/",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded"
-                        },
-
-                        body: params
-                    }
-                );
-
-            const result =
-                await response.json();
-
-            if (
-                result &&
-                result.result
-            ) {
-
-                const syncedLyrics =
-                    result.result.syncedLyrics ||
-                    null;
-
-                const plainLyrics =
-                    result.result.lyrics ||
-                    null;
-
-                if (
-                    syncedLyrics ||
-                    plainLyrics
-                ) {
-
-                    console.log(
-                        "✅ AUDD lyrics found!"
-                    );
-
-                    return {
-                        syncedLyrics:
-                            syncedLyrics,
-
-                        plainLyrics:
-                            plainLyrics
-                    };
-                }
-            }
-
-        } catch (error) {
-
-            console.error(
-                "AUDD lyrics error:",
-                error.message
-            );
-        }
+        return null;
     }
 
-    /*
-     * =========================================
-     * 3. NOTHING FOUND
-     * =========================================
-     */
+    try {
 
-    console.log(
-        "❌ No lyrics found from available sources."
-    );
+        const params =
+            new URLSearchParams();
 
-    return null;
+        params.append(
+            "api_token",
+            token
+        );
+
+        params.append(
+            "q",
+            `${title} ${artist}`
+        );
+
+        const response =
+            await fetch(
+                "https://api.audd.io/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body: params
+                }
+            );
+
+        const result =
+            await response.json();
+
+        console.log(
+            "AUDD result received."
+        );
+
+        if (
+            !result ||
+            !result.result
+        ) {
+            return null;
+        }
+
+        const r =
+            result.result;
+
+        /*
+         * IMPORTANT:
+         *
+         * We ONLY call lyrics synchronized
+         * if they actually contain timestamps.
+         */
+
+        let syncedLyrics = null;
+
+        if (
+            typeof r.syncedLyrics === "string" &&
+            r.syncedLyrics.includes("[")
+        ) {
+            syncedLyrics =
+                r.syncedLyrics;
+        }
+
+        /*
+         * Some APIs may put synced lyrics
+         * in another field.
+         */
+
+        if (
+            !syncedLyrics &&
+            typeof r.lyrics === "string" &&
+            r.lyrics.includes("[")
+        ) {
+            syncedLyrics =
+                r.lyrics;
+        }
+
+        if (!syncedLyrics) {
+
+            console.log(
+                "Lyrics received, but they are NOT timestamped."
+            );
+
+            return {
+                syncedLyrics: null,
+                plainLyrics:
+                    r.lyrics || null
+            };
+        }
+
+        console.log(
+            "✅ Timestamped lyrics found."
+        );
+
+        return {
+            syncedLyrics
+        };
+
+    } catch (error) {
+
+        console.error(
+            "Lyrics error:",
+            error.message
+        );
+
+        return null;
+    }
 }
 
-/* =========================================
-   IDENTIFY SONG
-   ========================================= */
+/* =====================================================
+   IDENTIFY
+===================================================== */
 
 app.post(
     "/identify-shazam",
     upload.single("audio"),
-
     async (req, res) => {
 
         let inputFile = null;
@@ -681,15 +565,6 @@ app.post(
             inputFile =
                 req.file.path;
 
-            console.log(
-                "Received audio:",
-                inputFile
-            );
-
-            /* -------------------------
-               Convert audio to WAV
-               ------------------------- */
-
             wavFile =
                 path.join(
                     uploadDir,
@@ -698,7 +573,7 @@ app.post(
                 );
 
             console.log(
-                "Converting audio to WAV..."
+                "🎤 Received audio"
             );
 
             await convertToWav(
@@ -707,13 +582,8 @@ app.post(
             );
 
             console.log(
-                "WAV ready:",
-                wavFile
+                "✅ Audio converted"
             );
-
-            /* -------------------------
-               Recognize with SongRec
-               ------------------------- */
 
             const stdout =
                 await runSongRec(
@@ -725,19 +595,11 @@ app.post(
 
             if (!shazamData) {
 
-                console.error(
-                    "SongRec returned no readable JSON."
-                );
-
                 return res.status(500).json({
                     error:
-                        "Could not read Shazam result."
+                        "Could not read SongRec result."
                 });
             }
-
-            /* -------------------------
-               Find track
-               ------------------------- */
 
             const track =
                 findTrack(
@@ -778,38 +640,20 @@ app.post(
                 );
 
             console.log(
-                "🎵 Song:",
-                title
-            );
-
-            console.log(
-                "👤 Artist:",
+                "🎵",
+                title,
+                "—",
                 artist
             );
 
             console.log(
-                "💿 Album:",
-                album || "Unknown"
+                "🎯 Match position:",
+                matchPosition
             );
 
-            console.log(
-                "🖼️ Artwork:",
-                artwork || "None"
-            );
-
-            console.log(
-                "⏱️ Shazam match position:",
-                matchPosition,
-                "seconds"
-            );
-
-            /* -------------------------
-               Lyrics
-               ------------------------- */
-
-            console.log(
-                "📖 Looking for lyrics..."
-            );
+            /*
+             * Get lyrics
+             */
 
             const lyrics =
                 await getLyrics(
@@ -817,32 +661,9 @@ app.post(
                     artist
                 );
 
-            if (
-                lyrics?.syncedLyrics
-            ) {
-
-                console.log(
-                    "✅ Synchronized lyrics found!"
-                );
-
-            } else if (
-                lyrics?.plainLyrics
-            ) {
-
-                console.log(
-                    "⚠️ Lyrics found, but they are not synchronized."
-                );
-
-            } else {
-
-                console.log(
-                    "⚠️ No lyrics found."
-                );
-            }
-
-            /* -------------------------
-               Send result
-               ------------------------- */
+            /*
+             * Return everything
+             */
 
             return res.json({
 
@@ -850,34 +671,41 @@ app.post(
 
                 song: {
 
-                    title: title,
+                    title,
 
-                    artist: artist,
+                    artist,
 
-                    album: album,
+                    album,
 
-                    artwork: artwork,
+                    artwork,
 
-                    matchPosition:
+                    /*
+                     * SEND BOTH NAMES.
+                     *
+                     * This prevents the old frontend
+                     * from accidentally reading 0.
+                     */
+
+                    matchPosition,
+
+                    matchOffset:
                         matchPosition,
 
                     timecode:
                         matchPosition
                 },
 
-                lyrics:
-                    lyrics
+                lyrics
             });
 
         } catch (error) {
 
             console.error(
-                "❌ Server error:",
+                "❌ SERVER ERROR:",
                 error
             );
 
             return res.status(500).json({
-
                 error:
                     "Server error: " +
                     error.message
@@ -885,17 +713,12 @@ app.post(
 
         } finally {
 
-            /*
-             * Delete temporary files.
-             */
-
             try {
 
                 if (
                     inputFile &&
                     fs.existsSync(inputFile)
                 ) {
-
                     fs.unlinkSync(
                         inputFile
                     );
@@ -905,30 +728,38 @@ app.post(
                     wavFile &&
                     fs.existsSync(wavFile)
                 ) {
-
                     fs.unlinkSync(
                         wavFile
                     );
                 }
 
-            } catch (cleanupError) {
+            } catch (error) {
 
                 console.error(
                     "Cleanup error:",
-                    cleanupError.message
+                    error.message
                 );
             }
         }
     }
 );
 
-/* =========================================
-   HEALTH CHECK
-   ========================================= */
+/* =====================================================
+   HEALTH
+===================================================== */
 
 app.get(
     "/health",
     (req, res) => {
+
+        const songrec =
+            path.join(
+                __dirname,
+                "SongRec",
+                "target",
+                "release",
+                "songrec"
+            );
 
         res.json({
 
@@ -936,37 +767,18 @@ app.get(
 
             songrec:
                 fs.existsSync(
-                    path.join(
-                        __dirname,
-                        "SongRec",
-                        "target",
-                        "release",
-                        "songrec"
-                    )
+                    songrec
                 ),
 
-            ffmpeg: true,
+            ffmpeg: true
 
-            libraries:
-                fs.existsSync(
-                    path.join(
-                        libsDir,
-                        "libpipewire-0.3.so.0"
-                    )
-                ) &&
-                fs.existsSync(
-                    path.join(
-                        libsDir,
-                        "libasound.so.2"
-                    )
-                )
         });
     }
 );
 
-/* =========================================
-   START SERVER
-   ========================================= */
+/* =====================================================
+   START
+===================================================== */
 
 app.listen(
     PORT,
