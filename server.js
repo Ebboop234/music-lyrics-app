@@ -22,12 +22,30 @@ const upload = multer({
 });
 
 /* =========================================================
+   HELPERS
+========================================================= */
+
+function cleanText(value) {
+    if (!value) return "";
+
+    return String(value)
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function escapeRegex(value) {
+    return String(value).replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+    );
+}
+
+/* =========================================================
    CONVERT AUDIO TO WAV
 ========================================================= */
 
 function convertToWav(inputFile, outputFile) {
     return new Promise((resolve, reject) => {
-
         execFile(
             "ffmpeg",
             [
@@ -48,7 +66,6 @@ function convertToWav(inputFile, outputFile) {
                 maxBuffer: 10 * 1024 * 1024
             },
             (error, stdout, stderr) => {
-
                 if (error) {
                     console.error(
                         "FFmpeg error:",
@@ -72,34 +89,71 @@ function convertToWav(inputFile, outputFile) {
 }
 
 /* =========================================================
-   RUN SONGREC
+   FIND SONGREC
 ========================================================= */
 
-function runSongRec(wavFile) {
+function getSongRecPath() {
+    const configuredPath =
+        process.env.SONGREC_PATH;
 
-    return new Promise((resolve, reject) => {
+    if (
+        configuredPath &&
+        fs.existsSync(configuredPath)
+    ) {
+        return configuredPath;
+    }
 
-        const songrec = path.join(
+    const possiblePaths = [
+        path.join(
             __dirname,
             "SongRec",
             "target",
             "release",
             "songrec"
-        );
+        ),
 
-        if (!fs.existsSync(songrec)) {
+        "/app/SongRec/target/release/songrec",
 
+        path.join(
+            process.cwd(),
+            "SongRec",
+            "target",
+            "release",
+            "songrec"
+        )
+    ];
+
+    for (const candidate of possiblePaths) {
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+
+    return null;
+}
+
+/* =========================================================
+   RUN SONGREC / SHAZAM
+========================================================= */
+
+function runSongRec(wavFile) {
+    return new Promise((resolve, reject) => {
+        const songrec = getSongRecPath();
+
+        if (!songrec) {
             reject(
                 new Error(
-                    "SongRec executable not found at: " +
-                    songrec
+                    "SongRec executable not found."
                 )
             );
 
             return;
         }
 
-        console.log("Running SongRec:", songrec);
+        console.log(
+            "🎵 Running SongRec:",
+            songrec
+        );
 
         const env = {
             ...process.env
@@ -118,18 +172,23 @@ function runSongRec(wavFile) {
                 maxBuffer: 20 * 1024 * 1024
             },
             (error, stdout, stderr) => {
-
                 console.log(
                     "SongRec stdout:",
                     stdout
                 );
 
-                console.log(
-                    "SongRec stderr:",
-                    stderr
-                );
+                if (stderr) {
+                    console.log(
+                        "SongRec stderr:",
+                        stderr
+                    );
+                }
 
                 if (error) {
+                    console.error(
+                        "SongRec error:",
+                        error.message
+                    );
 
                     reject(
                         new Error(
@@ -153,7 +212,6 @@ function runSongRec(wavFile) {
 ========================================================= */
 
 function extractJson(text) {
-
     if (!text) {
         return null;
     }
@@ -162,9 +220,8 @@ function extractJson(text) {
 
     try {
         return JSON.parse(text);
-    }
-    catch (error) {
-        // Continue
+    } catch (error) {
+        // Continue.
     }
 
     const firstBrace =
@@ -178,7 +235,6 @@ function extractJson(text) {
         lastBrace !== -1 &&
         lastBrace > firstBrace
     ) {
-
         const possibleJson =
             text.substring(
                 firstBrace,
@@ -189,10 +245,9 @@ function extractJson(text) {
             return JSON.parse(
                 possibleJson
             );
-        }
-        catch (error) {
+        } catch (error) {
             console.error(
-                "Could not parse JSON:",
+                "JSON extraction failed:",
                 error.message
             );
         }
@@ -206,7 +261,6 @@ function extractJson(text) {
 ========================================================= */
 
 function findTrack(data) {
-
     if (!data) {
         return null;
     }
@@ -226,7 +280,6 @@ function findTrack(data) {
     }
 
     function search(object) {
-
         if (
             !object ||
             typeof object !== "object"
@@ -247,7 +300,6 @@ function findTrack(data) {
         for (
             const key of Object.keys(object)
         ) {
-
             const result =
                 search(object[key]);
 
@@ -263,17 +315,68 @@ function findTrack(data) {
 }
 
 /* =========================================================
+   FIND MATCH POSITION
+========================================================= */
+
+function findMatchPosition(data) {
+    if (!data) {
+        return 0;
+    }
+
+    const possibleKeys = [
+        "offset",
+        "matchOffset",
+        "matchPosition",
+        "position"
+    ];
+
+    function search(object) {
+        if (
+            !object ||
+            typeof object !== "object"
+        ) {
+            return null;
+        }
+
+        for (
+            const key of possibleKeys
+        ) {
+            if (
+                typeof object[key] === "number"
+            ) {
+                return object[key];
+            }
+        }
+
+        for (
+            const key of Object.keys(object)
+        ) {
+            const result =
+                search(object[key]);
+
+            if (
+                typeof result === "number"
+            ) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    return search(data) || 0;
+}
+
+/* =========================================================
    FIND ALBUM
 ========================================================= */
 
 function findAlbum(data) {
-
     if (!data) {
         return "";
     }
 
     function search(object) {
-
         if (
             !object ||
             typeof object !== "object"
@@ -284,11 +387,9 @@ function findAlbum(data) {
         if (
             Array.isArray(object.metadata)
         ) {
-
             for (
                 const item of object.metadata
             ) {
-
                 if (
                     item &&
                     item.title === "Album" &&
@@ -302,7 +403,6 @@ function findAlbum(data) {
         for (
             const key of Object.keys(object)
         ) {
-
             const result =
                 search(object[key]);
 
@@ -322,13 +422,19 @@ function findAlbum(data) {
 ========================================================= */
 
 function findArtwork(data) {
-
     if (!data) {
         return "";
     }
 
-    function search(object) {
+    const possibleKeys = [
+        "coverart",
+        "coverArt",
+        "artwork",
+        "image",
+        "avatar"
+    ];
 
+    function search(object) {
         if (
             !object ||
             typeof object !== "object"
@@ -336,18 +442,9 @@ function findArtwork(data) {
             return "";
         }
 
-        const possibleKeys = [
-            "coverart",
-            "coverArt",
-            "artwork",
-            "image",
-            "avatar"
-        ];
-
         for (
             const key of possibleKeys
         ) {
-
             if (
                 typeof object[key] === "string" &&
                 object[key].startsWith("http")
@@ -359,7 +456,6 @@ function findArtwork(data) {
         for (
             const key of Object.keys(object)
         ) {
-
             const result =
                 search(object[key]);
 
@@ -375,93 +471,39 @@ function findArtwork(data) {
 }
 
 /* =========================================================
-   FIND SONG MATCH POSITION
+   NORMALIZE TITLE / ARTIST
 ========================================================= */
 
-function findMatchPosition(data) {
-
-    if (!data) {
-        return 0;
-    }
-
-    const possibleKeys = [
-        "offset",
-        "matchOffset",
-        "matchPosition",
-        "position"
-    ];
-
-    function search(object) {
-
-        if (
-            !object ||
-            typeof object !== "object"
-        ) {
-            return null;
-        }
-
-        for (
-            const key of possibleKeys
-        ) {
-
-            if (
-                typeof object[key] === "number" &&
-                object[key] >= 0
-            ) {
-                return object[key];
-            }
-        }
-
-        for (
-            const key of Object.keys(object)
-        ) {
-
-            const result =
-                search(object[key]);
-
-            if (
-                typeof result === "number"
-            ) {
-                return result;
-            }
-        }
-
-        return null;
-    }
-
-    return search(data) || 0;
+function normalizeSongText(text) {
+    return cleanText(text)
+        .replace(
+            /\([^)]*\)/g,
+            ""
+        )
+        .replace(
+            /\[[^\]]*\]/g,
+            ""
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
 }
 
 /* =========================================================
    LRCLIB
 ========================================================= */
 
-async function getLyrics(
+async function getLrcLibLyrics(
     title,
     artist,
     album = ""
 ) {
-
-    console.log(
-        "🎵 Searching LRCLIB..."
-    );
-
-    console.log(
-        "Title:",
-        title
-    );
-
-    console.log(
-        "Artist:",
-        artist
-    );
-
-    console.log(
-        "Album:",
-        album
-    );
-
     try {
+        console.log(
+            "🔎 Trying LRCLIB..."
+        );
 
         const params =
             new URLSearchParams();
@@ -477,7 +519,6 @@ async function getLyrics(
         );
 
         if (album) {
-
             params.set(
                 "album_name",
                 album
@@ -488,141 +529,264 @@ async function getLyrics(
             "https://lrclib.net/api/get?" +
             params.toString();
 
-        console.log(
-            "LRCLIB request:",
-            url
-        );
-
         const response =
-            await fetch(
-                url,
-                {
-                    headers: {
-                        "User-Agent":
-                            "Music-Lyrics-App/1.0"
-                    }
+            await fetch(url, {
+                headers: {
+                    "User-Agent":
+                        "Music-Lyrics-App/1.0"
                 }
-            );
-
-        if (
-            response.status === 404
-        ) {
-
-            console.log(
-                "❌ LRCLIB: song not found"
-            );
-
-            return null;
-        }
-
-        if (
-            response.status === 429
-        ) {
-
-            console.log(
-                "⚠️ LRCLIB rate limited"
-            );
-
-            return null;
-        }
+            });
 
         if (!response.ok) {
-
             console.log(
-                "LRCLIB HTTP error:",
+                "LRCLIB status:",
                 response.status
             );
 
             return null;
         }
 
-        const data =
+        const result =
             await response.json();
 
-        console.log(
-            "LRCLIB result:",
-            JSON.stringify(
-                data,
-                null,
-                2
-            )
-        );
-
-        /*
-         * THIS IS THE IMPORTANT PART.
-         *
-         * syncedLyrics must exist AND contain
-         * actual timestamps.
-         */
-
-        if (
-            data &&
-            typeof data.syncedLyrics === "string" &&
-            data.syncedLyrics.trim().length > 0
-        ) {
-
-            const synced =
-                normalizeSyncedLyrics(
-                    data.syncedLyrics
-                );
-
-            if (synced) {
-
-                console.log(
-                    "✅ REAL SYNCHRONIZED LYRICS FOUND"
-                );
-
-                return {
-                    syncedLyrics: synced,
-                    plainLyrics:
-                        data.plainLyrics || null,
-                    source: "LRCLIB"
-                };
-            }
+        if (!result) {
+            return null;
         }
 
-        /*
-         * Plain lyrics are NOT returned as synced lyrics.
-         */
+        if (
+            result.syncedLyrics &&
+            typeof result.syncedLyrics === "string"
+        ) {
+            console.log(
+                "✅ LRCLIB synchronized lyrics found."
+            );
+
+            return {
+                syncedLyrics:
+                    result.syncedLyrics,
+                plainLyrics:
+                    result.plainLyrics || null,
+                source: "lrclib"
+            };
+        }
 
         if (
-            data &&
-            typeof data.plainLyrics === "string" &&
-            data.plainLyrics.trim().length > 0
+            result.plainLyrics &&
+            typeof result.plainLyrics === "string"
         ) {
-
             console.log(
-                "⚠️ LRCLIB only returned plain lyrics."
+                "✅ LRCLIB plain lyrics found."
             );
 
             return {
                 syncedLyrics: null,
                 plainLyrics:
-                    data.plainLyrics,
-                source: "LRCLIB"
+                    result.plainLyrics,
+                source: "lrclib"
             };
         }
 
-        return null;
-
-    }
-    catch (error) {
-
+    } catch (error) {
         console.error(
             "LRCLIB error:",
             error.message
         );
-
-        return null;
     }
+
+    return null;
 }
 
 /* =========================================================
-   NORMALIZE LRC
+   LYRICS.OVH
 ========================================================= */
 
-function normalizeSyncedLyrics(text) {
+async function getLyricsOvh(
+    title,
+    artist
+) {
+    try {
+        console.log(
+            "🔎 Trying lyrics.ovh..."
+        );
 
+        const artistEncoded =
+            encodeURIComponent(
+                artist
+            );
+
+        const titleEncoded =
+            encodeURIComponent(
+                title
+            );
+
+        const url =
+            `https://api.lyrics.ovh/v1/${artistEncoded}/${titleEncoded}`;
+
+        const response =
+            await fetch(url);
+
+        if (!response.ok) {
+            console.log(
+                "lyrics.ovh status:",
+                response.status
+            );
+
+            return null;
+        }
+
+        const result =
+            await response.json();
+
+        if (
+            result &&
+            result.lyrics
+        ) {
+            console.log(
+                "✅ lyrics.ovh plain lyrics found."
+            );
+
+            return {
+                syncedLyrics: null,
+                plainLyrics:
+                    result.lyrics,
+                source: "lyrics.ovh"
+            };
+        }
+
+    } catch (error) {
+        console.error(
+            "lyrics.ovh error:",
+            error.message
+        );
+    }
+
+    return null;
+}
+
+/* =========================================================
+   CONVERT PLAIN LYRICS TO ESTIMATED SYNC
+========================================================= */
+
+function createEstimatedSyncedLyrics(
+    plainLyrics,
+    matchPosition = 0
+) {
+    if (
+        !plainLyrics ||
+        typeof plainLyrics !== "string"
+    ) {
+        return null;
+    }
+
+    const lines =
+        plainLyrics
+            .split(/\r?\n/)
+            .map(line =>
+                cleanText(line)
+            )
+            .filter(Boolean);
+
+    if (lines.length === 0) {
+        return null;
+    }
+
+    /*
+     * We don't know the real timing when
+     * the lyrics source only gives plain text.
+     *
+     * Instead we create a smooth estimated
+     * timeline.
+     *
+     * This allows the front end to highlight
+     * and scroll lyrics instead of displaying
+     * everything at once.
+     */
+
+    const averageSecondsPerLine =
+        3.4;
+
+    /*
+     * Start a little before the detected
+     * Shazam position so the first visible
+     * lyric isn't unnecessarily far ahead.
+     */
+
+    let startTime =
+        Math.max(
+            0,
+            Number(matchPosition) - 8
+        );
+
+    /*
+     * Remove obvious section labels from
+     * the timing calculation.
+     */
+
+    const result = [];
+
+    let lyricTime =
+        startTime;
+
+    for (
+        let i = 0;
+        i < lines.length;
+        i++
+    ) {
+        const line =
+            lines[i];
+
+        /*
+         * Slightly longer pauses for blank/
+         * section-like lines are not needed
+         * because empty lines were removed.
+         */
+
+        const minutes =
+            Math.floor(
+                lyricTime / 60
+            );
+
+        const seconds =
+            lyricTime % 60;
+
+        const timestamp =
+            `[${String(minutes).padStart(2, "0")}:${seconds.toFixed(2).padStart(5, "0")}]`;
+
+        result.push(
+            timestamp +
+            line
+        );
+
+        /*
+         * Longer lyric lines get a little
+         * more time.
+         */
+
+        const wordCount =
+            line.split(/\s+/).length;
+
+        let duration =
+            averageSecondsPerLine;
+
+        if (wordCount > 12) {
+            duration += 0.8;
+        }
+
+        if (wordCount > 20) {
+            duration += 1.0;
+        }
+
+        lyricTime += duration;
+    }
+
+    return result.join("\n");
+}
+
+/* =========================================================
+   CLEAN / VALIDATE SYNCED LYRICS
+========================================================= */
+
+function cleanSyncedLyrics(text) {
     if (
         !text ||
         typeof text !== "string"
@@ -633,152 +797,253 @@ function normalizeSyncedLyrics(text) {
     const lines =
         text.split(/\r?\n/);
 
-    const output = [];
+    const valid = [];
 
     for (
         const line of lines
     ) {
-
-        /*
-         * Accept:
-         *
-         * [00:12.34] Lyrics
-         *
-         * [01:02.50] Lyrics
-         */
-
         const match =
             line.match(
-                /^\s*\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]\s*(.*)$/
+                /^\s*\[(\d+):(\d+(?:\.\d+)?)\](.*)$/
             );
 
         if (!match) {
             continue;
         }
 
-        const minutes =
-            parseInt(
-                match[1],
-                10
-            );
+        const textPart =
+            cleanText(match[3]);
 
-        const seconds =
-            parseInt(
-                match[2],
-                10
-            );
-
-        let fraction =
-            match[3] || "0";
-
-        let milliseconds = 0;
-
-        if (fraction.length === 1) {
-
-            milliseconds =
-                parseInt(
-                    fraction,
-                    10
-                ) * 100;
-
-        }
-        else if (
-            fraction.length === 2
-        ) {
-
-            milliseconds =
-                parseInt(
-                    fraction,
-                    10
-                ) * 10;
-
-        }
-        else {
-
-            milliseconds =
-                parseInt(
-                    fraction.substring(
-                        0,
-                        3
-                    ),
-                    10
-                );
+        if (!textPart) {
+            continue;
         }
 
-        const totalSeconds =
-            minutes * 60 +
-            seconds +
-            milliseconds / 1000;
-
-        const lyricText =
-            match[4].trim();
-
-        output.push({
-            time:
-                totalSeconds,
-            text:
-                lyricText
-        });
+        valid.push(
+            line.trim()
+        );
     }
 
-    if (
-        output.length === 0
-    ) {
+    if (valid.length === 0) {
         return null;
     }
 
-    output.sort(
-        (a, b) =>
-            a.time - b.time
-    );
-
-    /*
-     * Convert back to standard LRC.
-     */
-
-    return output
-        .map(line => {
-
-            const minutes =
-                Math.floor(
-                    line.time / 60
-                );
-
-            const seconds =
-                line.time -
-                minutes * 60;
-
-            return (
-                "[" +
-                String(minutes)
-                    .padStart(2, "0") +
-                ":" +
-                seconds
-                    .toFixed(2)
-                    .padStart(5, "0") +
-                "] " +
-                line.text
-            );
-        })
-        .join("\n");
+    return valid.join("\n");
 }
 
 /* =========================================================
-   IDENTIFY SONG
+   GET LYRICS
+========================================================= */
+
+async function getLyrics(
+    title,
+    artist,
+    album,
+    matchPosition
+) {
+    const cleanTitle =
+        normalizeSongText(
+            title
+        );
+
+    const cleanArtist =
+        normalizeSongText(
+            artist
+        );
+
+    console.log(
+        "📖 Lyrics search:",
+        cleanTitle,
+        "—",
+        cleanArtist
+    );
+
+    /*
+     * -----------------------------------------
+     * 1. LRCLIB
+     * -----------------------------------------
+     */
+
+    let result =
+        await getLrcLibLyrics(
+            cleanTitle,
+            cleanArtist,
+            album
+        );
+
+    if (result) {
+        if (
+            result.syncedLyrics
+        ) {
+            const cleaned =
+                cleanSyncedLyrics(
+                    result.syncedLyrics
+                );
+
+            if (cleaned) {
+                return {
+                    syncedLyrics:
+                        cleaned,
+                    estimated: false,
+                    source:
+                        result.source
+                };
+            }
+        }
+
+        if (
+            result.plainLyrics
+        ) {
+            const estimated =
+                createEstimatedSyncedLyrics(
+                    result.plainLyrics,
+                    matchPosition
+                );
+
+            if (estimated) {
+                return {
+                    syncedLyrics:
+                        estimated,
+                    estimated: true,
+                    source:
+                        result.source
+                };
+            }
+        }
+    }
+
+    /*
+     * -----------------------------------------
+     * 2. lyrics.ovh
+     * -----------------------------------------
+     */
+
+    result =
+        await getLyricsOvh(
+            cleanTitle,
+            cleanArtist
+        );
+
+    if (result) {
+        if (
+            result.plainLyrics
+        ) {
+            const estimated =
+                createEstimatedSyncedLyrics(
+                    result.plainLyrics,
+                    matchPosition
+                );
+
+            if (estimated) {
+                return {
+                    syncedLyrics:
+                        estimated,
+                    estimated: true,
+                    source:
+                        result.source
+                };
+            }
+        }
+    }
+
+    /*
+     * -----------------------------------------
+     * 3. AUDD, if configured
+     * -----------------------------------------
+     */
+
+    const token =
+        process.env.AUDD_TOKEN ||
+        process.env.AUDD_API_TOKEN;
+
+    if (token) {
+        try {
+            console.log(
+                "🔎 Trying AUDD..."
+            );
+
+            const params =
+                new URLSearchParams();
+
+            params.append(
+                "api_token",
+                token
+            );
+
+            params.append(
+                "q",
+                `${cleanTitle} ${cleanArtist}`
+            );
+
+            const response =
+                await fetch(
+                    "https://api.audd.io/",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+                        body: params
+                    }
+                );
+
+            if (response.ok) {
+                const data =
+                    await response.json();
+
+                const lyrics =
+                    data?.result?.lyrics;
+
+                if (lyrics) {
+                    const estimated =
+                        createEstimatedSyncedLyrics(
+                            lyrics,
+                            matchPosition
+                        );
+
+                    if (estimated) {
+                        console.log(
+                            "✅ AUDD lyrics found and estimated timing created."
+                        );
+
+                        return {
+                            syncedLyrics:
+                                estimated,
+                            estimated: true,
+                            source: "audd"
+                        };
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error(
+                "AUDD error:",
+                error.message
+            );
+        }
+    }
+
+    /*
+     * Nothing worked.
+     */
+
+    return null;
+}
+
+/* =========================================================
+   IDENTIFY ENDPOINT
 ========================================================= */
 
 app.post(
     "/identify-shazam",
     upload.single("audio"),
     async (req, res) => {
-
         let inputFile = null;
         let wavFile = null;
 
         try {
-
             if (!req.file) {
-
                 return res.status(400).json({
                     error:
                         "No audio file received."
@@ -793,9 +1058,11 @@ app.post(
                 inputFile
             );
 
-            /* -----------------------------------------
-               WAV
-            ----------------------------------------- */
+            /*
+             * ---------------------------------
+             * Convert audio
+             * ---------------------------------
+             */
 
             wavFile =
                 path.join(
@@ -805,7 +1072,7 @@ app.post(
                 );
 
             console.log(
-                "🔄 Converting audio..."
+                "🔄 Converting audio to WAV..."
             );
 
             await convertToWav(
@@ -814,16 +1081,14 @@ app.post(
             );
 
             console.log(
-                "✅ WAV ready"
+                "✅ WAV ready."
             );
 
-            /* -----------------------------------------
-               SONGREC
-            ----------------------------------------- */
-
-            console.log(
-                "🔎 Sending audio to SongRec..."
-            );
+            /*
+             * ---------------------------------
+             * SongRec
+             * ---------------------------------
+             */
 
             const stdout =
                 await runSongRec(
@@ -831,19 +1096,22 @@ app.post(
                 );
 
             const shazamData =
-                extractJson(stdout);
+                extractJson(
+                    stdout
+                );
 
             if (!shazamData) {
-
                 return res.status(500).json({
                     error:
-                        "Could not read SongRec result."
+                        "Could not read SongRec/Shazam result."
                 });
             }
 
-            /* -----------------------------------------
-               TRACK
-            ----------------------------------------- */
+            /*
+             * ---------------------------------
+             * Track
+             * ---------------------------------
+             */
 
             const track =
                 findTrack(
@@ -851,7 +1119,6 @@ app.post(
                 );
 
             if (!track) {
-
                 return res.status(404).json({
                     error:
                         "Song information was not returned."
@@ -859,14 +1126,18 @@ app.post(
             }
 
             const title =
-                track.title ||
-                track.name ||
-                "Unknown Song";
+                cleanText(
+                    track.title ||
+                    track.name ||
+                    "Unknown Song"
+                );
 
             const artist =
-                track.subtitle ||
-                track.artist ||
-                "Unknown Artist";
+                cleanText(
+                    track.subtitle ||
+                    track.artist ||
+                    "Unknown Artist"
+                );
 
             const album =
                 findAlbum(
@@ -878,196 +1149,155 @@ app.post(
                     shazamData
                 );
 
-            const matchPosition =
-                findMatchPosition(
-                    shazamData
+            /*
+             * ---------------------------------
+             * Match position
+             * ---------------------------------
+             */
+
+            let matchPosition =
+                Number(
+                    findMatchPosition(
+                        shazamData
+                    )
                 );
 
-            console.log(
-                "================================"
-            );
+            if (
+                !Number.isFinite(
+                    matchPosition
+                ) ||
+                matchPosition < 0
+            ) {
+                matchPosition = 0;
+            }
 
             console.log(
-                "🎵 SONG:",
+                "🎵 Song:",
                 title
             );
 
             console.log(
-                "👤 ARTIST:",
+                "👤 Artist:",
                 artist
             );
 
             console.log(
-                "💿 ALBUM:",
+                "💿 Album:",
                 album || "Unknown"
             );
 
             console.log(
-                "🎯 MATCH POSITION:",
-                matchPosition
+                "🖼️ Artwork:",
+                artwork || "None"
             );
 
             console.log(
-                "================================"
+                "🎯 Match position:",
+                matchPosition
             );
 
-            /* -----------------------------------------
-               LYRICS
-            ----------------------------------------- */
+            /*
+             * ---------------------------------
+             * Lyrics
+             * ---------------------------------
+             */
+
+            console.log(
+                "📖 Looking for lyrics..."
+            );
 
             const lyrics =
                 await getLyrics(
                     title,
                     artist,
-                    album
+                    album,
+                    matchPosition
                 );
 
-            /* -----------------------------------------
-               RESPONSE
-            ----------------------------------------- */
-
-            if (
-                lyrics &&
-                lyrics.syncedLyrics
-            ) {
-
+            if (lyrics) {
                 console.log(
-                    "✅ Sending synchronized lyrics."
+                    "✅ Lyrics ready.",
+                    "Source:",
+                    lyrics.source,
+                    "Estimated:",
+                    lyrics.estimated
                 );
-
-                return res.json({
-
-                    success: true,
-
-                    song: {
-
-                        title,
-                        artist,
-                        album,
-                        artwork,
-
-                        /*
-                         * This is the position in the
-                         * recording where SongRec
-                         * recognized the song.
-                         */
-
-                        matchPosition,
-                        timecode:
-                            matchPosition
-                    },
-
-                    lyrics: {
-
-                        syncedLyrics:
-                            lyrics.syncedLyrics,
-
-                        plainLyrics:
-                            lyrics.plainLyrics,
-
-                        synchronized:
-                            true,
-
-                        source:
-                            lyrics.source
-                    }
-                });
+            } else {
+                console.log(
+                    "⚠️ No lyrics found."
+                );
             }
 
             /*
-             * Plain lyrics only.
+             * ---------------------------------
+             * Return result
+             * ---------------------------------
              */
 
-            if (
-                lyrics &&
-                lyrics.plainLyrics
-            ) {
-
-                console.log(
-                    "⚠️ Plain lyrics found, but NO timestamps."
-                );
-
-                return res.json({
-
-                    success: true,
-
-                    song: {
-
-                        title,
-                        artist,
-                        album,
-                        artwork,
-                        matchPosition,
-                        timecode:
-                            matchPosition
-                    },
-
-                    lyrics: {
-
-                        syncedLyrics:
-                            null,
-
-                        plainLyrics:
-                            lyrics.plainLyrics,
-
-                        synchronized:
-                            false,
-
-                        source:
-                            lyrics.source
-                    }
-                });
-            }
-
-            console.log(
-                "⚠️ No lyrics found."
-            );
-
             return res.json({
-
                 success: true,
 
                 song: {
+                    title:
+                        title,
 
-                    title,
-                    artist,
-                    album,
-                    artwork,
-                    matchPosition,
+                    artist:
+                        artist,
+
+                    album:
+                        album,
+
+                    artwork:
+                        artwork,
+
+                    matchPosition:
+                        matchPosition,
+
                     timecode:
                         matchPosition
                 },
 
-                lyrics: null
+                lyrics:
+                    lyrics
+                        ? {
+                            syncedLyrics:
+                                lyrics.syncedLyrics,
+
+                            estimated:
+                                lyrics.estimated,
+
+                            source:
+                                lyrics.source
+                        }
+                        : null
             });
 
-        }
-        catch (error) {
-
+        } catch (error) {
             console.error(
                 "❌ SERVER ERROR:",
                 error
             );
 
             return res.status(500).json({
-
                 error:
                     "Server error: " +
                     error.message
             });
 
-        }
-        finally {
+        } finally {
+            /*
+             * ---------------------------------
+             * Cleanup
+             * ---------------------------------
+             */
 
             try {
-
                 if (
                     inputFile &&
                     fs.existsSync(
                         inputFile
                     )
                 ) {
-
                     fs.unlinkSync(
                         inputFile
                     );
@@ -1079,15 +1309,12 @@ app.post(
                         wavFile
                     )
                 ) {
-
                     fs.unlinkSync(
                         wavFile
                     );
                 }
 
-            }
-            catch (cleanupError) {
-
+            } catch (cleanupError) {
                 console.error(
                     "Cleanup error:",
                     cleanupError.message
@@ -1104,32 +1331,47 @@ app.post(
 app.get(
     "/health",
     (req, res) => {
-
         const songrecPath =
-            path.join(
-                __dirname,
-                "SongRec",
-                "target",
-                "release",
-                "songrec"
+            getSongRecPath();
+
+        let ffmpegInstalled =
+            false;
+
+        try {
+            const { execFileSync } =
+                require("child_process");
+
+            execFileSync(
+                "ffmpeg",
+                ["-version"],
+                {
+                    stdio: "ignore"
+                }
             );
 
-        res.json({
+            ffmpegInstalled = true;
 
+        } catch (error) {
+            ffmpegInstalled = false;
+        }
+
+        res.json({
             status: "ok",
 
             songrec:
-                fs.existsSync(
-                    songrecPath
-                ),
+                !!songrecPath,
 
-            songrecPath,
+            songrecPath:
+                songrecPath || null,
 
             ffmpeg:
-                true,
+                ffmpegInstalled,
 
-            lyricsProvider:
-                "LRCLIB"
+            lyricsSources: [
+                "LRCLIB",
+                "lyrics.ovh",
+                "AUDD-if-configured"
+            ]
         });
     }
 );
@@ -1141,21 +1383,14 @@ app.get(
 app.listen(
     PORT,
     () => {
-
         console.log(
             `🎵 Music Lyrics server running on port ${PORT}`
         );
 
         console.log(
-            "🎤 Song recognition: SongRec"
-        );
-
-        console.log(
-            "📖 Lyrics: LRCLIB"
-        );
-
-        console.log(
-            "⏱️ Synchronized lyrics: enabled"
+            "🎤 SongRec:",
+            getSongRecPath() ||
+            "NOT FOUND"
         );
     }
 );
