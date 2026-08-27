@@ -8,6 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
+    ffmpeg \
     pkg-config \
     git \
     libgtk-4-dev \
