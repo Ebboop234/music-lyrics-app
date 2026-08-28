@@ -1,446 +1,441 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#111111">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta charset="UTF-8"><meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               viewport-fit=cover">
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Music Lyrics">
+<meta name="theme-color" content="#111111">
 
-    <title>MUSIC Lyrics</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 
-    <style>
-        * {
-            box-sizing: border-box;
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent">
+<meta name="apple-mobile-web-app-title"
+      content="Music Lyrics">
+
+<title>Music Lyrics</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        background: #080808;
+    }
+
+    body {
+        padding:
+            env(safe-area-inset-top)
+            16px
+            env(safe-area-inset-bottom)
+            16px;
+
+        color: white;
+
+        font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "SF Pro Display",
+            "SF Pro Text",
+            Arial,
+            sans-serif;
+
+        text-align: center;
+
+        overflow-x: hidden;
+    }
+
+    .app {
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        margin: 26px 0 6px;
+
+        font-size: 32px;
+        font-weight: 700;
+
+        letter-spacing: -1px;
+    }
+
+    .subtitle {
+        color: #888;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    /* =========================
+       IDENTIFY BUTTON
+    ========================= */
+
+    .identify-button {
+
+        width: 92px;
+        height: 92px;
+
+        margin: 18px auto 18px;
+
+        border-radius: 50%;
+
+        border: 3px solid white;
+
+        background:
+            rgba(255,255,255,0.04);
+
+        color: white;
+
+        font-size: 48px;
+        font-weight: 500;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+
+        transition:
+            transform .2s ease;
+
+        -webkit-tap-highlight-color:
+            transparent;
+    }
+
+    .identify-button:active {
+        transform: scale(.92);
+    }
+
+    .identify-button.listening {
+
+        animation:
+            rainbowPulse 1s infinite;
+    }
+
+    @keyframes rainbowPulse {
+
+        0% {
+            transform: scale(1);
+            border-color: #ff0000;
+            box-shadow:
+                0 0 12px #ff0000,
+                0 0 25px rgba(255,0,0,.4);
         }
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            min-height: 100%;
-            background: #080808;
+        16% {
+            border-color: #ff7f00;
+            box-shadow:
+                0 0 18px #ff7f00,
+                0 0 35px rgba(255,127,0,.4);
         }
 
-        body {
-            padding:
-                env(safe-area-inset-top)
-                16px
-                env(safe-area-inset-bottom)
-                16px;
-
-            min-height: 100vh;
-
-            background:
-                radial-gradient(
-                    circle at top,
-                    #292929 0%,
-                    #111111 45%,
-                    #070707 100%
-                );
-
-            color: white;
-
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "SF Pro Display",
-                "SF Pro Text",
-                Arial,
-                sans-serif;
-
-            text-align: center;
-            overflow-x: hidden;
+        33% {
+            border-color: #ffff00;
+            box-shadow:
+                0 0 22px #ffff00,
+                0 0 40px rgba(255,255,0,.4);
         }
 
-        .app {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
+        50% {
+            transform: scale(1.15);
+            border-color: #00ff00;
+            box-shadow:
+                0 0 28px #00ff00,
+                0 0 50px rgba(0,255,0,.45);
         }
+
+        66% {
+            border-color: #00ffff;
+            box-shadow:
+                0 0 22px #00ffff,
+                0 0 40px rgba(0,255,255,.4);
+        }
+
+        83% {
+            border-color: #0066ff;
+            box-shadow:
+                0 0 20px #0066ff,
+                0 0 35px rgba(0,102,255,.4);
+        }
+
+        100% {
+            transform: scale(1);
+            border-color: #ff00ff;
+            box-shadow:
+                0 0 15px #ff00ff,
+                0 0 30px rgba(255,0,255,.4);
+        }
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    #status {
+
+        min-height: 24px;
+
+        margin: 8px auto 15px;
+
+        max-width: 95%;
+
+        color: #999;
+
+        font-size: 15px;
+
+        line-height: 1.4;
+    }
+
+    /* =========================
+       DEBUG
+    ========================= */
+
+    #debug {
+
+        display: none;
+
+        margin: 15px auto;
+
+        padding: 12px;
+
+        max-width: 95%;
+
+        background: #1c1c1c;
+
+        border: 1px solid #444;
+
+        border-radius: 12px;
+
+        color: #ff7777;
+
+        font-family: monospace;
+
+        font-size: 12px;
+
+        text-align: left;
+
+        white-space: pre-wrap;
+
+        word-break: break-word;
+    }
+
+    /* =========================
+       ALBUM ART
+    ========================= */
+
+    #album-art-container {
+
+        width: 190px;
+        height: 190px;
+
+        margin: 18px auto 16px;
+
+        display: none;
+    }
+
+    #album-art {
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+
+        border-radius: 20px;
+
+        box-shadow:
+            0 12px 40px
+            rgba(0,0,0,.6);
+    }
+
+    /* =========================
+       SONG
+    ========================= */
+
+    #song {
+
+        margin: 12px auto 15px;
+
+        max-width: 92%;
+
+        font-size: 21px;
+
+        font-weight: 600;
+
+        line-height: 1.35;
+    }
+
+    /* =========================
+       LYRICS
+    ========================= */
+
+    #lyrics {
+
+        width: 100%;
+
+        max-width: 700px;
+
+        height: 58vh;
+
+        min-height: 300px;
+
+        overflow-y: auto;
+
+        margin: 10px auto;
+
+        padding:
+            100px 8px
+            160px 8px;
+
+        font-size: 22px;
+
+        line-height: 1.65;
+
+        scroll-behavior: smooth;
+
+        scrollbar-width: none;
+    }
+
+    #lyrics::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* =========================
+       LYRIC LINE
+    ========================= */
+
+    .line {
+
+        opacity: .32;
+
+        padding: 10px 12px;
+
+        margin: 3px 0;
+
+        border-radius: 14px;
+
+        cursor: pointer;
+
+        transition:
+            opacity .25s ease,
+            transform .25s ease,
+            background .25s ease,
+            font-size .25s ease;
+
+        -webkit-tap-highlight-color:
+            transparent;
+    }
+
+    .line:active {
+
+        transform: scale(.97);
+
+        background:
+            rgba(255,255,255,.10);
+    }
+
+    .line.current {
+
+        opacity: 1;
+
+        font-size: 31px;
+
+        font-weight: 700;
+
+        background:
+            rgba(255,255,255,.07);
+
+        transform: scale(1.02);
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 500px) {
 
         h1 {
-            margin: 28px 0 6px;
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: -1px;
+            margin-top: 22px;
+            font-size: 29px;
         }
-
-        .subtitle {
-            color: #888;
-            font-size: 15px;
-            margin-bottom: 24px;
-        }
-
-        /* =========================
-           IDENTIFY BUTTON
-        ========================= */
 
         .identify-button {
-            width: 92px;
-            height: 92px;
-
-            margin: 18px auto 22px;
-
-            border-radius: 50%;
-            border: 3px solid white;
-
-            background:
-                rgba(255,255,255,0.04);
-
-            color: white;
-
-            font-size: 48px;
-            font-weight: 500;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            cursor: pointer;
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease;
-
-            -webkit-tap-highlight-color: transparent;
+            width: 88px;
+            height: 88px;
+            font-size: 46px;
         }
-
-        .identify-button:hover {
-            transform: scale(1.05);
-        }
-
-        .identify-button:active {
-            transform: scale(0.92);
-        }
-
-        .identify-button:focus {
-            outline: none;
-        }
-
-        .identify-button.listening {
-            animation: rainbowPulse 1s infinite !important;
-        }
-
-        @keyframes rainbowPulse {
-
-            0% {
-                transform: scale(1);
-                border-color: #ff0000;
-                box-shadow:
-                    0 0 12px #ff0000,
-                    0 0 25px rgba(255,0,0,0.4);
-            }
-
-            16% {
-                border-color: #ff7f00;
-                box-shadow:
-                    0 0 18px #ff7f00,
-                    0 0 35px rgba(255,127,0,0.4);
-            }
-
-            33% {
-                border-color: #ffff00;
-                box-shadow:
-                    0 0 22px #ffff00,
-                    0 0 40px rgba(255,255,0,0.4);
-            }
-
-            50% {
-                transform: scale(1.15);
-                border-color: #00ff00;
-                box-shadow:
-                    0 0 28px #00ff00,
-                    0 0 50px rgba(0,255,0,0.45);
-            }
-
-            66% {
-                border-color: #00ffff;
-                box-shadow:
-                    0 0 22px #00ffff,
-                    0 0 40px rgba(0,255,255,0.4);
-            }
-
-            83% {
-                border-color: #0066ff;
-                box-shadow:
-                    0 0 20px #0066ff,
-                    0 0 35px rgba(0,102,255,0.4);
-            }
-
-            100% {
-                transform: scale(1);
-                border-color: #ff00ff;
-                box-shadow:
-                    0 0 15px #ff00ff,
-                    0 0 30px rgba(255,0,255,0.4);
-            }
-        }
-
-        /* =========================
-           STATUS
-        ========================= */
-
-        #status {
-            margin: 8px auto 18px;
-
-            min-height: 24px;
-
-            color: #999;
-
-            font-size: 15px;
-            line-height: 1.4;
-
-            max-width: 95%;
-        }
-
-        /* =========================
-           DEBUG
-        ========================= */
-
-        #debug {
-            display: none;
-
-            margin: 15px auto;
-
-            padding: 12px;
-
-            max-width: 95%;
-
-            background: #1c1c1c;
-
-            border: 1px solid #444;
-
-            border-radius: 12px;
-
-            color: #ff7777;
-
-            font-family: monospace;
-
-            font-size: 12px;
-
-            text-align: left;
-
-            white-space: pre-wrap;
-
-            word-break: break-word;
-        }
-
-        /* =========================
-           ALBUM ART
-        ========================= */
 
         #album-art-container {
-            width: 180px;
-            height: 180px;
-
-            margin: 20px auto 18px;
-
-            display: none;
+            width: 165px;
+            height: 165px;
         }
-
-        #album-art {
-            width: 100%;
-            height: 100%;
-
-            object-fit: cover;
-
-            border-radius: 18px;
-
-            box-shadow:
-                0 10px 35px rgba(0,0,0,0.5);
-        }
-
-        /* =========================
-           SONG TITLE
-        ========================= */
 
         #song {
-            margin: 12px auto 20px;
-
-            max-width: 90%;
-
-            font-size: 22px;
-
-            font-weight: 600;
-
-            line-height: 1.35;
-
-            color: white;
+            font-size: 19px;
         }
-
-        /* =========================
-           LYRICS
-        ========================= */
 
         #lyrics {
-            margin: 20px auto;
 
-            width: 100%;
+            height: 60vh;
 
-            max-width: 700px;
-
-            height: 55vh;
-
-            min-height: 300px;
-
-            overflow-y: auto;
-
-            font-size: 23px;
-
-            line-height: 1.7;
-
-            scroll-behavior: smooth;
-
-            padding:
-                30px 8px
-                120px 8px;
-
-            scrollbar-width: none;
+            font-size: 21px;
         }
 
-        #lyrics::-webkit-scrollbar {
-            display: none;
+        .line.current {
+            font-size: 28px;
         }
+    }
 
-        .line {
-            opacity: 0.32;
+</style>
 
-            transition:
-                opacity 0.25s ease,
-                transform 0.25s ease,
-                background 0.25s ease;
+</head><body><div class="app"><h1>🎵 Music Lyrics</h1>
 
-            padding: 10px 12px;
+<div class="subtitle">
+    Identify a song and follow along
+</div>
 
-            margin: 3px 0;
+<button
+    class="identify-button"
+    id="identifyButton"
+    onclick="identifySong()"
+    aria-label="Identify Song">
 
-            cursor: pointer;
+    ?
 
-            border-radius: 14px;
+</button>
 
-            -webkit-tap-highlight-color: transparent;
-        }
+<div id="status">
+    Tap the button to identify a song
+</div>
 
-        .line:hover {
-            opacity: 0.75;
+<div id="debug"></div>
 
-            background:
-                rgba(255,255,255,0.06);
-        }
+<div id="album-art-container">
 
-        .line:active {
-            transform: scale(0.97);
-
-            background:
-                rgba(255,255,255,0.1);
-        }
-
-        .current {
-            opacity: 1;
-
-            font-size: 32px;
-
-            font-weight: 700;
-
-            color: white;
-
-            background:
-                rgba(255,255,255,0.06);
-
-            transform: scale(1.02);
-        }
-
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @media (max-width: 500px) {
-
-            h1 {
-                margin-top: 24px;
-                font-size: 30px;
-            }
-
-            .subtitle {
-                font-size: 14px;
-            }
-
-            .identify-button {
-                width: 88px;
-                height: 88px;
-                font-size: 46px;
-            }
-
-            #album-art-container {
-                width: 160px;
-                height: 160px;
-            }
-
-            #song {
-                font-size: 20px;
-            }
-
-            #lyrics {
-                height: 58vh;
-                font-size: 21px;
-            }
-
-            .current {
-                font-size: 29px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="app">
-
-    <h1>🎵 Music Lyrics</h1>
-
-    <div class="subtitle">
-        Identify a song and follow along
-    </div>
-
-    <button
-        class="identify-button"
-        onclick="identifySong()"
-        aria-label="Identify Song"
+    <img
+        id="album-art"
+        alt="Album artwork"
     >
-        ?
-    </button>
-
-    <div id="status">
-        Tap the button to identify a song
-    </div>
-
-    <div id="debug"></div>
-
-    <div id="album-art-container">
-
-        <img
-            id="album-art"
-            alt="Album artwork"
-        >
-
-    </div>
-
-    <div id="song"></div>
-
-    <div id="lyrics"></div>
 
 </div>
 
+<div id="song"></div>
 
-<script>
+<div id="lyrics"></div>
+
+</div><script>
 
 /* =========================================================
-   GLOBAL VARIABLES
+   VARIABLES
 ========================================================= */
 
 let lyricLines = [];
@@ -451,12 +446,15 @@ let syncTimer = null;
 
 let songPosition = 0;
 
+let recognitionTime = 0;
+
 
 /*
- * Small adjustment if recognition happens
- * slightly after the actual song position.
+ * Small adjustment to account for the recording/
+ * recognition process.
  *
- * Start at zero.
+ * Positive = lyrics move forward.
+ * Negative = lyrics move backward.
  */
 const LYRIC_OFFSET = 0;
 
@@ -485,8 +483,8 @@ function showDebug(message) {
 async function identifySong() {
 
     const button =
-        document.querySelector(
-            ".identify-button"
+        document.getElementById(
+            "identifyButton"
         );
 
     const status =
@@ -504,7 +502,7 @@ async function identifySong() {
             "lyrics"
         );
 
-    const albumArtContainer =
+    const albumContainer =
         document.getElementById(
             "album-art-container"
         );
@@ -514,12 +512,21 @@ async function identifySong() {
             "album-art"
         );
 
+
+    clearInterval(syncTimer);
+
+    lyricLines = [];
+
+    currentIndex = 0;
+
+    songPosition = 0;
+
+    recognitionTime = 0;
+
+
     document.getElementById(
         "debug"
     ).style.display = "none";
-
-
-    clearInterval(syncTimer);
 
 
     button.classList.add(
@@ -535,18 +542,13 @@ async function identifySong() {
 
     lyricsDisplay.innerHTML = "";
 
-    albumArtContainer.style.display =
+    albumContainer.style.display =
         "none";
 
     albumArt.src = "";
 
 
     try {
-
-        console.log(
-            "🎤 Requesting microphone..."
-        );
-
 
         if (
             !navigator.mediaDevices ||
@@ -556,7 +558,6 @@ async function identifySong() {
             throw new Error(
                 "Microphone is not supported."
             );
-
         }
 
 
@@ -566,11 +567,6 @@ async function identifySong() {
                 .getUserMedia({
                     audio: true
                 });
-
-
-        console.log(
-            "✅ Microphone permission granted."
-        );
 
 
         let mimeType = "";
@@ -585,9 +581,7 @@ async function identifySong() {
             mimeType =
                 "audio/webm;codecs=opus";
 
-        }
-
-        else if (
+        } else if (
             MediaRecorder.isTypeSupported(
                 "audio/webm"
             )
@@ -595,7 +589,6 @@ async function identifySong() {
 
             mimeType =
                 "audio/webm";
-
         }
 
 
@@ -603,9 +596,7 @@ async function identifySong() {
             mimeType
                 ? new MediaRecorder(
                     stream,
-                    {
-                        mimeType
-                    }
+                    { mimeType }
                 )
                 : new MediaRecorder(
                     stream
@@ -626,9 +617,7 @@ async function identifySong() {
                     audioChunks.push(
                         event.data
                     );
-
                 }
-
             };
 
 
@@ -639,17 +628,11 @@ async function identifySong() {
                     "Recorder error:",
                     event
                 );
-
             };
 
 
         recorder.onstop =
             async () => {
-
-                console.log(
-                    "🛑 Recording stopped."
-                );
-
 
                 stream
                     .getTracks()
@@ -665,7 +648,7 @@ async function identifySong() {
 
 
                 status.innerText =
-                    "🔎 Preparing audio...";
+                    "🔎 Identifying song...";
 
 
                 const audioBlob =
@@ -678,12 +661,6 @@ async function identifySong() {
                     );
 
 
-                console.log(
-                    "Audio size:",
-                    audioBlob.size
-                );
-
-
                 if (
                     audioBlob.size === 0
                 ) {
@@ -692,7 +669,6 @@ async function identifySong() {
                         "❌ No audio recorded.";
 
                     return;
-
                 }
 
 
@@ -704,15 +680,6 @@ async function identifySong() {
                     "audio",
                     audioBlob,
                     "music.webm"
-                );
-
-
-                status.innerText =
-                    "📤 Sending audio to server...";
-
-
-                console.log(
-                    "📤 POST /identify-shazam"
                 );
 
 
@@ -730,20 +697,8 @@ async function identifySong() {
                         );
 
 
-                    console.log(
-                        "Server status:",
-                        response.status
-                    );
-
-
                     const responseText =
                         await response.text();
-
-
-                    console.log(
-                        "SERVER RESPONSE:",
-                        responseText
-                    );
 
 
                     let data;
@@ -756,30 +711,20 @@ async function identifySong() {
                                 responseText
                             );
 
-                    }
-
-                    catch (jsonError) {
+                    } catch (error) {
 
                         showDebug(
-                            "❌ SERVER RETURNED INVALID DATA\n\n" +
-                            "HTTP STATUS: " +
-                            response.status +
-                            " " +
-                            response.statusText +
-                            "\n\n" +
-                            "SERVER RESPONSE:\n" +
+                            "SERVER RETURNED INVALID DATA\n\n" +
                             responseText.substring(
                                 0,
-                                3000
+                                2000
                             )
                         );
-
 
                         status.innerText =
                             "❌ Server returned invalid data.";
 
                         return;
-
                     }
 
 
@@ -787,16 +732,7 @@ async function identifySong() {
                         !response.ok
                     ) {
 
-                        const errorMessage =
-                            data.error ||
-                            "Server error " +
-                            response.status;
-
-
                         showDebug(
-                            "❌ SERVER ERROR\n\n" +
-                            errorMessage +
-                            "\n\n" +
                             JSON.stringify(
                                 data,
                                 null,
@@ -804,13 +740,14 @@ async function identifySong() {
                             )
                         );
 
-
                         status.innerText =
                             "❌ " +
-                            errorMessage;
+                            (
+                                data.error ||
+                                "Server error."
+                            );
 
                         return;
-
                     }
 
 
@@ -819,9 +756,6 @@ async function identifySong() {
                     ) {
 
                         showDebug(
-                            "❌ SERVER ERROR\n\n" +
-                            data.error +
-                            "\n\n" +
                             JSON.stringify(
                                 data,
                                 null,
@@ -829,13 +763,11 @@ async function identifySong() {
                             )
                         );
 
-
                         status.innerText =
                             "❌ " +
                             data.error;
 
                         return;
-
                     }
 
 
@@ -844,7 +776,7 @@ async function identifySong() {
                     ) {
 
                         showDebug(
-                            "❌ SONG INFORMATION MISSING\n\n" +
+                            "Song information missing.\n\n" +
                             JSON.stringify(
                                 data,
                                 null,
@@ -852,25 +784,27 @@ async function identifySong() {
                             )
                         );
 
-
                         status.innerText =
-                            "❌ Song information was not returned.";
+                            "❌ Song information missing.";
 
                         return;
-
                     }
 
 
                     /* =================================================
-                       SONG
+                       SONG INFORMATION
                     ================================================= */
 
                     const title =
                         data.song.title ||
+                        data.song.trackName ||
+                        data.song.name ||
                         "Unknown Song";
+
 
                     const artist =
                         data.song.artist ||
+                        data.song.artistName ||
                         "Unknown Artist";
 
 
@@ -884,34 +818,76 @@ async function identifySong() {
                        ALBUM ART
                     ================================================= */
 
-                    if (
-                        data.song.artwork
-                    ) {
+                    const artwork =
+                        data.song.artwork ||
+                        data.song.artworkUrl ||
+                        data.song.artwork_url ||
+                        data.song.albumArt ||
+                        data.song.albumArtwork ||
+                        data.song.cover ||
+                        data.song.coverUrl ||
+                        data.song.image ||
+                        data.song.imageUrl ||
+                        data.artwork ||
+                        data.artworkUrl ||
+                        data.albumArt ||
+                        data.albumArtwork ||
+                        null;
 
-                        albumArt.src =
-                            data.song.artwork;
 
+                    if (artwork) {
 
                         albumArt.onload =
                             () => {
 
-                                albumArtContainer
-                                    .style
-                                    .display =
+                                albumContainer.style.display =
                                     "block";
-
                             };
 
+
+                        albumArt.onerror =
+                            () => {
+
+                                albumContainer.style.display =
+                                    "none";
+
+                                console.log(
+                                    "Album artwork could not be loaded."
+                                );
+                            };
+
+
+                        albumArt.src =
+                            artwork;
+
+                    } else {
+
+                        albumContainer.style.display =
+                            "none";
                     }
 
 
                     /* =================================================
-                       SONG POSITION
+                       SONGREC MATCH POSITION
                     ================================================= */
+
+                    let matchOffset =
+                        data.song.matchOffset;
+
+
+                    if (
+                        matchOffset === undefined ||
+                        matchOffset === null
+                    ) {
+
+                        matchOffset =
+                            data.matchOffset;
+                    }
+
 
                     songPosition =
                         Number(
-                            data.song.matchOffset
+                            matchOffset
                         );
 
 
@@ -922,73 +898,58 @@ async function identifySong() {
                     ) {
 
                         songPosition = 0;
-
                     }
 
 
-                    console.log(
-                        "🎯 SongRec position:",
-                        songPosition
-                    );
-
+                    /*
+                     * SongRec's matchOffset is the approximate
+                     * position in the actual song where the
+                     * recording was recognized.
+                     */
 
                     songPosition +=
                         LYRIC_OFFSET;
 
 
+                    console.log(
+                        "SongRec match position:",
+                        songPosition
+                    );
+
+
                     /* =================================================
-                       FIND LYRICS
+                       GET LYRICS
                     ================================================= */
 
-                    let syncedLyrics = null;
+                    const lyrics =
+                        data.lyrics ||
+                        {};
 
 
                     /*
-                     * Accept all of the possible
-                     * names your server may return.
+                     * Server may provide syncedLyrics
+                     * directly.
                      */
 
-                    if (
-                        data.lyrics
-                    ) {
-
-                        syncedLyrics =
-                            data.lyrics.syncedLyrics ||
-                            data.lyrics.synchronizedLyrics ||
-                            data.lyrics.synced ||
-                            null;
-
-                    }
+                    let syncedLyrics =
+                        lyrics.syncedLyrics ||
+                        data.syncedLyrics ||
+                        data.lyricsText ||
+                        null;
 
 
                     /*
-                     * Some server versions may put
-                     * the lyrics directly in data.
+                     * Sometimes the server returns
+                     * a nested result.
                      */
 
                     if (
                         !syncedLyrics &&
-                        typeof data.syncedLyrics === "string"
+                        lyrics.data
                     ) {
 
                         syncedLyrics =
-                            data.syncedLyrics;
-
-                    }
-
-
-                    /*
-                     * Last possible location.
-                     */
-
-                    if (
-                        !syncedLyrics &&
-                        typeof data.lyrics === "string"
-                    ) {
-
-                        syncedLyrics =
-                            data.lyrics;
-
+                            lyrics.data.syncedLyrics;
                     }
 
 
@@ -999,45 +960,43 @@ async function identifySong() {
                         status.innerText =
                             "⚠️ No synchronized lyrics found.";
 
-                        showDebug(
-                            "The song was recognized, but the server did not return synchronized lyrics."
-                        );
-
                         return;
-
                     }
 
 
-                    console.log(
-                        "🎵 Raw synchronized lyrics:",
-                        syncedLyrics
-                    );
-
-
                     /* =================================================
-                       PARSE LYRICS
+                       PARSE TIMESTAMPED LYRICS
                     ================================================= */
 
-                    parseLyrics(
-                        syncedLyrics
-                    );
+                    const success =
+                        parseLyrics(
+                            syncedLyrics
+                        );
 
 
-                    if (
-                        lyricLines.length === 0
-                    ) {
+                    if (!success) {
+
+                        showDebug(
+                            "Could not read lyric timestamps.\n\n" +
+                            String(
+                                syncedLyrics
+                            ).substring(
+                                0,
+                                5000
+                            )
+                        );
 
                         status.innerText =
                             "⚠️ Could not read lyric timestamps.";
 
                         return;
-
                     }
 
 
-                    /* =================================================
-                       FIND STARTING LYRIC
-                    ================================================= */
+                    /*
+                     * Find the lyric that should be
+                     * playing at SongRec's match position.
+                     */
 
                     currentIndex =
                         findCurrentLyric(
@@ -1054,39 +1013,31 @@ async function identifySong() {
                         "🎵 Synced!";
 
 
+                    /*
+                     * Start the visual lyric clock.
+                     */
+
                     startSynchronization();
 
-                }
-
-
-                catch (error) {
+                } catch (error) {
 
                     console.error(
                         error
                     );
 
-
                     showDebug(
-                        "❌ CONNECTION ERROR\n\n" +
+                        "CONNECTION ERROR\n\n" +
                         error.message
                     );
-
 
                     status.innerText =
                         "❌ " +
                         error.message;
-
                 }
-
             };
 
 
         recorder.start();
-
-
-        console.log(
-            "▶️ Recording started."
-        );
 
 
         setTimeout(
@@ -1098,40 +1049,32 @@ async function identifySong() {
                 ) {
 
                     recorder.stop();
-
                 }
 
             },
             8000
         );
 
-    }
-
-
-    catch (error) {
+    } catch (error) {
 
         button.classList.remove(
             "listening"
         );
 
-
         showDebug(
-            "❌ MICROPHONE ERROR\n\n" +
+            "MICROPHONE ERROR\n\n" +
             error.message
         );
-
 
         status.innerText =
             "❌ " +
             error.message;
-
     }
-
 }
 
 
 /* =========================================================
-   PARSE SYNCHRONIZED LYRICS
+   PARSE LYRICS
 ========================================================= */
 
 function parseLyrics(text) {
@@ -1140,49 +1083,29 @@ function parseLyrics(text) {
 
 
     if (
-        !text ||
         typeof text !== "string"
     ) {
 
-        console.error(
-            "No lyric text received."
-        );
-
-        return;
-
+        return false;
     }
 
 
     /*
-     * Normalize everything.
-     */
-
-    text =
-        text
-            .replace(/\r/g, "")
-            .replace(/\\n/g, "\n")
-            .replace(/\u00A0/g, " ")
-            .trim();
-
-
-    /*
-     * THIS IS THE IMPORTANT FIX.
+     * IMPORTANT:
      *
-     * The server may send:
+     * Your server is currently returning lyrics
+     * like this:
      *
-     * [00:00.09] First line[00:02.17] Second line
+     * [00:00.84] Lately...
+     * [00:04.91] Dreaming...
      *
-     * instead of:
-     *
-     * [00:00.09] First line
-     * [00:02.17] Second line
-     *
-     * This parser handles BOTH.
+     * This parser works even if multiple lines
+     * accidentally arrive on the same physical line.
      */
 
 
     const regex =
-        /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]\s*([\s\S]*?)(?=\[\d{1,3}:\d{2}(?:[.:]\d{1,3})?\]|$)/g;
+        /(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\s*([^\[]*)/g;
 
 
     let match;
@@ -1206,105 +1129,103 @@ function parseLyrics(text) {
             );
 
 
-        let fraction = 0;
+        let fraction =
+            match[3] || "0";
+
+
+        /*
+         * Convert milliseconds/centiseconds
+         * correctly.
+         *
+         * .8   = 800 ms
+         * .84  = 840 ms
+         * .840 = 840 ms
+         */
+
+        let fractionSeconds;
 
 
         if (
-            match[3]
+            fraction.length === 1
         ) {
 
-            const digits =
-                match[3];
+            fractionSeconds =
+                parseInt(
+                    fraction,
+                    10
+                ) / 10;
 
+        } else if (
+            fraction.length === 2
+        ) {
 
-            if (
-                digits.length === 1
-            ) {
+            fractionSeconds =
+                parseInt(
+                    fraction,
+                    10
+                ) / 100;
 
-                fraction =
-                    parseInt(
-                        digits,
-                        10
-                    ) / 10;
+        } else {
 
-            }
-
-            else if (
-                digits.length === 2
-            ) {
-
-                fraction =
-                    parseInt(
-                        digits,
-                        10
-                    ) / 100;
-
-            }
-
-            else {
-
-                fraction =
-                    parseInt(
-                        digits,
-                        10
-                    ) / 1000;
-
-            }
-
+            fractionSeconds =
+                parseInt(
+                    fraction,
+                    10
+                ) / 1000;
         }
+
+
+        const time =
+            minutes * 60 +
+            seconds +
+            fractionSeconds;
 
 
         const lyricText =
             match[4]
-                .replace(/\s+/g, " ")
                 .trim();
 
 
         /*
-         * Ignore empty lines.
+         * Don't display empty timestamp lines.
          */
 
         if (
-            !lyricText
+            lyricText.length === 0
         ) {
 
             continue;
-
         }
 
 
         /*
-         * Ignore metadata accidentally
-         * returned as a lyric.
+         * Don't display the title line
+         * if it happens to be timestamped.
          */
 
         if (
-            lyricText.toLowerCase() ===
-            "lyrics"
+            lyricLines.length === 0 &&
+            lyricText.includes(" - ")
         ) {
 
             continue;
-
         }
 
 
         lyricLines.push({
 
             time:
-                minutes * 60 +
-                seconds +
-                fraction,
+                time,
 
             text:
                 lyricText
-
         });
-
     }
 
 
     /*
-     * Sort chronologically.
+     * Sort just in case the server
+     * returned lines out of order.
      */
 
     lyricLines.sort(
@@ -1313,33 +1234,24 @@ function parseLyrics(text) {
     );
 
 
-    console.log(
-        "🎵 Parsed lyric lines:",
-        lyricLines.length
-    );
-
-
     if (
         lyricLines.length === 0
     ) {
 
-        showDebug(
-            "⚠️ Could not read lyric timestamps.\n\n" +
-            "Lyrics were received, but no usable timestamps were found.\n\n" +
-            text.substring(
-                0,
-                3000
-            )
-        );
-
-
-        return;
-
+        return false;
     }
 
 
     showLyrics();
 
+
+    console.log(
+        "Parsed lyric lines:",
+        lyricLines.length
+    );
+
+
+    return true;
 }
 
 
@@ -1354,7 +1266,6 @@ function findCurrentLyric(time) {
     ) {
 
         return 0;
-
     }
 
 
@@ -1373,19 +1284,14 @@ function findCurrentLyric(time) {
 
             index = i;
 
-        }
-
-        else {
+        } else {
 
             break;
-
         }
-
     }
 
 
     return index;
-
 }
 
 
@@ -1401,14 +1307,12 @@ function showLyrics() {
         );
 
 
-    lyricsDisplay.innerHTML = "";
+    lyricsDisplay.innerHTML =
+        "";
 
 
     lyricLines.forEach(
-        (
-            line,
-            index
-        ) => {
+        (line, index) => {
 
             const div =
                 document.createElement(
@@ -1420,12 +1324,13 @@ function showLyrics() {
                 "line";
 
 
+            /*
+             * Only the lyric text is displayed.
+             * NO timestamp is shown.
+             */
+
             div.innerText =
                 line.text;
-
-
-            div.dataset.index =
-                index;
 
 
             div.onclick =
@@ -1434,17 +1339,14 @@ function showLyrics() {
                     syncToLyric(
                         index
                     );
-
                 };
 
 
             lyricsDisplay.appendChild(
                 div
             );
-
         }
     );
-
 }
 
 
@@ -1459,7 +1361,6 @@ function syncToLyric(index) {
     ) {
 
         return;
-
     }
 
 
@@ -1487,13 +1388,12 @@ function syncToLyric(index) {
     document.getElementById(
         "status"
     ).innerText =
-        "🔄 Synced to lyric";
-
+        "🔄 Synced";
 }
 
 
 /* =========================================================
-   SYNCHRONIZATION
+   SYNCHRONIZATION CLOCK
 ========================================================= */
 
 function startSynchronization() {
@@ -1534,7 +1434,6 @@ function startSynchronization() {
             },
             100
         );
-
 }
 
 
@@ -1549,33 +1448,13 @@ function updateCurrentLine(time) {
     ) {
 
         return;
-
-    }
-
-
-    const newIndex =
-        findCurrentLyric(
-            time
-        );
-
-
-    /*
-     * Don't constantly rebuild the page.
-     * Only change the highlight when
-     * the lyric actually changes.
-     */
-
-    if (
-        newIndex === currentIndex
-    ) {
-
-        return;
-
     }
 
 
     currentIndex =
-        newIndex;
+        findCurrentLyric(
+            time
+        );
 
 
     const elements =
@@ -1585,10 +1464,7 @@ function updateCurrentLine(time) {
 
 
     elements.forEach(
-        (
-            element,
-            index
-        ) => {
+        (element, index) => {
 
             if (
                 index === currentIndex
@@ -1599,9 +1475,8 @@ function updateCurrentLine(time) {
 
 
                 /*
-                 * Automatically scroll
-                 * the current lyric
-                 * into the middle.
+                 * Automatically scroll the
+                 * active lyric to the center.
                  */
 
                 element.scrollIntoView({
@@ -1612,30 +1487,14 @@ function updateCurrentLine(time) {
                         "center"
                 });
 
-            }
-
-            else {
+            } else {
 
                 element.className =
                     "line";
-
             }
-
         }
     );
-
 }
 
-
-/* =========================================================
-   INITIAL PAGE STATE
-========================================================= */
-
-console.log(
-    "🎵 Music Lyrics app loaded."
-);
-
-</script>
-
-</body>
+</script></body>
 </html>
