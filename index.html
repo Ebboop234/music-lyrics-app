@@ -9,11 +9,13 @@ maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
 <title>MUSIC Lyrics</title>
+
 <style>
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
 }
+
 html,
 body {
     margin: 0;
@@ -31,10 +33,12 @@ body {
     background: #000;
     color: white;
 }
+
 body {
     display: flex;
     justify-content: center;
 }
+
 .app {
     width: 100%;
     max-width: 430px;
@@ -49,9 +53,11 @@ body {
             #000 100%
         );
 }
+
 /* =========================
    HEADER
 ========================= */
+
 .header {
     position: absolute;
     top: 0;
@@ -68,19 +74,23 @@ body {
             rgba(0,0,0,0)
         );
 }
+
 .header-title {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: .3px;
 }
+
 .header-subtitle {
     margin-top: 3px;
     font-size: 13px;
     color: #aaa;
 }
+
 /* =========================
    SONG INFO
 ========================= */
+
 .song-info {
     position: absolute;
     top: 105px;
@@ -90,18 +100,22 @@ body {
     z-index: 15;
     pointer-events: none;
 }
+
 .song-title {
     font-size: 17px;
     font-weight: 700;
 }
+
 .song-artist {
     margin-top: 4px;
     font-size: 13px;
     color: #aaa;
 }
+
 /* =========================
    LYRICS
 ========================= */
+
 .lyrics-container {
     position: absolute;
     top: 135px;
@@ -115,9 +129,11 @@ body {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
+
 .lyrics-container::-webkit-scrollbar {
     display: none;
 }
+
 .lyric-line {
     text-align: center;
     font-size: 25px;
@@ -136,6 +152,7 @@ body {
     cursor: pointer;
     user-select: none;
 }
+
 .lyric-line.active {
     color: white;
     opacity: 1;
@@ -147,14 +164,17 @@ body {
             rgba(255,255,255,.22)
         );
 }
+
 .lyric-line.past {
     color:
         rgba(255,255,255,.7);
     opacity: .75;
 }
+
 /* =========================
    STATUS
 ========================= */
+
 .status {
     position: absolute;
     left: 20px;
@@ -165,9 +185,11 @@ body {
     color: #777;
     z-index: 20;
 }
+
 /* =========================
    QUESTION BUTTON
 ========================= */
+
 .question-button {
     position: absolute;
     left: 50%;
@@ -205,20 +227,24 @@ body {
         0 0 45px
         rgba(0,200,255,.15);
 }
+
 @keyframes rainbow {
     0% {
         background-position:
             0% 50%;
     }
+
     50% {
         background-position:
             100% 50%;
     }
+
     100% {
         background-position:
             0% 50%;
     }
 }
+
 @keyframes pulse {
     0%,
     100% {
@@ -226,20 +252,24 @@ body {
             translateX(-50%)
             scale(1);
     }
+
     50% {
         transform:
             translateX(-50%)
             scale(1.1);
     }
 }
+
 .question-button:active {
     transform:
         translateX(-50%)
         scale(.92);
 }
+
 /* =========================
    RECOGNIZING
 ========================= */
+
 .recognizing {
     position: absolute;
     left: 50%;
@@ -250,6 +280,7 @@ body {
     z-index: 40;
     display: none;
 }
+
 .spinner {
     width: 55px;
     height: 55px;
@@ -264,67 +295,92 @@ body {
     animation:
         spin 1s linear infinite;
 }
+
 @keyframes spin {
     to {
         transform:
             rotate(360deg);
     }
 }
+
 .recognizing-text {
     font-size: 15px;
     color: #ddd;
 }
 </style>
 </head>
+
 <body>
+
 <div class="app">
+
 <!-- HEADER -->
+
 <div class="header">
+
     <div class="header-title">
         MUSIC Lyrics
     </div>
+
     <div class="header-subtitle">
         Tap to recognize
     </div>
+
 </div>
+
 <!-- SONG INFO -->
+
 <div
     class="song-info"
     id="songInfo"
     style="display:none;"
 >
+
     <div
         class="song-title"
         id="songTitle"
     ></div>
+
     <div
         class="song-artist"
         id="songArtist"
     ></div>
+
 </div>
+
 <!-- LYRICS -->
+
 <div
     id="lyrics"
     class="lyrics-container"
 ></div>
+
 <!-- STATUS -->
+
 <div
     id="status"
     class="status"
 >
     Tap the button to identify a song
 </div>
+
 <!-- RECOGNIZING -->
+
 <div
     id="recognizing"
     class="recognizing"
 >
+
     <div class="spinner"></div>
+
     <div class="recognizing-text">
         Listening...
     </div>
+
 </div>
+
 <!-- QUESTION BUTTON -->
+
 <button
     id="questionButton"
     class="question-button"
@@ -332,83 +388,113 @@ body {
 >
     ?
 </button>
+
 </div>
+
 <script>
+
 /* =====================================================
    ELEMENTS
 ===================================================== */
+
 const button =
     document.getElementById(
         "questionButton"
     );
+
 const lyricsContainer =
     document.getElementById(
         "lyrics"
     );
+
 const statusElement =
     document.getElementById(
         "status"
     );
+
 const recognizingElement =
     document.getElementById(
         "recognizing"
     );
+
 const songInfo =
     document.getElementById(
         "songInfo"
     );
+
 const songTitle =
     document.getElementById(
         "songTitle"
     );
+
 const songArtist =
     document.getElementById(
         "songArtist"
     );
+
+
 /* =====================================================
    GLOBAL STATE
 ===================================================== */
+
 let lyricLines = [];
+
 let currentIndex = -1;
+
 let recognitionTimer = null;
+
 let audioStartTime = null;
+
+
 /*
  * Small timing adjustment.
  *
- * Change this later if lyrics are consistently
- * behind or ahead.
- *
- * 0 = exact Shazam match position.
+ * This is used ONLY when
+ * starting from Shazam recognition.
  */
 const SYNC_OFFSET = 4;
+
+
 /* =====================================================
    CONVERT LYRICS DATA TO TEXT
 ===================================================== */
+
 function lyricDataToString(data) {
+
     if (data == null) {
         return "";
     }
+
     if (typeof data === "string") {
         return data;
     }
+
     if (Array.isArray(data)) {
+
         let output = "";
+
         for (const item of data) {
+
             if (typeof item === "string") {
+
                 output +=
                     item + "\n";
+
                 continue;
             }
+
             if (
                 item &&
                 typeof item === "object"
             ) {
+
                 const time =
                     item.time ??
                     item.timestamp ??
                     item.start ??
                     item.startTime ??
                     item.seconds;
+
                 const text =
                     item.text ??
                     item.lyric ??
@@ -416,29 +502,38 @@ function lyricDataToString(data) {
                     item.words ??
                     item.content ??
                     "";
+
                 if (
                     time !== undefined &&
                     text
                 ) {
+
                     output +=
                         "[" +
                         secondsToLRC(time) +
                         "] " +
                         String(text) +
                         "\n";
+
                 }
+
                 else if (text) {
+
                     output +=
                         String(text) +
                         "\n";
+
                 }
             }
         }
+
         return output;
     }
+
     if (
         typeof data === "object"
     ) {
+
         const possible =
             data.syncedLyrics ??
             data.synced_lyrics ??
@@ -448,20 +543,25 @@ function lyricDataToString(data) {
             data.text ??
             data.content ??
             data.lines;
+
         if (
             possible !== undefined &&
             possible !== data
         ) {
+
             return lyricDataToString(
                 possible
             );
+
         }
+
         const time =
             data.time ??
             data.timestamp ??
             data.start ??
             data.startTime ??
             data.seconds;
+
         const text =
             data.text ??
             data.lyric ??
@@ -469,38 +569,52 @@ function lyricDataToString(data) {
             data.words ??
             data.content ??
             "";
+
         if (
             time !== undefined &&
             text
         ) {
+
             return (
                 "[" +
                 secondsToLRC(time) +
                 "] " +
                 String(text)
             );
+
         }
     }
+
     return "";
 }
+
+
 /* =====================================================
    SECONDS TO LRC
 ===================================================== */
+
 function secondsToLRC(seconds) {
+
     seconds =
         Number(seconds);
+
     if (
         !Number.isFinite(seconds)
     ) {
+
         return "00:00.00";
+
     }
+
     const minutes =
         Math.floor(
             seconds / 60
         );
+
     const remaining =
         seconds -
         minutes * 60;
+
     return (
         String(minutes)
             .padStart(2, "0") +
@@ -510,50 +624,63 @@ function secondsToLRC(seconds) {
             .padStart(5, "0")
     );
 }
+
+
 /* =====================================================
    PARSE LRC
 ===================================================== */
+
 function parseLRC(data) {
+
     const lrc =
         lyricDataToString(
             data
         );
+
     console.log(
         "========== LRC =========="
     );
+
     console.log(lrc);
+
     if (!lrc) {
         return [];
     }
+
     const lines =
         lrc.split(/\r?\n/);
+
     const parsed = [];
-    /*
-     * IMPORTANT:
-     *
-     * These are REAL square brackets.
-     */
+
     const timestampRegex =
         /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+
     for (
         const originalLine of lines
     ) {
+
         const line =
             originalLine.trim();
+
         if (!line) {
             continue;
         }
+
         const matches =
             [
                 ...line.matchAll(
                     timestampRegex
                 )
             ];
+
         if (
             matches.length === 0
         ) {
+
             continue;
+
         }
+
         const text =
             line
                 .replace(
@@ -561,416 +688,627 @@ function parseLRC(data) {
                     ""
                 )
                 .trim();
+
         if (!text) {
             continue;
         }
+
         for (
             const match of matches
         ) {
+
             const minutes =
                 Number(
                     match[1]
                 );
+
             const seconds =
                 Number(
                     match[2]
                 );
+
             let fraction = 0;
+
             if (match[3]) {
+
                 const raw =
                     match[3];
+
                 if (
                     raw.length === 1
                 ) {
+
                     fraction =
                         Number(raw) / 10;
+
                 }
+
                 else if (
                     raw.length === 2
                 ) {
+
                     fraction =
                         Number(raw) / 100;
+
                 }
+
                 else {
+
                     fraction =
                         Number(raw) / 1000;
+
                 }
             }
+
             parsed.push({
+
                 time:
                     minutes * 60 +
                     seconds +
                     fraction,
+
                 text:
                     text
+
             });
         }
     }
+
     parsed.sort(
         (a, b) =>
             a.time - b.time
     );
+
     console.log(
         "PARSED LYRICS:",
         parsed
     );
+
     return parsed;
 }
+
+
 /* =====================================================
    DISPLAY LYRICS
 ===================================================== */
+
 function displayLyrics(data) {
+
     lyricLines =
         parseLRC(data);
+
     lyricsContainer.innerHTML =
         "";
+
     currentIndex =
         -1;
+
     if (
         lyricLines.length === 0
     ) {
+
         lyricsContainer.innerHTML = `
             <div class="lyric-line active">
                 No synchronized lyrics found.
             </div>
         `;
+
         return false;
     }
+
     lyricLines.forEach(
         (line, index) => {
+
             const element =
                 document.createElement(
                     "div"
                 );
+
             element.className =
                 "lyric-line";
+
             element.textContent =
                 line.text;
+
+
             /*
              * ===========================
              * TOUCH TO SYNC
              * ===========================
              */
+
             element.addEventListener(
                 "click",
                 () => {
+
                     const selectedTime =
                         lyricLines[index].time;
+
                     console.log(
                         "🎯 Touch sync:",
                         selectedTime,
                         "seconds"
                     );
+
+
                     /*
-                     * Restart the sync clock
-                     * at this lyric.
+                     * IMPORTANT:
+                     *
+                     * Touch sync uses the
+                     * EXACT timestamp of
+                     * the lyric tapped.
+                     *
+                     * No +4 second offset.
                      */
+
                     startEstimatedSync(
-                        selectedTime
+                        selectedTime,
+                        false
                     );
+
                     updateActiveLyric(
                         index
                     );
+
                     statusElement.textContent =
                         "Synced to this lyric";
+
                 }
             );
+
             lyricsContainer.appendChild(
                 element
             );
+
         }
     );
+
     return true;
 }
+
+
 /* =====================================================
    UPDATE ACTIVE LYRIC
 ===================================================== */
+
 function updateActiveLyric(index) {
+
     if (
         index < 0 ||
         index >= lyricLines.length
     ) {
+
         return;
+
     }
+
     const elements =
         lyricsContainer.querySelectorAll(
             ".lyric-line"
         );
+
     elements.forEach(
         (element, i) => {
+
             element.classList.remove(
                 "active"
             );
+
             element.classList.remove(
                 "past"
             );
+
             if (
                 i < index
             ) {
+
                 element.classList.add(
                     "past"
                 );
+
             }
+
         }
     );
+
     const active =
         elements[index];
+
     if (!active) {
         return;
     }
+
     active.classList.add(
         "active"
     );
+
+
     /*
      * Scroll active lyric toward center.
      */
+
     const containerRect =
         lyricsContainer
             .getBoundingClientRect();
+
     const elementRect =
         active
             .getBoundingClientRect();
+
     const offset =
         elementRect.top -
         containerRect.top -
         containerRect.height / 2 +
         elementRect.height / 2;
+
     lyricsContainer.scrollBy({
+
         top:
             offset,
+
         behavior:
             "smooth"
+
     });
+
     currentIndex =
         index;
 }
+
+
 /* =====================================================
    FIND CURRENT LYRIC
 ===================================================== */
+
 function findCurrentLyric(seconds) {
+
     if (
         !lyricLines.length
     ) {
+
         return -1;
+
     }
+
     let index = -1;
+
     for (
         let i = 0;
         i < lyricLines.length;
         i++
     ) {
+
         if (
             seconds >=
             lyricLines[i].time
         ) {
+
             index = i;
+
         }
+
         else {
+
             break;
+
         }
     }
+
     return index;
 }
+
+
 /* =====================================================
    START ESTIMATED SYNC
 ===================================================== */
+
 function startEstimatedSync(
-    startAt = 0
+    startAt = 0,
+    applyOffset = true
 ) {
+
     if (
         !lyricLines.length
     ) {
+
         return;
+
     }
+
+
     /*
      * Stop previous timer.
      */
+
     stopEstimatedSync();
+
+
     let startingPosition =
         Number(startAt);
+
+
     if (
         !Number.isFinite(
             startingPosition
         )
     ) {
+
         startingPosition = 0;
+
     }
+
+
     /*
-     * Apply timing adjustment.
+     * Only apply the 4-second
+     * offset when starting from
+     * Shazam recognition.
+     *
+     * Touch-to-sync does NOT
+     * use the offset.
      */
-    startingPosition +=
-        SYNC_OFFSET;
+
+    if (applyOffset) {
+
+        startingPosition +=
+            SYNC_OFFSET;
+
+    }
+
+
     if (
         startingPosition < 0
     ) {
+
         startingPosition = 0;
+
     }
+
+
     console.log(
         "🎯 Sync starting at:",
-        startingPosition
+        startingPosition,
+        "Offset applied:",
+        applyOffset
     );
+
+
     /*
-     * Make the clock pretend the song
-     * started at the Shazam match position.
+     * Make the clock pretend
+     * the song is currently
+     * at this position.
      */
+
     audioStartTime =
         performance.now() -
         (
             startingPosition *
             1000
         );
+
+
     /*
-     * Immediately highlight the correct line.
+     * Immediately highlight
+     * the correct line.
      */
+
     const firstIndex =
         findCurrentLyric(
             startingPosition
         );
+
+
     if (
         firstIndex >= 0
     ) {
+
         updateActiveLyric(
             firstIndex
         );
+
     }
+
+
     /*
      * Continue automatically.
      */
+
     recognitionTimer =
         setInterval(
             () => {
+
                 if (
                     !audioStartTime
                 ) {
+
                     return;
+
                 }
+
+
                 const elapsed =
                     (
                         performance.now() -
                         audioStartTime
                     ) / 1000;
+
+
                 const index =
                     findCurrentLyric(
                         elapsed
                     );
+
+
                 if (
                     index !==
                     currentIndex
                 ) {
+
                     updateActiveLyric(
                         index
                     );
+
                 }
+
             },
             100
         );
 }
+
+
 /* =====================================================
    STOP SYNC
 ===================================================== */
+
 function stopEstimatedSync() {
+
     if (
         recognitionTimer
     ) {
+
         clearInterval(
             recognitionTimer
         );
+
         recognitionTimer =
             null;
+
     }
+
     audioStartTime =
         null;
 }
+
+
 /* =====================================================
    GET TITLE
 ===================================================== */
+
 function getSafeTitle(data) {
+
     if (
         data.song &&
         typeof data.song === "object"
     ) {
+
         return String(
             data.song.title ||
             ""
         );
+
     }
+
     return String(
         data.title ||
         data.song ||
         ""
     );
 }
+
+
 /* =====================================================
    GET ARTIST
 ===================================================== */
+
 function getSafeArtist(data) {
+
     if (
         data.song &&
         typeof data.song === "object"
     ) {
+
         return String(
             data.song.artist ||
             ""
         );
+
     }
+
     return String(
         data.artist ||
         ""
     );
 }
+
+
 /* =====================================================
    RECOGNIZE SONG
 ===================================================== */
+
 async function recognizeSong() {
+
     button.disabled =
         true;
+
     recognizingElement.style.display =
         "block";
+
     statusElement.textContent =
         "Listening...";
+
     songInfo.style.display =
         "none";
+
     lyricsContainer.innerHTML =
         "";
+
     stopEstimatedSync();
+
+
     try {
+
         /*
          * Microphone.
          */
+
         const stream =
             await navigator
                 .mediaDevices
                 .getUserMedia({
                     audio: true
                 });
+
+
         /*
          * Choose recording format.
          */
+
         let mimeType = "";
+
+
         if (
             MediaRecorder.isTypeSupported(
                 "audio/webm;codecs=opus"
             )
         ) {
+
             mimeType =
                 "audio/webm;codecs=opus";
+
         }
+
         else if (
             MediaRecorder.isTypeSupported(
                 "audio/webm"
             )
         ) {
+
             mimeType =
                 "audio/webm";
+
         }
+
         else if (
             MediaRecorder.isTypeSupported(
                 "audio/mp4"
             )
         ) {
+
             mimeType =
                 "audio/mp4";
+
         }
+
+
         const recorder =
             mimeType
                 ? new MediaRecorder(
@@ -983,26 +1321,39 @@ async function recognizeSong() {
                 : new MediaRecorder(
                     stream
                   );
+
+
         const chunks = [];
+
+
         recorder.ondataavailable =
             event => {
+
                 if (
                     event.data &&
                     event.data.size > 0
                 ) {
+
                     chunks.push(
                         event.data
                     );
+
                 }
+
             };
+
+
         recorder.onstop =
             async () => {
+
                 stream
                     .getTracks()
                     .forEach(
                         track =>
                             track.stop()
                     );
+
+
                 const blob =
                     new Blob(
                         chunks,
@@ -1012,60 +1363,87 @@ async function recognizeSong() {
                                 "audio/webm"
                         }
                     );
+
+
                 await sendAudio(
                     blob
                 );
+
             };
+
+
         recorder.start();
+
+
         /*
          * Record for 8 seconds.
          */
+
         setTimeout(
             () => {
+
                 if (
                     recorder.state !==
                     "inactive"
                 ) {
+
                     recorder.stop();
+
                 }
+
             },
             8000
         );
+
     }
+
     catch (error) {
+
         console.error(
             "Microphone error:",
             error
         );
+
         recognizingElement.style.display =
             "none";
+
         statusElement.textContent =
             "Microphone permission is required.";
+
         button.disabled =
             false;
+
     }
 }
+
+
 /* =====================================================
    SEND AUDIO TO SHAZAM
 ===================================================== */
+
 async function sendAudio(blob) {
+
     try {
+
         statusElement.textContent =
             "Recognizing song...";
+
+
         const formData =
             new FormData();
+
+
         formData.append(
             "audio",
             blob,
             "recording.webm"
         );
+
+
         /*
-         * IMPORTANT:
-         *
-         * Your server endpoint is:
-         *
-         * /identify-shazam
+         * Server endpoint.
          */
+
         const response =
             await fetch(
                 "/identify-shazam",
@@ -1076,90 +1454,132 @@ async function sendAudio(blob) {
                         formData
                 }
             );
+
+
         if (
             !response.ok
         ) {
+
             const errorText =
                 await response.text();
+
             console.error(
                 "SERVER ERROR:",
                 errorText
             );
+
             throw new Error(
                 "Server returned " +
                 response.status
             );
+
         }
+
+
         const data =
             await response.json();
+
+
         console.log(
             "========== SERVER RESPONSE =========="
         );
+
         console.log(data);
+
+
         recognizingElement.style.display =
             "none";
+
+
         /*
          * ===========================
          * SONG INFO
          * ===========================
          */
+
         const title =
             getSafeTitle(data);
+
         const artist =
             getSafeArtist(data);
+
+
         if (
             title ||
             artist
         ) {
+
             songTitle.textContent =
                 title;
+
             songArtist.textContent =
                 artist;
+
             songInfo.style.display =
                 "block";
+
         }
+
+
         /*
          * ===========================
          * SHAZAM MATCH POSITION
          * ===========================
          */
+
         let matchPosition = 0;
+
+
         if (
             data.song &&
             typeof data.song === "object"
         ) {
+
             matchPosition =
                 Number(
                     data.song.matchPosition ??
                     data.song.timecode ??
                     0
                 );
+
         }
+
         else {
+
             matchPosition =
                 Number(
                     data.matchPosition ??
                     data.timecode ??
                     0
                 );
+
         }
+
+
         if (
             !Number.isFinite(
                 matchPosition
             ) ||
             matchPosition < 0
         ) {
+
             matchPosition = 0;
+
         }
+
+
         console.log(
             "🎯 SHAZAM MATCH POSITION:",
             matchPosition
         );
+
+
         /*
          * ===========================
          * LYRICS
          * ===========================
          */
+
         const lyrics =
             data.lyrics ??
             data.syncedLyrics ??
@@ -1170,87 +1590,131 @@ async function sendAudio(blob) {
             data.lyricData ??
             data.lyric_data ??
             "";
+
+
         console.log(
             "🎵 LYRICS DATA:",
             lyrics
         );
+
+
         if (
             lyrics
         ) {
+
             const success =
                 displayLyrics(
                     lyrics
                 );
+
+
             if (
                 success
             ) {
+
                 /*
-                 * Start at the exact
-                 * Shazam match position.
+                 * Start at the Shazam
+                 * match position.
+                 *
+                 * The default applyOffset
+                 * is TRUE, so SYNC_OFFSET
+                 * is applied here.
                  */
+
                 startEstimatedSync(
                     matchPosition
                 );
+
                 statusElement.textContent =
                     "Tap a lyric to sync";
+
             }
+
             else {
+
                 statusElement.textContent =
                     "Lyrics were received, but no usable timestamps were found.";
+
             }
+
         }
+
         else {
+
             statusElement.textContent =
                 "No lyrics found.";
+
             lyricsContainer.innerHTML = `
                 <div class="lyric-line active">
                     No lyrics found.
                 </div>
             `;
+
         }
+
     }
+
     catch (error) {
+
         console.error(
             "Recognition error:",
             error
         );
+
         recognizingElement.style.display =
             "none";
+
         statusElement.textContent =
             "Could not recognize the song.";
+
         lyricsContainer.innerHTML = `
             <div class="lyric-line active">
                 Try again.
             </div>
         `;
+
     }
+
     finally {
+
         button.disabled =
             false;
+
     }
 }
+
+
 /* =====================================================
    BUTTON
 ===================================================== */
+
 button.addEventListener(
     "click",
     recognizeSong
 );
+
+
 /* =====================================================
    STARTUP
 ===================================================== */
+
 console.log(
     "🎵 MUSIC Lyrics loaded"
 );
+
 console.log(
     "🎤 SongRec/Shazam recognition enabled"
 );
+
 console.log(
     "🎯 Match-position synchronization enabled"
 );
+
 console.log(
     "👆 Touch-to-sync enabled"
 );
+
 </script>
+
 </body>
 </html>
