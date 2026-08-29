@@ -1,21 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!DOCTYPE html><html lang="en">
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0,
-maximum-scale=1.0, user-scalable=no">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
+maximum-scale=1.0, user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
-
-<title>MUSIC Lyrics</title>
-
-<style>
+<meta name="apple-mobile-web-app-title" content="MUSIC Lyrics"><title>MUSIC Lyrics</title><style>
 
 * {
     box-sizing: border-box;
@@ -26,10 +16,8 @@ html,
 body {
     margin: 0;
     padding: 0;
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
 
     font-family:
@@ -50,13 +38,11 @@ body {
 }
 
 .app {
-
     width: 100%;
     max-width: 430px;
     height: 100vh;
 
     position: relative;
-
     overflow: hidden;
 
     background:
@@ -68,13 +54,11 @@ body {
         );
 }
 
-
 /* =========================
    HEADER
 ========================= */
 
 .header {
-
     position: absolute;
 
     top: 0;
@@ -98,16 +82,12 @@ body {
 }
 
 .header-title {
-
     font-size: 18px;
-
     font-weight: 700;
-
     letter-spacing: .3px;
 }
 
 .header-subtitle {
-
     margin-top: 3px;
 
     font-size: 13px;
@@ -115,13 +95,11 @@ body {
     color: #aaa;
 }
 
-
 /* =========================
    SONG INFO
 ========================= */
 
 .song-info {
-
     position: absolute;
 
     top: 105px;
@@ -137,14 +115,11 @@ body {
 }
 
 .song-title {
-
     font-size: 17px;
-
     font-weight: 700;
 }
 
 .song-artist {
-
     margin-top: 4px;
 
     font-size: 13px;
@@ -152,13 +127,11 @@ body {
     color: #aaa;
 }
 
-
 /* =========================
    LYRICS
 ========================= */
 
 .lyrics-container {
-
     position: absolute;
 
     top: 135px;
@@ -183,7 +156,6 @@ body {
 }
 
 .lyric-line {
-
     text-align: center;
 
     font-size: 25px;
@@ -212,7 +184,6 @@ body {
 }
 
 .lyric-line.active {
-
     color: white;
 
     opacity: 1;
@@ -228,20 +199,17 @@ body {
 }
 
 .lyric-line.past {
-
     color:
         rgba(255,255,255,.7);
 
     opacity: .75;
 }
 
-
 /* =========================
    STATUS
 ========================= */
 
 .status {
-
     position: absolute;
 
     left: 20px;
@@ -258,17 +226,14 @@ body {
     z-index: 20;
 }
 
-
 /* =========================
    QUESTION BUTTON
 ========================= */
 
 .question-button {
-
     position: absolute;
 
     left: 50%;
-
     bottom: 20px;
 
     transform:
@@ -340,14 +305,12 @@ body {
 
     0%,
     100% {
-
         transform:
             translateX(-50%)
             scale(1);
     }
 
     50% {
-
         transform:
             translateX(-50%)
             scale(1.1);
@@ -355,19 +318,16 @@ body {
 }
 
 .question-button:active {
-
     transform:
         translateX(-50%)
         scale(.92);
 }
-
 
 /* =========================
    RECOGNIZING
 ========================= */
 
 .recognizing {
-
     position: absolute;
 
     left: 50%;
@@ -384,7 +344,6 @@ body {
 }
 
 .spinner {
-
     width: 55px;
     height: 55px;
 
@@ -413,108 +372,59 @@ body {
 }
 
 .recognizing-text {
-
     font-size: 15px;
-
     color: #ddd;
 }
 
-</style>
-
-</head>
-
-
-<body>
-
-<div class="app">
-
-
-<!-- HEADER -->
-
-<div class="header">
-
-    <div class="header-title">
-        MUSIC Lyrics
-    </div>
-
-    <div class="header-subtitle">
-        Tap to recognize
-    </div>
-
+</style></head><body><div class="app"><!-- HEADER --><div class="header"><div class="header-title">
+    MUSIC Lyrics
 </div>
 
+<div class="header-subtitle">
+    Tap to recognize
+</div>
 
-<!-- SONG INFO -->
-
-<div
+</div><!-- SONG INFO --><div
     class="song-info"
     id="songInfo"
     style="display:none;"
->
-
-    <div
-        class="song-title"
-        id="songTitle"
-    ></div>
-
-    <div
-        class="song-artist"
-        id="songArtist"
-    ></div>
-
-</div>
-
-
-<!-- LYRICS -->
-
-<div
-    id="lyrics"
-    class="lyrics-container"
+><div
+    class="song-title"
+    id="songTitle"
 ></div>
 
-
-<!-- STATUS -->
-
 <div
+    class="song-artist"
+    id="songArtist"
+></div>
+
+</div><!-- LYRICS --><div
+    id="lyrics"
+    class="lyrics-container"
+></div><!-- STATUS --><div
     id="status"
     class="status"
 >
     Tap the button to identify a song
-</div>
-
-
-<!-- RECOGNIZING -->
-
-<div
+</div><!-- RECOGNIZING --><div
     id="recognizing"
     class="recognizing"
->
+><div class="spinner"></div>
 
-    <div class="spinner"></div>
-
-    <div class="recognizing-text">
-        Listening...
-    </div>
-
+<div class="recognizing-text">
+    Listening...
 </div>
 
+</div><!-- QUESTION BUTTON --><button
+id="questionButton"
+class="question-button"
+aria-label="Recognize song"
 
-<!-- QUESTION BUTTON -->
+«»
 
-<button
-    id="questionButton"
-    class="question-button"
-    aria-label="Recognize song"
->
-    ?
-</button>
+?
 
-
-</div>
-
-
-<script>
-
+</button></div><script>
 
 /* =====================================================
    ELEMENTS
@@ -570,12 +480,23 @@ let audioStartTime = null;
 
 
 /*
- * Small timing adjustment.
+ * This is the permanent manual sync correction.
  *
- * Change this later if lyrics are consistently
- * behind or ahead.
+ * Positive number:
+ * lyrics move forward.
  *
- * 0 = exact Shazam match position.
+ * Negative number:
+ * lyrics move backward.
+ */
+
+let manualSyncOffset = 0;
+
+
+/*
+ * Initial correction.
+ *
+ * You can change this if the automatic
+ * recognition is consistently off.
  */
 
 const SYNC_OFFSET = 4;
@@ -591,16 +512,13 @@ function lyricDataToString(data) {
         return "";
     }
 
-
     if (typeof data === "string") {
         return data;
     }
 
-
     if (Array.isArray(data)) {
 
         let output = "";
-
 
         for (const item of data) {
 
@@ -611,7 +529,6 @@ function lyricDataToString(data) {
 
                 continue;
             }
-
 
             if (
                 item &&
@@ -625,7 +542,6 @@ function lyricDataToString(data) {
                     item.startTime ??
                     item.seconds;
 
-
                 const text =
                     item.text ??
                     item.lyric ??
@@ -633,7 +549,6 @@ function lyricDataToString(data) {
                     item.words ??
                     item.content ??
                     "";
-
 
                 if (
                     time !== undefined &&
@@ -658,7 +573,6 @@ function lyricDataToString(data) {
             }
         }
 
-
         return output;
     }
 
@@ -677,7 +591,6 @@ function lyricDataToString(data) {
             data.content ??
             data.lines;
 
-
         if (
             possible !== undefined &&
             possible !== data
@@ -688,14 +601,12 @@ function lyricDataToString(data) {
             );
         }
 
-
         const time =
             data.time ??
             data.timestamp ??
             data.start ??
             data.startTime ??
             data.seconds;
-
 
         const text =
             data.text ??
@@ -704,7 +615,6 @@ function lyricDataToString(data) {
             data.words ??
             data.content ??
             "";
-
 
         if (
             time !== undefined &&
@@ -720,7 +630,6 @@ function lyricDataToString(data) {
         }
     }
 
-
     return "";
 }
 
@@ -734,7 +643,6 @@ function secondsToLRC(seconds) {
     seconds =
         Number(seconds);
 
-
     if (
         !Number.isFinite(seconds)
     ) {
@@ -742,24 +650,19 @@ function secondsToLRC(seconds) {
         return "00:00.00";
     }
 
-
     const minutes =
         Math.floor(
             seconds / 60
         );
 
-
     const remaining =
         seconds -
         minutes * 60;
 
-
     return (
         String(minutes)
             .padStart(2, "0") +
-
         ":" +
-
         remaining
             .toFixed(2)
             .padStart(5, "0")
@@ -778,34 +681,23 @@ function parseLRC(data) {
             data
         );
 
-
     console.log(
         "========== LRC =========="
     );
 
     console.log(lrc);
 
-
     if (!lrc) {
         return [];
     }
 
-
     const lines =
         lrc.split(/\r?\n/);
 
-
     const parsed = [];
 
-
-    /*
-     * IMPORTANT:
-     *
-     * These are REAL square brackets.
-     */
-
     const timestampRegex =
-        /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+        /(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?/g;
 
 
     for (
@@ -815,11 +707,9 @@ function parseLRC(data) {
         const line =
             originalLine.trim();
 
-
         if (!line) {
             continue;
         }
-
 
         const matches =
             [
@@ -828,14 +718,12 @@ function parseLRC(data) {
                 )
             ];
 
-
         if (
             matches.length === 0
         ) {
 
             continue;
         }
-
 
         const text =
             line
@@ -845,11 +733,9 @@ function parseLRC(data) {
                 )
                 .trim();
 
-
         if (!text) {
             continue;
         }
-
 
         for (
             const match of matches
@@ -860,21 +746,17 @@ function parseLRC(data) {
                     match[1]
                 );
 
-
             const seconds =
                 Number(
                     match[2]
                 );
 
-
             let fraction = 0;
-
 
             if (match[3]) {
 
                 const raw =
                     match[3];
-
 
                 if (
                     raw.length === 1
@@ -901,7 +783,6 @@ function parseLRC(data) {
                 }
             }
 
-
             parsed.push({
 
                 time:
@@ -911,6 +792,7 @@ function parseLRC(data) {
 
                 text:
                     text
+
             });
         }
     }
@@ -927,7 +809,6 @@ function parseLRC(data) {
         parsed
     );
 
-
     return parsed;
 }
 
@@ -941,13 +822,14 @@ function displayLyrics(data) {
     lyricLines =
         parseLRC(data);
 
-
     lyricsContainer.innerHTML =
         "";
 
-
     currentIndex =
         -1;
+
+    manualSyncOffset =
+        0;
 
 
     if (
@@ -955,11 +837,9 @@ function displayLyrics(data) {
     ) {
 
         lyricsContainer.innerHTML = `
-
             <div class="lyric-line active">
                 No synchronized lyrics found.
             </div>
-
         `;
 
         return false;
@@ -974,45 +854,109 @@ function displayLyrics(data) {
                     "div"
                 );
 
-
             element.className =
                 "lyric-line";
-
 
             element.textContent =
                 line.text;
 
 
             /*
-             * ===========================
              * TOUCH TO SYNC
-             * ===========================
+             *
+             * When the user taps a lyric,
+             * we DON'T restart the song clock.
+             *
+             * Instead we calculate the correction
+             * needed to make this lyric active
+             * RIGHT NOW.
              */
 
             element.addEventListener(
                 "click",
                 () => {
 
-                    const selectedTime =
+                    if (
+                        !audioStartTime
+                    ) {
+
+                        /*
+                         * If synchronization has
+                         * not started yet, simply
+                         * select the lyric.
+                         */
+
+                        updateActiveLyric(
+                            index
+                        );
+
+                        return;
+                    }
+
+
+                    /*
+                     * Current estimated song position.
+                     */
+
+                    const currentSongTime =
+                        (
+                            performance.now() -
+                            audioStartTime
+                        ) / 1000;
+
+
+                    /*
+                     * Timestamp of the lyric
+                     * the user tapped.
+                     */
+
+                    const tappedLyricTime =
                         lyricLines[index].time;
 
 
+                    /*
+                     * Calculate correction.
+                     *
+                     * Example:
+                     *
+                     * Current song position = 30 sec
+                     * Tapped lyric = 34 sec
+                     *
+                     * Correction = +4 sec
+                     *
+                     * This makes the lyrics jump
+                     * forward 4 seconds.
+                     */
+
+                    manualSyncOffset =
+                        tappedLyricTime -
+                        currentSongTime;
+
+
                     console.log(
-                        "🎯 Touch sync:",
-                        selectedTime,
-                        "seconds"
+                        "👆 TOUCH SYNC"
+                    );
+
+                    console.log(
+                        "Current song time:",
+                        currentSongTime
+                    );
+
+                    console.log(
+                        "Tapped lyric time:",
+                        tappedLyricTime
+                    );
+
+                    console.log(
+                        "New manual offset:",
+                        manualSyncOffset
                     );
 
 
                     /*
-                     * Restart the sync clock
-                     * at this lyric.
+                     * Immediately show
+                     * the tapped lyric.
                      */
-
-                    startEstimatedSync(
-                        selectedTime
-                    );
-
 
                     updateActiveLyric(
                         index
@@ -1021,6 +965,13 @@ function displayLyrics(data) {
 
                     statusElement.textContent =
                         "Synced to this lyric";
+
+
+                    /*
+                     * Keep the timer running.
+                     *
+                     * We do NOT restart it.
+                     */
                 }
             );
 
@@ -1028,7 +979,6 @@ function displayLyrics(data) {
             lyricsContainer.appendChild(
                 element
             );
-
         }
     );
 
@@ -1097,13 +1047,13 @@ function updateActiveLyric(index) {
 
 
     /*
-     * Scroll active lyric toward center.
+     * Scroll active lyric
+     * toward center.
      */
 
     const containerRect =
         lyricsContainer
             .getBoundingClientRect();
-
 
     const elementRect =
         active
@@ -1124,6 +1074,7 @@ function updateActiveLyric(index) {
 
         behavior:
             "smooth"
+
     });
 
 
@@ -1163,6 +1114,7 @@ function findCurrentLyric(seconds) {
             index = i;
 
         }
+
         else {
 
             break;
@@ -1190,10 +1142,6 @@ function startEstimatedSync(
     }
 
 
-    /*
-     * Stop previous timer.
-     */
-
     stopEstimatedSync();
 
 
@@ -1207,12 +1155,13 @@ function startEstimatedSync(
         )
     ) {
 
-        startingPosition = 0;
+        startingPosition =
+            0;
     }
 
 
     /*
-     * Apply timing adjustment.
+     * Initial automatic correction.
      */
 
     startingPosition +=
@@ -1223,19 +1172,30 @@ function startEstimatedSync(
         startingPosition < 0
     ) {
 
-        startingPosition = 0;
+        startingPosition =
+            0;
     }
 
 
+    /*
+     * Reset manual correction
+     * whenever a new song is recognized.
+     */
+
+    manualSyncOffset =
+        0;
+
+
     console.log(
-        "🎯 Sync starting at:",
+        "🎯 Initial sync position:",
         startingPosition
     );
 
 
     /*
-     * Make the clock pretend the song
-     * started at the Shazam match position.
+     * Make the clock pretend that
+     * the song started at the Shazam
+     * match position.
      */
 
     audioStartTime =
@@ -1247,7 +1207,8 @@ function startEstimatedSync(
 
 
     /*
-     * Immediately highlight the correct line.
+     * Immediately highlight
+     * correct lyric.
      */
 
     const firstIndex =
@@ -1282,11 +1243,25 @@ function startEstimatedSync(
                 }
 
 
-                const elapsed =
+                /*
+                 * Normal elapsed time.
+                 */
+
+                const rawElapsed =
                     (
                         performance.now() -
                         audioStartTime
                     ) / 1000;
+
+
+                /*
+                 * Apply the manual
+                 * touch-to-sync correction.
+                 */
+
+                const elapsed =
+                    rawElapsed +
+                    manualSyncOffset;
 
 
                 const index =
@@ -1332,6 +1307,9 @@ function stopEstimatedSync() {
 
     audioStartTime =
         null;
+
+    manualSyncOffset =
+        0;
 }
 
 
@@ -1418,14 +1396,16 @@ async function recognizeSong() {
     try {
 
         /*
-         * Microphone.
+         * Microphone
          */
 
         const stream =
             await navigator
                 .mediaDevices
                 .getUserMedia({
+
                     audio: true
+
                 });
 
 
@@ -1444,7 +1424,6 @@ async function recognizeSong() {
 
             mimeType =
                 "audio/webm;codecs=opus";
-
         }
 
         else if (
@@ -1455,7 +1434,6 @@ async function recognizeSong() {
 
             mimeType =
                 "audio/webm";
-
         }
 
         else if (
@@ -1517,9 +1495,11 @@ async function recognizeSong() {
                     new Blob(
                         chunks,
                         {
+
                             type:
                                 recorder.mimeType ||
                                 "audio/webm"
+
                         }
                     );
 
@@ -1599,23 +1579,17 @@ async function sendAudio(blob) {
         );
 
 
-        /*
-         * IMPORTANT:
-         *
-         * Your server endpoint is:
-         *
-         * /identify-shazam
-         */
-
         const response =
             await fetch(
                 "/identify-shazam",
                 {
+
                     method:
                         "POST",
 
                     body:
                         formData
+
                 }
             );
 
@@ -1649,7 +1623,6 @@ async function sendAudio(blob) {
             "========== SERVER RESPONSE =========="
         );
 
-
         console.log(data);
 
 
@@ -1658,9 +1631,7 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
          * SONG INFO
-         * ===========================
          */
 
         const title =
@@ -1679,10 +1650,8 @@ async function sendAudio(blob) {
             songTitle.textContent =
                 title;
 
-
             songArtist.textContent =
                 artist;
-
 
             songInfo.style.display =
                 "block";
@@ -1690,12 +1659,11 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
          * SHAZAM MATCH POSITION
-         * ===========================
          */
 
-        let matchPosition = 0;
+        let matchPosition =
+            0;
 
 
         if (
@@ -1730,7 +1698,8 @@ async function sendAudio(blob) {
             matchPosition < 0
         ) {
 
-            matchPosition = 0;
+            matchPosition =
+                0;
         }
 
 
@@ -1741,9 +1710,7 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
          * LYRICS
-         * ===========================
          */
 
         const lyrics =
@@ -1779,8 +1746,8 @@ async function sendAudio(blob) {
             ) {
 
                 /*
-                 * Start at the exact
-                 * Shazam match position.
+                 * Start lyrics at
+                 * the Shazam match position.
                  */
 
                 startEstimatedSync(
@@ -1808,11 +1775,9 @@ async function sendAudio(blob) {
 
 
             lyricsContainer.innerHTML = `
-
                 <div class="lyric-line active">
                     No lyrics found.
                 </div>
-
             `;
         }
 
@@ -1835,11 +1800,9 @@ async function sendAudio(blob) {
 
 
         lyricsContainer.innerHTML = `
-
             <div class="lyric-line active">
                 Try again.
             </div>
-
         `;
 
     }
@@ -1882,7 +1845,5 @@ console.log(
     "👆 Touch-to-sync enabled"
 );
 
-</script>
-
-</body>
+</script></body>
 </html>
