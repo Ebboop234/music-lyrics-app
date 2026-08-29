@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0,
-maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
+maximum-scale=1.0, user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
-<title>MUSIC Lyrics</title>
+<meta name="apple-mobile-web-app-title" content="MUSIC Lyrics"><title>MUSIC Lyrics</title><style>
 
-<style>
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -23,6 +19,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+
     font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -30,6 +27,7 @@ body {
         "Helvetica Neue",
         Arial,
         sans-serif;
+
     background: #000;
     color: white;
 }
@@ -45,14 +43,51 @@ body {
     height: 100vh;
     position: relative;
     overflow: hidden;
-    background:
-        radial-gradient(
-            circle at 50% 20%,
-            #272727 0%,
-            #090909 45%,
-            #000 100%
-        );
+    background: #000;
 }
+
+
+/* =====================================================
+   BLURRED ALBUM BACKGROUND
+===================================================== */
+
+.album-background {
+    position: absolute;
+    inset: -30px;
+
+    background-image: none;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    filter: blur(35px);
+    transform: scale(1.15);
+
+    opacity: 0;
+    transition: opacity 1s ease;
+
+    z-index: 0;
+}
+
+.album-background.visible {
+    opacity: .55;
+}
+
+.album-overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0,0,0,.72),
+            rgba(0,0,0,.45) 40%,
+            rgba(0,0,0,.72) 100%
+        );
+
+    z-index: 1;
+}
+
 
 /* =========================
    HEADER
@@ -63,10 +98,15 @@ body {
     top: 0;
     left: 0;
     right: 0;
+
     height: 100px;
+
     padding-top: 55px;
+
     text-align: center;
+
     z-index: 20;
+
     background:
         linear-gradient(
             to bottom,
@@ -87,17 +127,23 @@ body {
     color: #aaa;
 }
 
+
 /* =========================
    SONG INFO
 ========================= */
 
 .song-info {
     position: absolute;
+
     top: 105px;
+
     left: 20px;
     right: 20px;
+
     text-align: center;
+
     z-index: 15;
+
     pointer-events: none;
 }
 
@@ -112,22 +158,31 @@ body {
     color: #aaa;
 }
 
+
 /* =========================
    LYRICS
 ========================= */
 
 .lyrics-container {
     position: absolute;
+
     top: 135px;
     bottom: 115px;
+
     left: 0;
     right: 0;
+
     overflow-y: auto;
     overflow-x: hidden;
+
     padding:
         40px 25px 180px;
+
     scroll-behavior: smooth;
+
     -webkit-overflow-scrolling: touch;
+
+    z-index: 10;
 }
 
 .lyrics-container::-webkit-scrollbar {
@@ -136,28 +191,38 @@ body {
 
 .lyric-line {
     text-align: center;
+
     font-size: 25px;
     line-height: 1.35;
+
     font-weight: 700;
+
     color:
         rgba(255,255,255,.35);
+
     padding:
         13px 5px;
+
     opacity: .55;
+
     transition:
         color .25s ease,
         transform .25s ease,
         opacity .25s ease,
         filter .25s ease;
+
     cursor: pointer;
     user-select: none;
 }
 
 .lyric-line.active {
     color: white;
+
     opacity: 1;
+
     transform:
         scale(1.045);
+
     filter:
         drop-shadow(
             0 0 12px
@@ -168,8 +233,10 @@ body {
 .lyric-line.past {
     color:
         rgba(255,255,255,.7);
+
     opacity: .75;
 }
+
 
 /* =========================
    STATUS
@@ -177,14 +244,23 @@ body {
 
 .status {
     position: absolute;
+
     left: 20px;
     right: 20px;
-    bottom: 76px;
+
+    bottom: 25px;
+
     text-align: center;
+
     font-size: 12px;
-    color: #777;
+
+    color: #aaa;
+
     z-index: 20;
+
+    pointer-events: none;
 }
+
 
 /* =========================
    QUESTION BUTTON
@@ -192,19 +268,29 @@ body {
 
 .question-button {
     position: absolute;
+
     left: 50%;
-    bottom: 20px;
+    top: 45px;
+
     transform:
         translateX(-50%);
+
     width: 58px;
     height: 58px;
+
     border-radius: 50%;
+
     border: none;
+
     color: white;
+
     font-size: 30px;
     font-weight: 700;
+
     cursor: pointer;
+
     z-index: 30;
+
     background:
         linear-gradient(
             135deg,
@@ -216,19 +302,36 @@ body {
             #8a2be2,
             #ff00a8
         );
+
     background-size:
         400% 400%;
+
     animation:
-        rainbow 5s ease infinite,
-        pulse 1.8s ease-in-out infinite;
+        rainbow 5s ease infinite;
+
     box-shadow:
         0 0 20px
         rgba(255,255,255,.2),
+
         0 0 45px
         rgba(0,200,255,.15);
+
+    transition:
+        transform .2s ease;
 }
 
+
+/* PULSE ONLY WHEN LISTENING */
+
+.question-button.pulsing {
+    animation:
+        rainbow 5s ease infinite,
+        pulse 1.8s ease-in-out infinite;
+}
+
+
 @keyframes rainbow {
+
     0% {
         background-position:
             0% 50%;
@@ -245,7 +348,9 @@ body {
     }
 }
 
+
 @keyframes pulse {
+
     0%,
     100% {
         transform:
@@ -256,9 +361,10 @@ body {
     50% {
         transform:
             translateX(-50%)
-            scale(1.1);
+            scale(1.12);
     }
 }
+
 
 .question-button:active {
     transform:
@@ -266,37 +372,49 @@ body {
         scale(.92);
 }
 
+
 /* =========================
    RECOGNIZING
 ========================= */
 
 .recognizing {
     position: absolute;
+
     left: 50%;
     top: 50%;
+
     transform:
         translate(-50%, -50%);
+
     text-align: center;
+
     z-index: 40;
+
     display: none;
 }
 
 .spinner {
     width: 55px;
     height: 55px;
+
     margin:
         auto auto 15px;
+
     border-radius: 50%;
+
     border:
         4px solid
         rgba(255,255,255,.15);
+
     border-top-color:
         white;
+
     animation:
         spin 1s linear infinite;
 }
 
 @keyframes spin {
+
     to {
         transform:
             rotate(360deg);
@@ -307,91 +425,73 @@ body {
     font-size: 15px;
     color: #ddd;
 }
-</style>
-</head>
 
-<body>
-
-<div class="app">
-
-<!-- HEADER -->
-
-<div class="header">
-
-    <div class="header-title">
-        MUSIC Lyrics
-    </div>
-
-    <div class="header-subtitle">
-        Tap to recognize
-    </div>
-
+</style></head><body><div class="app"><!-- =====================================================
+     ALBUM BACKGROUND
+===================================================== --><div
+    id="albumBackground"
+    class="album-background"
+></div><div class="album-overlay"></div><!-- =====================================================
+     HEADER
+===================================================== --><div class="header"><div class="header-title">
+    MUSIC Lyrics
 </div>
 
-<!-- SONG INFO -->
+<div class="header-subtitle">
+    Tap to recognize
+</div>
 
-<div
+</div><!-- =====================================================
+     SONG INFO
+===================================================== --><div
     class="song-info"
     id="songInfo"
     style="display:none;"
->
-
-    <div
-        class="song-title"
-        id="songTitle"
-    ></div>
-
-    <div
-        class="song-artist"
-        id="songArtist"
-    ></div>
-
-</div>
-
-<!-- LYRICS -->
-
-<div
-    id="lyrics"
-    class="lyrics-container"
+><div
+    class="song-title"
+    id="songTitle"
 ></div>
 
-<!-- STATUS -->
-
 <div
+    class="song-artist"
+    id="songArtist"
+></div>
+
+</div><!-- =====================================================
+     LYRICS
+===================================================== --><div
+    id="lyrics"
+    class="lyrics-container"
+></div><!-- =====================================================
+     STATUS
+===================================================== --><div
     id="status"
     class="status"
 >
     Tap the button to identify a song
-</div>
-
-<!-- RECOGNIZING -->
-
-<div
+</div><!-- =====================================================
+     RECOGNIZING
+===================================================== --><div
     id="recognizing"
     class="recognizing"
->
+><div class="spinner"></div>
 
-    <div class="spinner"></div>
-
-    <div class="recognizing-text">
-        Listening...
-    </div>
-
+<div class="recognizing-text">
+    Listening...
 </div>
 
-<!-- QUESTION BUTTON -->
+</div><!-- =====================================================
+     QUESTION BUTTON
+===================================================== --><button
+id="questionButton"
+class="question-button"
+aria-label="Recognize song"
 
-<button
-    id="questionButton"
-    class="question-button"
-    aria-label="Recognize song"
->
-    ?
-</button>
+«»
 
-</div>
+?
 
-<script>
+</button></div><script>
 
 /* =====================================================
    ELEMENTS
@@ -432,6 +532,11 @@ const songArtist =
         "songArtist"
     );
 
+const albumBackground =
+    document.getElementById(
+        "albumBackground"
+    );
+
 
 /* =====================================================
    GLOBAL STATE
@@ -447,12 +552,61 @@ let audioStartTime = null;
 
 
 /*
- * Small timing adjustment.
- *
- * This is used ONLY when
- * starting from Shazam recognition.
+ * Timing adjustment.
  */
+
 const SYNC_OFFSET = 4;
+
+
+/* =====================================================
+   ALBUM ART
+===================================================== */
+
+function getAlbumArt(data) {
+
+    let image = "";
+
+    if (
+        data.song &&
+        typeof data.song === "object"
+    ) {
+
+        image =
+            data.song.images?.coverart ||
+            data.song.images?.coverArt ||
+            data.song.coverart ||
+            data.song.coverArt ||
+            data.song.image ||
+            data.song.thumbnail ||
+            "";
+
+    }
+
+    if (!image) {
+
+        image =
+            data.images?.coverart ||
+            data.images?.coverArt ||
+            data.coverart ||
+            data.coverArt ||
+            data.image ||
+            data.thumbnail ||
+            "";
+
+    }
+
+    if (image) {
+
+        albumBackground.style.backgroundImage =
+            `url("${image}")`;
+
+        albumBackground.classList.add(
+            "visible"
+        );
+
+    }
+
+}
 
 
 /* =====================================================
@@ -524,11 +678,14 @@ function lyricDataToString(data) {
                         "\n";
 
                 }
+
             }
+
         }
 
         return output;
     }
+
 
     if (
         typeof data === "object"
@@ -583,6 +740,7 @@ function lyricDataToString(data) {
             );
 
         }
+
     }
 
     return "";
@@ -653,7 +811,7 @@ function parseLRC(data) {
     const parsed = [];
 
     const timestampRegex =
-        /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+        /(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?/g;
 
     for (
         const originalLine of lines
@@ -676,9 +834,7 @@ function parseLRC(data) {
         if (
             matches.length === 0
         ) {
-
             continue;
-
         }
 
         const text =
@@ -738,6 +894,7 @@ function parseLRC(data) {
                         Number(raw) / 1000;
 
                 }
+
             }
 
             parsed.push({
@@ -751,7 +908,9 @@ function parseLRC(data) {
                     text
 
             });
+
         }
+
     }
 
     parsed.sort(
@@ -812,9 +971,7 @@ function displayLyrics(data) {
 
 
             /*
-             * ===========================
              * TOUCH TO SYNC
-             * ===========================
              */
 
             element.addEventListener(
@@ -829,17 +986,6 @@ function displayLyrics(data) {
                         selectedTime,
                         "seconds"
                     );
-
-
-                    /*
-                     * IMPORTANT:
-                     *
-                     * Touch sync uses the
-                     * EXACT timestamp of
-                     * the lyric tapped.
-                     *
-                     * No +4 second offset.
-                     */
 
                     startEstimatedSync(
                         selectedTime,
@@ -923,10 +1069,6 @@ function updateActiveLyric(index) {
     );
 
 
-    /*
-     * Scroll active lyric toward center.
-     */
-
     const containerRect =
         lyricsContainer
             .getBoundingClientRect();
@@ -992,6 +1134,7 @@ function findCurrentLyric(seconds) {
             break;
 
         }
+
     }
 
     return index;
@@ -1015,17 +1158,10 @@ function startEstimatedSync(
 
     }
 
-
-    /*
-     * Stop previous timer.
-     */
-
     stopEstimatedSync();
-
 
     let startingPosition =
         Number(startAt);
-
 
     if (
         !Number.isFinite(
@@ -1037,15 +1173,6 @@ function startEstimatedSync(
 
     }
 
-
-    /*
-     * Only apply the 4-second
-     * offset when starting from
-     * Shazam recognition.
-     *
-     * Touch-to-sync does NOT
-     * use the offset.
-     */
 
     if (applyOffset) {
 
@@ -1072,12 +1199,6 @@ function startEstimatedSync(
     );
 
 
-    /*
-     * Make the clock pretend
-     * the song is currently
-     * at this position.
-     */
-
     audioStartTime =
         performance.now() -
         (
@@ -1086,16 +1207,10 @@ function startEstimatedSync(
         );
 
 
-    /*
-     * Immediately highlight
-     * the correct line.
-     */
-
     const firstIndex =
         findCurrentLyric(
             startingPosition
         );
-
 
     if (
         firstIndex >= 0
@@ -1107,10 +1222,6 @@ function startEstimatedSync(
 
     }
 
-
-    /*
-     * Continue automatically.
-     */
 
     recognitionTimer =
         setInterval(
@@ -1124,19 +1235,16 @@ function startEstimatedSync(
 
                 }
 
-
                 const elapsed =
                     (
                         performance.now() -
                         audioStartTime
                     ) / 1000;
 
-
                 const index =
                     findCurrentLyric(
                         elapsed
                     );
-
 
                 if (
                     index !==
@@ -1239,6 +1347,16 @@ async function recognizeSong() {
     button.disabled =
         true;
 
+
+    /*
+     * START BUTTON PULSE
+     */
+
+    button.classList.add(
+        "pulsing"
+    );
+
+
     recognizingElement.style.display =
         "block";
 
@@ -1256,10 +1374,6 @@ async function recognizeSong() {
 
     try {
 
-        /*
-         * Microphone.
-         */
-
         const stream =
             await navigator
                 .mediaDevices
@@ -1268,12 +1382,7 @@ async function recognizeSong() {
                 });
 
 
-        /*
-         * Choose recording format.
-         */
-
         let mimeType = "";
-
 
         if (
             MediaRecorder.isTypeSupported(
@@ -1375,10 +1484,6 @@ async function recognizeSong() {
         recorder.start();
 
 
-        /*
-         * Record for 8 seconds.
-         */
-
         setTimeout(
             () => {
 
@@ -1397,6 +1502,7 @@ async function recognizeSong() {
 
     }
 
+
     catch (error) {
 
         console.error(
@@ -1413,7 +1519,12 @@ async function recognizeSong() {
         button.disabled =
             false;
 
+        button.classList.remove(
+            "pulsing"
+        );
+
     }
+
 }
 
 
@@ -1439,10 +1550,6 @@ async function sendAudio(blob) {
             "recording.webm"
         );
 
-
-        /*
-         * Server endpoint.
-         */
 
         const response =
             await fetch(
@@ -1492,9 +1599,23 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
+         * STOP BUTTON PULSE
+         */
+
+        button.classList.remove(
+            "pulsing"
+        );
+
+
+        /*
+         * ALBUM ART
+         */
+
+        getAlbumArt(data);
+
+
+        /*
          * SONG INFO
-         * ===========================
          */
 
         const title =
@@ -1522,9 +1643,7 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
          * SHAZAM MATCH POSITION
-         * ===========================
          */
 
         let matchPosition = 0;
@@ -1575,9 +1694,7 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
          * LYRICS
-         * ===========================
          */
 
         const lyrics =
@@ -1612,15 +1729,6 @@ async function sendAudio(blob) {
                 success
             ) {
 
-                /*
-                 * Start at the Shazam
-                 * match position.
-                 *
-                 * The default applyOffset
-                 * is TRUE, so SYNC_OFFSET
-                 * is applied here.
-                 */
-
                 startEstimatedSync(
                     matchPosition
                 );
@@ -1654,6 +1762,7 @@ async function sendAudio(blob) {
 
     }
 
+
     catch (error) {
 
         console.error(
@@ -1661,11 +1770,19 @@ async function sendAudio(blob) {
             error
         );
 
+
         recognizingElement.style.display =
             "none";
 
+
+        button.classList.remove(
+            "pulsing"
+        );
+
+
         statusElement.textContent =
             "Could not recognize the song.";
+
 
         lyricsContainer.innerHTML = `
             <div class="lyric-line active">
@@ -1675,12 +1792,14 @@ async function sendAudio(blob) {
 
     }
 
+
     finally {
 
         button.disabled =
             false;
 
     }
+
 }
 
 
@@ -1714,7 +1833,13 @@ console.log(
     "👆 Touch-to-sync enabled"
 );
 
-</script>
+console.log(
+    "🖼️ Album background enabled"
+);
 
-</body>
+console.log(
+    "💓 Recognition button pulse enabled"
+);
+
+</script></body>
 </html>
