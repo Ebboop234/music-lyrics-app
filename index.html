@@ -1,21 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no"
 
-<head>
+«»
 
-<meta charset="UTF-8">
+<meta
+name="apple-mobile-web-app-capable"
+content="yes"
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0,
-maximum-scale=1.0, user-scalable=no">
+«»
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
+<meta
+name="apple-mobile-web-app-status-bar-style"
+content="black-translucent"
 
-<title>MUSIC Lyrics</title>
+«»
 
-<style>
+<meta
+name="apple-mobile-web-app-title"
+content="MUSIC Lyrics"
+
+«»
+
+<title>MUSIC Lyrics</title><style>
 
 * {
     box-sizing: border-box;
@@ -50,13 +60,11 @@ body {
 }
 
 .app {
-
     width: 100%;
     max-width: 430px;
     height: 100vh;
 
     position: relative;
-
     overflow: hidden;
 
     background:
@@ -69,12 +77,11 @@ body {
 }
 
 
-/* =========================
+/* ================================
    HEADER
-========================= */
+================================ */
 
 .header {
-
     position: absolute;
 
     top: 0;
@@ -98,16 +105,12 @@ body {
 }
 
 .header-title {
-
     font-size: 18px;
-
     font-weight: 700;
-
     letter-spacing: .3px;
 }
 
 .header-subtitle {
-
     margin-top: 3px;
 
     font-size: 13px;
@@ -116,52 +119,14 @@ body {
 }
 
 
-/* =========================
-   SONG INFO
-========================= */
+/* ================================
+   LYRICS
+================================ */
 
-.song-info {
-
+.lyrics-container {
     position: absolute;
 
     top: 105px;
-
-    left: 20px;
-    right: 20px;
-
-    text-align: center;
-
-    z-index: 15;
-
-    pointer-events: none;
-}
-
-.song-title {
-
-    font-size: 17px;
-
-    font-weight: 700;
-}
-
-.song-artist {
-
-    margin-top: 4px;
-
-    font-size: 13px;
-
-    color: #aaa;
-}
-
-
-/* =========================
-   LYRICS
-========================= */
-
-.lyrics-container {
-
-    position: absolute;
-
-    top: 135px;
     bottom: 115px;
 
     left: 0;
@@ -171,7 +136,7 @@ body {
     overflow-x: hidden;
 
     padding:
-        40px 25px 180px;
+        55px 25px 180px;
 
     scroll-behavior: smooth;
 
@@ -183,7 +148,6 @@ body {
 }
 
 .lyric-line {
-
     text-align: center;
 
     font-size: 25px;
@@ -195,10 +159,7 @@ body {
     color:
         rgba(255,255,255,.35);
 
-    padding:
-        13px 5px;
-
-    opacity: .55;
+    padding: 13px 5px;
 
     transition:
         color .25s ease,
@@ -206,19 +167,17 @@ body {
         opacity .25s ease,
         filter .25s ease;
 
-    cursor: pointer;
+    opacity: .55;
 
-    user-select: none;
+    cursor: pointer;
 }
 
 .lyric-line.active {
-
-    color: white;
+    color: #fff;
 
     opacity: 1;
 
-    transform:
-        scale(1.045);
+    transform: scale(1.045);
 
     filter:
         drop-shadow(
@@ -228,7 +187,6 @@ body {
 }
 
 .lyric-line.past {
-
     color:
         rgba(255,255,255,.7);
 
@@ -236,12 +194,11 @@ body {
 }
 
 
-/* =========================
+/* ================================
    STATUS
-========================= */
+================================ */
 
 .status {
-
     position: absolute;
 
     left: 20px;
@@ -259,16 +216,14 @@ body {
 }
 
 
-/* =========================
+/* ================================
    QUESTION BUTTON
-========================= */
+================================ */
 
 .question-button {
-
     position: absolute;
 
     left: 50%;
-
     bottom: 20px;
 
     transform:
@@ -284,7 +239,6 @@ body {
     color: white;
 
     font-size: 30px;
-
     font-weight: 700;
 
     cursor: pointer;
@@ -303,8 +257,7 @@ body {
             #ff00a8
         );
 
-    background-size:
-        400% 400%;
+    background-size: 400% 400%;
 
     animation:
         rainbow 5s ease infinite,
@@ -321,37 +274,34 @@ body {
 @keyframes rainbow {
 
     0% {
-        background-position:
-            0% 50%;
+        background-position: 0% 50%;
     }
 
     50% {
-        background-position:
-            100% 50%;
+        background-position: 100% 50%;
     }
 
     100% {
-        background-position:
-            0% 50%;
+        background-position: 0% 50%;
     }
+
 }
 
 @keyframes pulse {
 
     0%,
     100% {
-
         transform:
             translateX(-50%)
             scale(1);
     }
 
     50% {
-
         transform:
             translateX(-50%)
             scale(1.1);
     }
+
 }
 
 .question-button:active {
@@ -362,12 +312,11 @@ body {
 }
 
 
-/* =========================
+/* ================================
    RECOGNIZING
-========================= */
+================================ */
 
 .recognizing {
-
     position: absolute;
 
     left: 50%;
@@ -384,7 +333,6 @@ body {
 }
 
 .spinner {
-
     width: 55px;
     height: 55px;
 
@@ -397,8 +345,7 @@ body {
         4px solid
         rgba(255,255,255,.15);
 
-    border-top-color:
-        white;
+    border-top-color: white;
 
     animation:
         spin 1s linear infinite;
@@ -407,9 +354,9 @@ body {
 @keyframes spin {
 
     to {
-        transform:
-            rotate(360deg);
+        transform: rotate(360deg);
     }
+
 }
 
 .recognizing-text {
@@ -419,19 +366,44 @@ body {
     color: #ddd;
 }
 
-</style>
 
-</head>
+/* ================================
+   SONG INFO
+================================ */
 
+.song-info {
 
-<body>
+    position: absolute;
 
-<div class="app">
+    left: 20px;
+    right: 20px;
 
+    top: 110px;
 
-<!-- HEADER -->
+    text-align: center;
 
-<div class="header">
+    z-index: 15;
+
+    pointer-events: none;
+}
+
+.song-title {
+
+    font-size: 15px;
+
+    font-weight: 700;
+}
+
+.song-artist {
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #aaa;
+}
+
+</style></head><body><div class="app"><div class="header">
 
     <div class="header-title">
         MUSIC Lyrics
@@ -443,8 +415,6 @@ body {
 
 </div>
 
-
-<!-- SONG INFO -->
 
 <div
     class="song-info"
@@ -465,15 +435,11 @@ body {
 </div>
 
 
-<!-- LYRICS -->
-
 <div
     id="lyrics"
     class="lyrics-container"
 ></div>
 
-
-<!-- STATUS -->
 
 <div
     id="status"
@@ -482,8 +448,6 @@ body {
     Tap the button to identify a song
 </div>
 
-
-<!-- RECOGNIZING -->
 
 <div
     id="recognizing"
@@ -499,26 +463,40 @@ body {
 </div>
 
 
-<!-- QUESTION BUTTON -->
-
 <button
     id="questionButton"
     class="question-button"
-    aria-label="Recognize song"
+    type="button"
 >
     ?
 </button>
 
+</div><script>
 
-</div>
+/*
+==================================================
+MUSIC LYRICS
+==================================================
 
+Recognition flow:
 
-<script>
+1. Record microphone
+2. Send audio to server
+3. SongRec/Shazam identifies song
+4. Server returns matchPosition
+5. Server returns timestamped lyrics
+6. Browser parses LRC
+7. Browser starts from matchPosition
+8. Lyrics continue from there
 
+IMPORTANT FIX:
 
-/* =====================================================
-   ELEMENTS
-===================================================== */
+The lyric timer no longer starts at 0.
+
+It starts at the Shazam/SongRec match position.
+==================================================
+*/
+
 
 const button =
     document.getElementById(
@@ -556,260 +534,73 @@ const songArtist =
     );
 
 
-/* =====================================================
-   GLOBAL STATE
-===================================================== */
-
 let lyricLines = [];
 
 let currentIndex = -1;
 
+let audioStartTime = null;
+
 let recognitionTimer = null;
 
-let audioStartTime = null;
+let syncStartPosition = 0;
 
 
 /*
- * Small timing adjustment.
- *
- * Change this later if lyrics are consistently
- * behind or ahead.
- *
- * 0 = exact Shazam match position.
- */
+==================================================
+PARSE LRC
+==================================================
+*/
 
-const SYNC_OFFSET = 0;
-
-
-/* =====================================================
-   CONVERT LYRICS DATA TO TEXT
-===================================================== */
-
-function lyricDataToString(data) {
-
-    if (data == null) {
-        return "";
-    }
-
-
-    if (typeof data === "string") {
-        return data;
-    }
-
-
-    if (Array.isArray(data)) {
-
-        let output = "";
-
-
-        for (const item of data) {
-
-            if (typeof item === "string") {
-
-                output +=
-                    item + "\n";
-
-                continue;
-            }
-
-
-            if (
-                item &&
-                typeof item === "object"
-            ) {
-
-                const time =
-                    item.time ??
-                    item.timestamp ??
-                    item.start ??
-                    item.startTime ??
-                    item.seconds;
-
-
-                const text =
-                    item.text ??
-                    item.lyric ??
-                    item.line ??
-                    item.words ??
-                    item.content ??
-                    "";
-
-
-                if (
-                    time !== undefined &&
-                    text
-                ) {
-
-                    output +=
-                        "[" +
-                        secondsToLRC(time) +
-                        "] " +
-                        String(text) +
-                        "\n";
-
-                }
-
-                else if (text) {
-
-                    output +=
-                        String(text) +
-                        "\n";
-                }
-            }
-        }
-
-
-        return output;
-    }
-
+function parseLRC(lrc) {
 
     if (
-        typeof data === "object"
+        !lrc ||
+        typeof lrc !== "string"
     ) {
 
-        const possible =
-            data.syncedLyrics ??
-            data.synced_lyrics ??
-            data.lyrics ??
-            data.lyricText ??
-            data.lrc ??
-            data.text ??
-            data.content ??
-            data.lines;
-
-
-        if (
-            possible !== undefined &&
-            possible !== data
-        ) {
-
-            return lyricDataToString(
-                possible
-            );
-        }
-
-
-        const time =
-            data.time ??
-            data.timestamp ??
-            data.start ??
-            data.startTime ??
-            data.seconds;
-
-
-        const text =
-            data.text ??
-            data.lyric ??
-            data.line ??
-            data.words ??
-            data.content ??
-            "";
-
-
-        if (
-            time !== undefined &&
-            text
-        ) {
-
-            return (
-                "[" +
-                secondsToLRC(time) +
-                "] " +
-                String(text)
-            );
-        }
-    }
-
-
-    return "";
-}
-
-
-/* =====================================================
-   SECONDS TO LRC
-===================================================== */
-
-function secondsToLRC(seconds) {
-
-    seconds =
-        Number(seconds);
-
-
-    if (
-        !Number.isFinite(seconds)
-    ) {
-
-        return "00:00.00";
-    }
-
-
-    const minutes =
-        Math.floor(
-            seconds / 60
+        console.log(
+            "No LRC received"
         );
 
+        return [];
 
-    const remaining =
-        seconds -
-        minutes * 60;
-
-
-    return (
-        String(minutes)
-            .padStart(2, "0") +
-
-        ":" +
-
-        remaining
-            .toFixed(2)
-            .padStart(5, "0")
-    );
-}
-
-
-/* =====================================================
-   PARSE LRC
-===================================================== */
-
-function parseLRC(data) {
-
-    const lrc =
-        lyricDataToString(
-            data
-        );
+    }
 
 
     console.log(
-        "========== LRC =========="
+        "RAW LRC:"
     );
 
     console.log(lrc);
 
 
-    if (!lrc) {
-        return [];
-    }
-
-
     const lines =
         lrc.split(/\r?\n/);
-
 
     const parsed = [];
 
 
     /*
-     * IMPORTANT:
+     * Correct LRC timestamp regex.
      *
-     * These are REAL square brackets.
+     * Supports:
+     *
+     * [00:00.84]
+     * [01:23.45]
+     * [03:12.123]
+     * [01:23]
+     *
+     * Multiple timestamps on
+     * the same line are supported.
      */
 
     const timestampRegex =
-        /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
+        /(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?/g;
 
 
     for (
-        const originalLine of lines
+        const originalLine
+        of lines
     ) {
 
         const line =
@@ -834,8 +625,13 @@ function parseLRC(data) {
         ) {
 
             continue;
+
         }
 
+
+        /*
+         * Remove timestamps.
+         */
 
         const text =
             line
@@ -852,19 +648,15 @@ function parseLRC(data) {
 
 
         for (
-            const match of matches
+            const match
+            of matches
         ) {
 
             const minutes =
-                Number(
-                    match[1]
-                );
-
+                Number(match[1]);
 
             const seconds =
-                Number(
-                    match[2]
-                );
+                Number(match[2]);
 
 
             let fraction = 0;
@@ -898,23 +690,34 @@ function parseLRC(data) {
 
                     fraction =
                         Number(raw) / 1000;
+
                 }
+
             }
+
+
+            const time =
+                minutes * 60 +
+                seconds +
+                fraction;
 
 
             parsed.push({
 
-                time:
-                    minutes * 60 +
-                    seconds +
-                    fraction,
+                time: time,
 
-                text:
-                    text
+                text: text
+
             });
+
         }
+
     }
 
+
+    /*
+     * Sort by timestamp.
+     */
 
     parsed.sort(
         (a, b) =>
@@ -923,7 +726,7 @@ function parseLRC(data) {
 
 
     console.log(
-        "PARSED LYRICS:",
+        "PARSED LINES:",
         parsed
     );
 
@@ -932,32 +735,35 @@ function parseLRC(data) {
 }
 
 
-/* =====================================================
-   DISPLAY LYRICS
-===================================================== */
+/*
+==================================================
+DISPLAY LYRICS
+==================================================
+*/
 
-function displayLyrics(data) {
+function displayLyrics(lrc) {
 
     lyricLines =
-        parseLRC(data);
+        parseLRC(lrc);
 
 
     lyricsContainer.innerHTML =
         "";
 
 
-    currentIndex =
-        -1;
+    currentIndex = -1;
 
 
     if (
-        lyricLines.length === 0
+        !lyricLines.length
     ) {
 
         lyricsContainer.innerHTML = `
 
             <div class="lyric-line active">
+
                 No synchronized lyrics found.
+
             </div>
 
         `;
@@ -983,44 +789,34 @@ function displayLyrics(data) {
                 line.text;
 
 
+            element.dataset.index =
+                index;
+
+
             /*
-             * ===========================
-             * TOUCH TO SYNC
-             * ===========================
+             * TAP-TO-SYNC
+             *
+             * Tapping a lyric changes
+             * the current position.
              */
 
             element.addEventListener(
                 "click",
                 () => {
 
-                    const selectedTime =
-                        lyricLines[index].time;
+                    syncStartPosition =
+                        line.time;
 
-
-                    console.log(
-                        "🎯 Touch sync:",
-                        selectedTime,
-                        "seconds"
-                    );
-
-
-                    /*
-                     * Restart the sync clock
-                     * at this lyric.
-                     */
-
-                    startEstimatedSync(
-                        selectedTime
-                    );
-
+                    audioStartTime =
+                        performance.now();
 
                     updateActiveLyric(
                         index
                     );
 
-
                     statusElement.textContent =
-                        "Synced to this lyric";
+                        "Synced";
+
                 }
             );
 
@@ -1037,9 +833,11 @@ function displayLyrics(data) {
 }
 
 
-/* =====================================================
-   UPDATE ACTIVE LYRIC
-===================================================== */
+/*
+==================================================
+UPDATE ACTIVE LYRIC
+==================================================
+*/
 
 function updateActiveLyric(index) {
 
@@ -1077,7 +875,9 @@ function updateActiveLyric(index) {
                 element.classList.add(
                     "past"
                 );
+
             }
+
         }
     );
 
@@ -1097,17 +897,16 @@ function updateActiveLyric(index) {
 
 
     /*
-     * Scroll active lyric toward center.
+     * Scroll active lyric
+     * toward center.
      */
 
     const containerRect =
-        lyricsContainer
-            .getBoundingClientRect();
+        lyricsContainer.getBoundingClientRect();
 
 
     const elementRect =
-        active
-            .getBoundingClientRect();
+        active.getBoundingClientRect();
 
 
     const offset =
@@ -1119,11 +918,10 @@ function updateActiveLyric(index) {
 
     lyricsContainer.scrollBy({
 
-        top:
-            offset,
+        top: offset,
 
-        behavior:
-            "smooth"
+        behavior: "smooth"
+
     });
 
 
@@ -1132,9 +930,11 @@ function updateActiveLyric(index) {
 }
 
 
-/* =====================================================
-   FIND CURRENT LYRIC
-===================================================== */
+/*
+==================================================
+FIND CURRENT LYRIC
+==================================================
+*/
 
 function findCurrentLyric(seconds) {
 
@@ -1163,10 +963,13 @@ function findCurrentLyric(seconds) {
             index = i;
 
         }
+
         else {
 
             break;
+
         }
+
     }
 
 
@@ -1174,12 +977,37 @@ function findCurrentLyric(seconds) {
 }
 
 
-/* =====================================================
-   START ESTIMATED SYNC
-===================================================== */
+/*
+==================================================
+ESTIMATED SYNCHRONIZATION
+==================================================
+
+THIS IS THE IMPORTANT FIX.
+
+The timer starts from the Shazam/SongRec
+match position instead of zero.
+
+Example:
+
+Song is recognized at:
+
+02:15
+
+Recognition finishes 2 seconds later.
+
+The app calculates:
+
+02:15 + 2 seconds
+
+instead of:
+
+00:00 + 2 seconds
+
+==================================================
+*/
 
 function startEstimatedSync(
-    startAt = 0
+    matchPosition = 0
 ) {
 
     if (
@@ -1190,84 +1018,73 @@ function startEstimatedSync(
     }
 
 
-    /*
-     * Stop previous timer.
-     */
-
-    stopEstimatedSync();
-
-
-    let startingPosition =
-        Number(startAt);
+    syncStartPosition =
+        Number(matchPosition);
 
 
     if (
         !Number.isFinite(
-            startingPosition
-        )
+            syncStartPosition
+        ) ||
+        syncStartPosition < 0
     ) {
 
-        startingPosition = 0;
-    }
+        syncStartPosition = 0;
 
-
-    /*
-     * Apply timing adjustment.
-     */
-
-    startingPosition +=
-        SYNC_OFFSET;
-
-
-    if (
-        startingPosition < 0
-    ) {
-
-        startingPosition = 0;
     }
 
 
     console.log(
-        "🎯 Sync starting at:",
-        startingPosition
+        "🎯 Sync starting position:",
+        syncStartPosition
     );
 
 
     /*
-     * Make the clock pretend the song
-     * started at the Shazam match position.
+     * Start timing NOW.
      */
 
     audioStartTime =
-        performance.now() -
-        (
-            startingPosition *
-            1000
-        );
+        performance.now();
 
 
     /*
-     * Immediately highlight the correct line.
+     * Stop any old timer.
      */
 
-    const firstIndex =
-        findCurrentLyric(
-            startingPosition
+    if (recognitionTimer) {
+
+        clearInterval(
+            recognitionTimer
         );
 
-
-    if (
-        firstIndex >= 0
-    ) {
-
-        updateActiveLyric(
-            firstIndex
-        );
     }
 
 
     /*
-     * Continue automatically.
+     * Immediately display the lyric
+     * corresponding to the match position.
+     */
+
+    const initialIndex =
+        findCurrentLyric(
+            syncStartPosition
+        );
+
+
+    if (
+        initialIndex >= 0
+    ) {
+
+        updateActiveLyric(
+            initialIndex
+        );
+
+    }
+
+
+    /*
+     * Continue updating.
      */
 
     recognitionTimer =
@@ -1279,8 +1096,14 @@ function startEstimatedSync(
                 ) {
 
                     return;
+
                 }
 
+
+                /*
+                 * Time since recognition
+                 * finished.
+                 */
 
                 const elapsed =
                     (
@@ -1289,9 +1112,22 @@ function startEstimatedSync(
                     ) / 1000;
 
 
+                /*
+                 * Actual song position.
+                 *
+                 * MATCH POSITION
+                 * +
+                 * TIME SINCE RECOGNITION
+                 */
+
+                const songPosition =
+                    syncStartPosition +
+                    elapsed;
+
+
                 const index =
                     findCurrentLyric(
-                        elapsed
+                        songPosition
                     );
 
 
@@ -1303,17 +1139,21 @@ function startEstimatedSync(
                     updateActiveLyric(
                         index
                     );
+
                 }
 
             },
+
             100
         );
 }
 
 
-/* =====================================================
-   STOP SYNC
-===================================================== */
+/*
+==================================================
+STOP SYNC
+==================================================
+*/
 
 function stopEstimatedSync() {
 
@@ -1327,6 +1167,7 @@ function stopEstimatedSync() {
 
         recognitionTimer =
             null;
+
     }
 
 
@@ -1335,65 +1176,15 @@ function stopEstimatedSync() {
 }
 
 
-/* =====================================================
-   GET TITLE
-===================================================== */
-
-function getSafeTitle(data) {
-
-    if (
-        data.song &&
-        typeof data.song === "object"
-    ) {
-
-        return String(
-            data.song.title ||
-            ""
-        );
-    }
-
-
-    return String(
-        data.title ||
-        data.song ||
-        ""
-    );
-}
-
-
-/* =====================================================
-   GET ARTIST
-===================================================== */
-
-function getSafeArtist(data) {
-
-    if (
-        data.song &&
-        typeof data.song === "object"
-    ) {
-
-        return String(
-            data.song.artist ||
-            ""
-        );
-    }
-
-
-    return String(
-        data.artist ||
-        ""
-    );
-}
-
-
-/* =====================================================
-   RECOGNIZE SONG
-===================================================== */
+/*
+==================================================
+RECOGNIZE SONG
+==================================================
+*/
 
 async function recognizeSong() {
 
-    button.disabled =
-        true;
+    button.disabled = true;
 
 
     recognizingElement.style.display =
@@ -1418,70 +1209,26 @@ async function recognizeSong() {
     try {
 
         /*
-         * Microphone.
+         * Request microphone.
          */
 
         const stream =
-            await navigator
-                .mediaDevices
+            await navigator.mediaDevices
                 .getUserMedia({
+
                     audio: true
+
                 });
 
 
         /*
-         * Choose recording format.
+         * Create recorder.
          */
 
-        let mimeType = "";
-
-
-        if (
-            MediaRecorder.isTypeSupported(
-                "audio/webm;codecs=opus"
-            )
-        ) {
-
-            mimeType =
-                "audio/webm;codecs=opus";
-
-        }
-
-        else if (
-            MediaRecorder.isTypeSupported(
-                "audio/webm"
-            )
-        ) {
-
-            mimeType =
-                "audio/webm";
-
-        }
-
-        else if (
-            MediaRecorder.isTypeSupported(
-                "audio/mp4"
-            )
-        ) {
-
-            mimeType =
-                "audio/mp4";
-        }
-
-
         const recorder =
-            mimeType
-                ? new MediaRecorder(
-                    stream,
-                    {
-                        mimeType:
-                            mimeType
-                    }
-                  )
-
-                : new MediaRecorder(
-                    stream
-                  );
+            new MediaRecorder(
+                stream
+            );
 
 
         const chunks = [];
@@ -1491,14 +1238,15 @@ async function recognizeSong() {
             event => {
 
                 if (
-                    event.data &&
                     event.data.size > 0
                 ) {
 
                     chunks.push(
                         event.data
                     );
+
                 }
+
             };
 
 
@@ -1518,8 +1266,7 @@ async function recognizeSong() {
                         chunks,
                         {
                             type:
-                                recorder.mimeType ||
-                                "audio/webm"
+                                recorder.mimeType
                         }
                     );
 
@@ -1527,14 +1274,19 @@ async function recognizeSong() {
                 await sendAudio(
                     blob
                 );
+
             };
 
+
+        /*
+         * Start recording.
+         */
 
         recorder.start();
 
 
         /*
-         * Record for 8 seconds.
+         * Record 8 seconds.
          */
 
         setTimeout(
@@ -1546,18 +1298,20 @@ async function recognizeSong() {
                 ) {
 
                     recorder.stop();
+
                 }
 
             },
+
             8000
         );
 
     }
 
+
     catch (error) {
 
         console.error(
-            "Microphone error:",
             error
         );
 
@@ -1572,13 +1326,17 @@ async function recognizeSong() {
 
         button.disabled =
             false;
+
     }
+
 }
 
 
-/* =====================================================
-   SEND AUDIO TO SHAZAM
-===================================================== */
+/*
+==================================================
+SEND AUDIO
+==================================================
+*/
 
 async function sendAudio(blob) {
 
@@ -1592,6 +1350,12 @@ async function sendAudio(blob) {
             new FormData();
 
 
+        /*
+         * Server expects:
+         *
+         * audio
+         */
+
         formData.append(
             "audio",
             blob,
@@ -1600,22 +1364,16 @@ async function sendAudio(blob) {
 
 
         /*
-         * IMPORTANT:
-         *
-         * Your server endpoint is:
-         *
-         * /identify-shazam
+         * Send to server.
          */
 
         const response =
             await fetch(
-                "/identify-shazam",
+                "/recognize",
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
-                    body:
-                        formData
+                    body: formData
                 }
             );
 
@@ -1624,20 +1382,11 @@ async function sendAudio(blob) {
             !response.ok
         ) {
 
-            const errorText =
-                await response.text();
-
-
-            console.error(
-                "SERVER ERROR:",
-                errorText
-            );
-
-
             throw new Error(
                 "Server returned " +
                 response.status
             );
+
         }
 
 
@@ -1649,8 +1398,13 @@ async function sendAudio(blob) {
             "========== SERVER RESPONSE =========="
         );
 
+        console.log(
+            data
+        );
 
-        console.log(data);
+        console.log(
+            "======================================"
+        );
 
 
         recognizingElement.style.display =
@@ -1658,17 +1412,24 @@ async function sendAudio(blob) {
 
 
         /*
-         * ===========================
-         * SONG INFO
-         * ===========================
+         * SONG INFORMATION
          */
 
+        const song =
+            data.song || {};
+
+
         const title =
-            getSafeTitle(data);
+            song.title ||
+            data.title ||
+            data.song ||
+            "";
 
 
         const artist =
-            getSafeArtist(data);
+            song.artist ||
+            data.artist ||
+            "";
 
 
         if (
@@ -1686,41 +1447,52 @@ async function sendAudio(blob) {
 
             songInfo.style.display =
                 "block";
+
         }
 
 
         /*
-         * ===========================
-         * SHAZAM MATCH POSITION
-         * ===========================
+         * ====================================
+         * GET MATCH POSITION
+         * ====================================
+         *
+         * This is the important part.
          */
 
-        let matchPosition = 0;
+        let matchPosition =
+            song.matchPosition;
 
 
         if (
-            data.song &&
-            typeof data.song === "object"
+            matchPosition ===
+            undefined ||
+            matchPosition ===
+            null
         ) {
 
             matchPosition =
-                Number(
-                    data.song.matchPosition ??
-                    data.song.timecode ??
-                    0
-                );
+                data.matchPosition;
 
         }
 
-        else {
+
+        if (
+            matchPosition ===
+            undefined ||
+            matchPosition ===
+            null
+        ) {
 
             matchPosition =
-                Number(
-                    data.matchPosition ??
-                    data.timecode ??
-                    0
-                );
+                song.timecode;
+
         }
+
+
+        matchPosition =
+            Number(
+                matchPosition
+            );
 
 
         if (
@@ -1730,76 +1502,70 @@ async function sendAudio(blob) {
             matchPosition < 0
         ) {
 
-            matchPosition = 0;
+            matchPosition =
+                0;
+
         }
 
 
         console.log(
-            "🎯 SHAZAM MATCH POSITION:",
+            "🎯 Browser received match position:",
             matchPosition
         );
 
 
         /*
-         * ===========================
-         * LYRICS
-         * ===========================
+         * ====================================
+         * GET LYRICS
+         * ====================================
          */
 
-        const lyrics =
-            data.lyrics ??
-            data.syncedLyrics ??
-            data.synced_lyrics ??
-            data.lyricText ??
-            data.lrc ??
-            data.lines ??
-            data.lyricData ??
-            data.lyric_data ??
+        const syncedLyrics =
+            data.lyrics ||
+            data.syncedLyrics ||
+            data.synced_lyrics ||
+            data.lyricText ||
             "";
 
 
-        console.log(
-            "🎵 LYRICS DATA:",
-            lyrics
-        );
-
-
         if (
-            lyrics
+            syncedLyrics &&
+            typeof syncedLyrics ===
+                "string"
         ) {
 
             const success =
                 displayLyrics(
-                    lyrics
+                    syncedLyrics
                 );
 
 
-            if (
-                success
-            ) {
+            if (success) {
+
+                statusElement.textContent =
+                    "Lyrics synchronized";
+
 
                 /*
-                 * Start at the exact
-                 * Shazam match position.
+                 * START FROM SHAZAM POSITION
                  */
 
                 startEstimatedSync(
                     matchPosition
                 );
 
-
-                statusElement.textContent =
-                    "Tap a lyric to sync";
-
             }
+
 
             else {
 
                 statusElement.textContent =
-                    "Lyrics were received, but no usable timestamps were found.";
+                    "No usable synchronized lyrics.";
+
             }
 
         }
+
 
         else {
 
@@ -1809,14 +1575,18 @@ async function sendAudio(blob) {
 
             lyricsContainer.innerHTML = `
 
-                <div class="lyric-line active">
+                <div
+                    class="lyric-line active"
+                >
                     No lyrics found.
                 </div>
 
             `;
+
         }
 
     }
+
 
     catch (error) {
 
@@ -1836,7 +1606,9 @@ async function sendAudio(blob) {
 
         lyricsContainer.innerHTML = `
 
-            <div class="lyric-line active">
+            <div
+                class="lyric-line active"
+            >
                 Try again.
             </div>
 
@@ -1844,17 +1616,22 @@ async function sendAudio(blob) {
 
     }
 
+
     finally {
 
         button.disabled =
             false;
+
     }
+
 }
 
 
-/* =====================================================
-   BUTTON
-===================================================== */
+/*
+==================================================
+BUTTON
+==================================================
+*/
 
 button.addEventListener(
     "click",
@@ -1862,27 +1639,18 @@ button.addEventListener(
 );
 
 
-/* =====================================================
-   STARTUP
-===================================================== */
+/*
+==================================================
+INITIAL LOAD
+==================================================
+*/
 
 console.log(
-    "🎵 MUSIC Lyrics loaded"
+    "🎵 MUSIC Lyrics loaded successfully."
 );
 
 console.log(
-    "🎤 SongRec/Shazam recognition enabled"
+    "🎯 Match-position synchronization enabled."
 );
 
-console.log(
-    "🎯 Match-position synchronization enabled"
-);
-
-console.log(
-    "👆 Touch-to-sync enabled"
-);
-
-</script>
-
-</body>
-</html>
+</script></body></html>
