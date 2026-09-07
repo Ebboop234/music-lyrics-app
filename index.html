@@ -1,2640 +1,1820 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
+
+    <title>MUSIC Lyrics</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                         "SF Pro Text", Arial, sans-serif;
+            color: white;
+        }
+
+        body {
+            position: relative;
+        }
+
+        /* =========================
+           ALBUM ART BACKGROUND
+           ========================= */
+
+        #albumBackground {
+            position: fixed;
+            inset: -50px;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            filter: blur(35px);
+            transform: scale(1.15);
+            opacity: 0;
+            z-index: 0;
+            transition: opacity 0.6s ease,
+                        background-image 0.4s ease;
+        }
+
+        #albumOverlay {
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,0.72),
+                    rgba(0,0,0,0.42) 35%,
+                    rgba(0,0,0,0.72)
+                );
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* =========================
+           MAIN APP
+           ========================= */
+
+        .app {
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            margin: 0 auto;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        /* =========================
+           HEADER
+           ========================= */
+
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 135px;
+
+            padding:
+                max(20px, env(safe-area-inset-top))
+                20px
+                10px
+                20px;
+
+            text-align: center;
+
+            z-index: 20;
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0,
-      maximum-scale=1.0, user-scalable=no">
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.65),
+                rgba(0,0,0,0)
+            );
+        }
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
+        .title {
+            margin-top: 15px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+        }
 
-<link rel="manifest" href="manifest.json">
+        .subtitle {
+            margin-top: 4px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
 
-<title>MUSIC Lyrics</title>
+        /* =========================
+           RECENT BUTTON
+           ========================= */
 
-<style>
+        #recentButton {
+            position: absolute;
+            left: 16px;
+            top: max(20px, env(safe-area-inset-top));
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+            width: 42px;
+            height: 42px;
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+            border: none;
+            border-radius: 50%;
 
-    background: #000;
+            background: rgba(255,255,255,0.14);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
 
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "SF Pro Display",
-        "SF Pro Text",
-        Arial,
-        sans-serif;
+            color: white;
+            font-size: 21px;
 
-    color: white;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-body {
-    display: flex;
-    justify-content: center;
-}
+            cursor: pointer;
+            z-index: 30;
+        }
 
+        #recentButton:active {
+            transform: scale(0.9);
+        }
 
-/* =========================================================
-   APP
-========================================================= */
+        /* =========================
+           SONG INFO
+           ========================= */
 
-.app {
-    position: relative;
+        #songInfo {
+            position: absolute;
+            top: 105px;
+            left: 20px;
+            right: 20px;
 
-    width: 100%;
-    max-width: 430px;
+            text-align: center;
 
-    height: 100dvh;
+            z-index: 10;
 
-    overflow: hidden;
+            display: none;
+        }
 
-    background: #000;
-}
+        #songTitle {
+            font-size: 20px;
+            font-weight: 700;
 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-/* =========================================================
-   ALBUM BLUR BACKGROUND
-========================================================= */
+        #songArtist {
+            margin-top: 3px;
 
-#albumBackground {
-    position: absolute;
+            font-size: 14px;
+            opacity: 0.7;
 
-    inset: -50px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-    z-index: 0;
+        /* =========================
+           LYRICS
+           ========================= */
 
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
+        #lyricsContainer {
+            position: absolute;
 
-    filter: blur(35px);
+            top: 135px;
+            bottom: 115px;
 
-    transform: scale(1.15);
+            left: 0;
+            right: 0;
 
-    opacity: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
 
-    transition:
-        opacity 0.8s ease,
-        background-image 0.8s ease;
-}
+            padding:
+                45vh
+                25px
+                45vh
+                25px;
 
+            text-align: center;
 
-/* Dark overlay */
+            z-index: 5;
 
-#albumOverlay {
-    position: absolute;
+            scrollbar-width: none;
+        }
 
-    inset: 0;
+        #lyricsContainer::-webkit-scrollbar {
+            display: none;
+        }
 
-    z-index: 1;
+        .lyric-line {
+            padding: 9px 0;
 
-    background:
-        linear-gradient(
-            to bottom,
-            rgba(0,0,0,0.70) 0%,
-            rgba(0,0,0,0.45) 30%,
-            rgba(0,0,0,0.68) 65%,
-            rgba(0,0,0,0.95) 100%
-        );
+            font-size: 21px;
+            line-height: 1.35;
 
-    pointer-events: none;
-}
+            font-weight: 600;
 
+            opacity: 0.42;
 
-/* =========================================================
-   CONTENT
-========================================================= */
+            transition:
+                opacity 0.25s ease,
+                transform 0.25s ease,
+                font-size 0.25s ease;
 
-.content {
-    position: relative;
+            cursor: pointer;
+        }
 
-    z-index: 2;
+        .lyric-line.active {
+            opacity: 1;
 
-    width: 100%;
-    height: 100%;
-}
+            font-size: 25px;
 
+            transform: scale(1.03);
+        }
 
-/* =========================================================
-   HEADER
-========================================================= */
+        /* =========================
+           STATUS
+           ========================= */
 
-header {
-    position: absolute;
+        #status {
+            position: absolute;
 
-    top: 0;
-    left: 0;
-    right: 0;
+            left: 20px;
+            right: 20px;
 
-    height: 135px;
+            bottom: 92px;
 
-    padding:
-        calc(env(safe-area-inset-top) + 18px)
-        20px
-        15px;
+            text-align: center;
 
-    text-align: center;
+            font-size: 13px;
 
-    background:
-        linear-gradient(
-            to bottom,
-            rgba(0,0,0,0.65),
-            rgba(0,0,0,0)
-        );
+            opacity: 0.7;
 
-    z-index: 5;
-}
+            z-index: 15;
+        }
 
+        /* =========================
+           RECOGNIZE BUTTON
+           ========================= */
 
-.app-title {
-    margin: 0;
+        #recognizeButton {
+            position: fixed;
 
-    font-size: 27px;
+            bottom: calc(20px + env(safe-area-inset-bottom));
 
-    font-weight: 800;
+            left: 50%;
 
-    letter-spacing: -0.7px;
-}
+            transform: translateX(-50%);
 
+            width: 62px;
+            height: 62px;
 
-.app-subtitle {
-    margin-top: 3px;
+            border: none;
 
-    font-size: 13px;
+            border-radius: 50%;
 
-    opacity: 0.65;
-}
+            background:
+                linear-gradient(
+                    135deg,
+                    #ff0055,
+                    #ff7a00,
+                    #ffe600,
+                    #00e676,
+                    #00b8ff,
+                    #6c4cff,
+                    #ff00c8
+                );
 
+            color: white;
 
-/* =========================================================
-   SONG INFO
-========================================================= */
+            font-size: 32px;
+            font-weight: 800;
 
-#songInfo {
-    display: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    position: absolute;
+            cursor: pointer;
 
-    top: 75px;
+            z-index: 1000;
 
-    left: 20px;
-    right: 20px;
+            box-shadow:
+                0 0 12px rgba(255,255,255,0.5);
 
-    text-align: center;
+            animation:
+                rainbow 4s linear infinite,
+                pulse 1.5s ease-in-out infinite;
+        }
 
-    z-index: 6;
-}
+        #recognizeButton::before {
+            content: "?";
+        }
 
+        #recognizeButton:active {
+            animation: none;
+            transform: translateX(-50%) scale(0.92);
+        }
 
-#songTitle {
-    font-size: 18px;
+        @keyframes pulse {
+            0% {
+                transform: translateX(-50%) scale(1);
+                box-shadow:
+                    0 0 10px rgba(255,255,255,0.4);
+            }
 
-    font-weight: 700;
+            50% {
+                transform: translateX(-50%) scale(1.18);
+                box-shadow:
+                    0 0 30px rgba(255,255,255,0.95);
+            }
 
-    white-space: nowrap;
+            100% {
+                transform: translateX(-50%) scale(1);
+                box-shadow:
+                    0 0 10px rgba(255,255,255,0.4);
+            }
+        }
 
-    overflow: hidden;
+        @keyframes rainbow {
+            0% {
+                filter: hue-rotate(0deg);
+            }
 
-    text-overflow: ellipsis;
-}
+            100% {
+                filter: hue-rotate(360deg);
+            }
+        }
 
+        /* =========================
+           RECOGNIZING STATE
+           ========================= */
 
-#songArtist {
-    margin-top: 3px;
+        #recognizeButton.listening {
+            animation:
+                rainbow 2s linear infinite,
+                listeningPulse 0.65s ease-in-out infinite;
+        }
 
-    font-size: 14px;
+        @keyframes listeningPulse {
+            0% {
+                transform: translateX(-50%) scale(1);
+            }
 
-    opacity: 0.72;
+            50% {
+                transform: translateX(-50%) scale(1.28);
+            }
 
-    white-space: nowrap;
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+        }
 
-    overflow: hidden;
+        /* =========================
+           RECOGNIZING OVERLAY
+           ========================= */
 
-    text-overflow: ellipsis;
-}
+        #recognizing {
+            position: fixed;
 
+            inset: 0;
 
-/* =========================================================
-   RECENT BUTTON
-========================================================= */
+            background: rgba(0,0,0,0.65);
 
-#recentButton {
-    position: absolute;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
 
-    top: calc(env(safe-area-inset-top) + 17px);
+            display: none;
 
-    left: 17px;
+            align-items: center;
+            justify-content: center;
 
-    border: none;
+            flex-direction: column;
 
-    background:
-        rgba(255,255,255,0.13);
+            z-index: 2000;
+        }
 
-    color: white;
+        .spinner {
+            width: 45px;
+            height: 45px;
 
-    width: 40px;
-    height: 40px;
+            border-radius: 50%;
 
-    border-radius: 20px;
+            border:
+                4px solid rgba(255,255,255,0.25);
 
-    font-size: 19px;
+            border-top-color: white;
 
-    backdrop-filter: blur(12px);
+            animation: spin 0.8s linear infinite;
 
-    -webkit-backdrop-filter: blur(12px);
+            margin-bottom: 15px;
+        }
 
-    z-index: 20;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-    cursor: pointer;
+        /* =========================
+           RECENTS PANEL
+           ========================= */
 
-    transition:
-        transform 0.15s ease,
-        background 0.2s ease;
-}
+        #recentPanel {
+            position: fixed;
 
+            inset: 0;
 
-#recentButton:active {
-    transform: scale(0.9);
+            background: rgba(0,0,0,0.92);
 
-    background:
-        rgba(255,255,255,0.22);
-}
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
 
+            z-index: 3000;
 
-/* =========================================================
-   LYRICS
-========================================================= */
+            display: none;
 
-#lyricsContainer {
-    position: absolute;
+            flex-direction: column;
 
-    top: 135px;
+            padding:
+                max(25px, env(safe-area-inset-top))
+                18px
+                20px;
+        }
 
-    bottom: 115px;
+        .recentHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-    left: 0;
-    right: 0;
+            margin-bottom: 20px;
+        }
 
-    padding:
-        55px
-        28px
-        120px;
+        .recentHeader h2 {
+            margin: 0;
 
-    overflow-y: auto;
+            font-size: 25px;
+        }
 
-    overflow-x: hidden;
+        #closeRecent {
+            width: 40px;
+            height: 40px;
 
-    scroll-behavior: smooth;
+            border: none;
+            border-radius: 50%;
 
-    scrollbar-width: none;
+            background: rgba(255,255,255,0.12);
 
-    z-index: 3;
-}
+            color: white;
 
+            font-size: 22px;
 
-#lyricsContainer::-webkit-scrollbar {
-    display: none;
-}
+            cursor: pointer;
+        }
 
+        #recentList {
+            flex: 1;
 
-.lyric-line {
-    padding: 13px 0;
+            overflow-y: auto;
 
-    font-size: 23px;
+            scrollbar-width: none;
+        }
 
-    line-height: 1.25;
+        #recentList::-webkit-scrollbar {
+            display: none;
+        }
 
-    font-weight: 700;
+        .recentItem {
+            display: flex;
 
-    color:
-        rgba(255,255,255,0.35);
+            align-items: center;
 
-    text-align: center;
+            gap: 13px;
 
-    transition:
-        color 0.35s ease,
-        transform 0.35s ease,
-        opacity 0.35s ease;
+            padding: 10px;
 
-    cursor: pointer;
+            margin-bottom: 10px;
 
-    user-select: none;
-}
+            border-radius: 14px;
 
+            background: rgba(255,255,255,0.08);
 
-.lyric-line.active {
-    color: white;
+            cursor: pointer;
+        }
 
-    transform: scale(1.04);
+        .recentItem:active {
+            transform: scale(0.98);
+        }
 
-    text-shadow:
-        0 0 20px
-        rgba(255,255,255,0.25);
-}
+        .recentArtwork {
+            width: 58px;
+            height: 58px;
 
+            border-radius: 9px;
 
-/* =========================================================
-   STATUS
-========================================================= */
+            object-fit: cover;
 
-#status {
-    position: absolute;
+            background: rgba(255,255,255,0.1);
 
-    left: 20px;
-    right: 20px;
+            flex-shrink: 0;
+        }
 
-    bottom:
-        calc(
-            env(safe-area-inset-bottom) + 83px
-        );
+        .recentText {
+            min-width: 0;
+        }
 
-    text-align: center;
+        .recentTitle {
+            font-size: 16px;
+            font-weight: 700;
 
-    font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-    color:
-        rgba(255,255,255,0.65);
+        .recentArtist {
+            margin-top: 3px;
 
-    z-index: 7;
-}
+            font-size: 13px;
 
+            opacity: 0.65;
 
-/* =========================================================
-   QUESTION BUTTON
-========================================================= */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-#recognizeButton {
-    position: absolute;
+        .recentTime {
+            margin-top: 4px;
 
-    bottom:
-        calc(
-            env(safe-area-inset-bottom) + 20px
-        );
+            font-size: 11px;
 
-    left: 50%;
+            opacity: 0.45;
+        }
 
-    transform:
-        translateX(-50%);
+        .emptyRecent {
+            text-align: center;
 
-    width: 58px;
-    height: 58px;
+            margin-top: 60px;
 
-    border-radius: 50%;
+            opacity: 0.55;
 
-    border: none;
-
-    color: white;
-
-    font-size: 31px;
-
-    font-weight: 800;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    cursor: pointer;
-
-    z-index: 20;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ff004c,
-            #ff7a00,
-            #ffe600,
-            #00e676,
-            #00b7ff,
-            #7b2cff,
-            #ff00a8
-        );
-
-    background-size: 400% 400%;
-
-    animation:
-        rainbow 5s ease infinite;
-
-    box-shadow:
-        0 8px 30px
-        rgba(0,0,0,0.45),
-
-        0 0 25px
-        rgba(255,255,255,0.12);
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.2s ease;
-}
-
-
-#recognizeButton:active {
-    transform:
-        translateX(-50%)
-        scale(0.9);
-}
-
-
-#recognizeButton.listening {
-    animation:
-        rainbow 5s ease infinite,
-        pulse 1.15s ease-in-out infinite;
-
-    box-shadow:
-        0 0 30px
-        rgba(255,255,255,0.5),
-
-        0 0 60px
-        rgba(150,100,255,0.35);
-}
-
-
-@keyframes rainbow {
-
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        box-shadow:
-            0 0 18px
-            rgba(255,255,255,0.25);
-    }
-
-    50% {
-        box-shadow:
-            0 0 38px
-            rgba(255,255,255,0.65),
-
-            0 0 70px
-            rgba(120,80,255,0.45);
-    }
-}
-
-
-/* =========================================================
-   RECOGNIZING OVERLAY
-========================================================= */
-
-#recognizing {
-    display: none;
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 30;
-
-    background:
-        rgba(0,0,0,0.55);
-
-    backdrop-filter: blur(10px);
-
-    -webkit-backdrop-filter: blur(10px);
-
-    align-items: center;
-
-    justify-content: center;
-
-    flex-direction: column;
-}
-
-
-.spinner {
-    width: 45px;
-    height: 45px;
-
-    border-radius: 50%;
-
-    border:
-        4px solid
-        rgba(255,255,255,0.2);
-
-    border-top-color: white;
-
-    animation:
-        spin 0.8s linear infinite;
-}
-
-
-.recognizing-text {
-    margin-top: 15px;
-
-    font-size: 15px;
-
-    color:
-        rgba(255,255,255,0.85);
-}
-
-
-@keyframes spin {
-
-    to {
-        transform: rotate(360deg);
-    }
-
-}
-
-
-/* =========================================================
-   RECENTS PANEL
-========================================================= */
-
-#recentPanel {
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 50;
-
-    display: none;
-
-    background:
-        rgba(0,0,0,0.78);
-
-    backdrop-filter: blur(25px);
-
-    -webkit-backdrop-filter: blur(25px);
-
-    overflow-y: auto;
-}
-
-
-.recent-header {
-    position: sticky;
-
-    top: 0;
-
-    height: 85px;
-
-    padding:
-        calc(env(safe-area-inset-top) + 15px)
-        18px
-        12px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    background:
-        rgba(0,0,0,0.55);
-
-    backdrop-filter: blur(20px);
-
-    -webkit-backdrop-filter: blur(20px);
-
-    z-index: 5;
-}
-
-
-.recent-header h2 {
-    margin: 0;
-
-    font-size: 25px;
-}
-
-
-#closeRecent {
-    border: none;
-
-    width: 38px;
-    height: 38px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255,255,255,0.13);
-
-    color: white;
-
-    font-size: 22px;
-
-    cursor: pointer;
-}
-
-
-#recentList {
-    padding:
-        12px 15px 40px;
-}
-
-
-.recent-empty {
-    text-align: center;
-
-    padding: 80px 25px;
-
-    color:
-        rgba(255,255,255,0.55);
-
-    font-size: 15px;
-}
-
-
-.recent-item {
-    display: flex;
-
-    align-items: center;
-
-    gap: 13px;
-
-    width: 100%;
-
-    padding: 10px;
-
-    margin-bottom: 8px;
-
-    border-radius: 16px;
-
-    background:
-        rgba(255,255,255,0.08);
-
-    border:
-        1px solid
-        rgba(255,255,255,0.05);
-
-    cursor: pointer;
-
-    transition:
-        transform 0.15s ease,
-        background 0.2s ease;
-}
-
-
-.recent-item:active {
-    transform: scale(0.97);
-
-    background:
-        rgba(255,255,255,0.15);
-}
-
-
-.recent-art {
-    width: 58px;
-    height: 58px;
-
-    border-radius: 10px;
-
-    object-fit: cover;
-
-    background:
-        rgba(255,255,255,0.08);
-
-    flex-shrink: 0;
-}
-
-
-.recent-details {
-    min-width: 0;
-
-    flex: 1;
-}
-
-
-.recent-title {
-    font-size: 16px;
-
-    font-weight: 700;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-}
-
-
-.recent-artist {
-    margin-top: 3px;
-
-    font-size: 13px;
-
-    color:
-        rgba(255,255,255,0.58);
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-}
-
-
-.recent-time {
-    margin-top: 4px;
-
-    font-size: 11px;
-
-    color:
-        rgba(255,255,255,0.35);
-}
-
-
-/* =========================================================
-   DESKTOP
-========================================================= */
-
-@media (min-width: 431px) {
-
-    body {
-        background: #111;
-    }
-
-    .app {
-        box-shadow:
-            0 0 60px
-            rgba(0,0,0,0.6);
-    }
-
-}
-
-</style>
+            font-size: 15px;
+        }
+    </style>
 </head>
-
 
 <body>
 
-<div class="app">
+    <!-- =========================
+         BACKGROUND
+         ========================= -->
 
-    <!-- ALBUM BLUR BACKGROUND -->
     <div id="albumBackground"></div>
-
-    <!-- DARK OVERLAY -->
     <div id="albumOverlay"></div>
 
 
-    <div class="content">
+    <!-- =========================
+         MAIN APP
+         ========================= -->
 
+    <div class="app">
 
-        <!-- =================================================
-             HEADER
-        ================================================= -->
+        <header class="header">
 
-        <header>
-
-            <button
-                id="recentButton"
-                aria-label="Recent songs">
-
+            <button id="recentButton" aria-label="Recent songs">
                 🕘
-
             </button>
 
-
-            <h1 class="app-title">
+            <div class="title">
                 MUSIC Lyrics
-            </h1>
-
-
-            <div class="app-subtitle">
-                Tap to recognize
             </div>
 
-
-            <div id="songInfo">
-
-                <div id="songTitle"></div>
-
-                <div id="songArtist"></div>
-
+            <div class="subtitle">
+                Tap to recognize
             </div>
 
         </header>
 
 
-        <!-- =================================================
-             LYRICS
-        ================================================= -->
+        <!-- SONG INFO -->
+
+        <div id="songInfo">
+
+            <div id="songTitle"></div>
+
+            <div id="songArtist"></div>
+
+        </div>
+
+
+        <!-- LYRICS -->
 
         <div id="lyricsContainer"></div>
 
 
-        <!-- =================================================
-             STATUS
-        ================================================= -->
+        <!-- STATUS -->
 
         <div id="status">
             Ready
         </div>
 
 
-        <!-- =================================================
-             RECOGNIZE BUTTON
-        ================================================= -->
+        <!-- RECOGNIZE BUTTON -->
 
-        <button
-            id="recognizeButton"
-            aria-label="Recognize song">
-
-            ?
-
+        <button id="recognizeButton"
+                aria-label="Recognize song">
         </button>
-
-
-        <!-- =================================================
-             RECOGNIZING
-        ================================================= -->
-
-        <div id="recognizing">
-
-            <div class="spinner"></div>
-
-            <div class="recognizing-text">
-                Listening...
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             RECENTS
-        ================================================= -->
-
-        <div id="recentPanel">
-
-            <div class="recent-header">
-
-                <h2>
-                    Recent Songs
-                </h2>
-
-                <button id="closeRecent">
-                    ×
-                </button>
-
-            </div>
-
-
-            <div id="recentList"></div>
-
-        </div>
-
 
     </div>
 
-</div>
 
+    <!-- =========================
+         RECOGNIZING OVERLAY
+         ========================= -->
 
-<script>
+    <div id="recognizing">
 
-/* =========================================================
-   EXISTING MUSIC LYRICS CODE
-========================================================= */
+        <div class="spinner"></div>
 
-const button =
-    document.getElementById(
-        "recognizeButton"
-    );
+        <div>
+            Listening...
+        </div>
 
+    </div>
 
-const lyricsContainer =
-    document.getElementById(
-        "lyricsContainer"
-    );
 
+    <!-- =========================
+         RECENT SONGS PANEL
+         ========================= -->
 
-const statusElement =
-    document.getElementById(
-        "status"
-    );
+    <div id="recentPanel">
 
+        <div class="recentHeader">
 
-const recognizingElement =
-    document.getElementById(
-        "recognizing"
-    );
+            <h2>
+                Recent Songs
+            </h2>
 
+            <button id="closeRecent">
+                ×
+            </button>
 
-const songInfo =
-    document.getElementById(
-        "songInfo"
-    );
+        </div>
 
+        <div id="recentList"></div>
 
-const songTitle =
-    document.getElementById(
-        "songTitle"
-    );
+    </div>
 
 
-const songArtist =
-    document.getElementById(
-        "songArtist"
-    );
+    <script>
 
+        /* =========================
+           ELEMENTS
+           ========================= */
 
-/*
-   KEEPING YOUR EXISTING
-   4-SECOND SYNC OFFSET
-*/
+        const button =
+            document.getElementById("recognizeButton");
 
-const SYNC_OFFSET = 4;
+        const lyricsContainer =
+            document.getElementById("lyricsContainer");
 
+        const statusElement =
+            document.getElementById("status");
 
-let lyricLines = [];
+        const recognizingElement =
+            document.getElementById("recognizing");
 
-let currentIndex = -1;
+        const songInfo =
+            document.getElementById("songInfo");
 
-let recognitionTimer = null;
+        const songTitle =
+            document.getElementById("songTitle");
 
-let audioStartTime = 0;
+        const songArtist =
+            document.getElementById("songArtist");
 
+        const albumBackground =
+            document.getElementById("albumBackground");
 
-/* =========================================================
-   ALBUM BACKGROUND
-========================================================= */
+        const recentButton =
+            document.getElementById("recentButton");
 
-const albumBackground =
-    document.getElementById(
-        "albumBackground"
-    );
+        const recentPanel =
+            document.getElementById("recentPanel");
 
+        const closeRecent =
+            document.getElementById("closeRecent");
 
-function setAlbumBackground(data) {
+        const recentList =
+            document.getElementById("recentList");
 
-    let artwork = "";
 
+        /* =========================
+           SETTINGS
+           ========================= */
 
-    try {
+        const SYNC_OFFSET = 4;
 
-        const song =
-            data?.song ||
-            data?.track ||
-            {};
+        const RECENT_STORAGE_KEY =
+            "musicLyricsRecentSongs";
 
+        const MAX_RECENT =
+            20;
 
-        const images =
-            song.images ||
-            data?.images ||
-            {};
 
+        /* =========================
+           STATE
+           ========================= */
 
-        artwork =
-            images.background ||
-            images.coverarthq ||
-            images.coverart ||
-            song.artwork ||
-            data?.artwork ||
-            data?.coverart ||
-            data?.coverArt ||
-            data?.image ||
-            song.share?.image ||
-            data?.share?.image ||
-            "";
+        let lyricLines = [];
 
-    }
+        let currentIndex = -1;
 
-    catch (error) {
+        let recognitionTimer = null;
 
-        console.log(
-            "Could not find album artwork:",
-            error
-        );
+        let audioStartTime = 0;
 
-    }
 
+        /* =========================
+           LYRIC DATA
+           ========================= */
 
-    if (!artwork) {
+        function lyricDataToString(data) {
 
-        albumBackground.style.opacity =
-            "0";
-
-        return;
-    }
-
-
-    albumBackground.style.backgroundImage =
-        `url("${artwork}")`;
-
-
-    albumBackground.style.opacity =
-        "1";
-}
-
-
-/* =========================================================
-   LYRICS DATA
-========================================================= */
-
-function lyricDataToString(data) {
-
-    if (typeof data === "string") {
-
-        return data;
-    }
-
-
-    if (Array.isArray(data)) {
-
-        return data
-
-            .map(line => {
-
-                if (
-                    typeof line ===
-                    "string"
-                ) {
-
-                    return line;
-                }
-
-
-                if (
-                    line &&
-                    typeof line ===
-                    "object"
-                ) {
-
-                    if (line.text) {
-                        return line.text;
-                    }
-
-                    if (line.lyric) {
-                        return line.lyric;
-                    }
-
-                    if (line.line) {
-                        return line.line;
-                    }
-
-                }
-
-
+            if (!data) {
                 return "";
+            }
 
-            })
+            if (typeof data === "string") {
+                return data;
+            }
 
-            .filter(Boolean)
+            if (Array.isArray(data)) {
 
-            .join("\n");
-    }
+                return data
+                    .map(item => {
 
+                        if (typeof item === "string") {
+                            return item;
+                        }
 
-    if (
-        data &&
-        typeof data === "object"
-    ) {
+                        if (item.text) {
+                            return item.text;
+                        }
 
-        if (data.syncedLyrics) {
-            return data.syncedLyrics;
+                        if (item.lyric) {
+                            return item.lyric;
+                        }
+
+                        return "";
+                    })
+                    .join("\n");
+            }
+
+            if (typeof data === "object") {
+
+                if (data.text) {
+                    return data.text;
+                }
+
+                if (data.lyrics) {
+                    return lyricDataToString(data.lyrics);
+                }
+
+                if (data.lines) {
+                    return lyricDataToString(data.lines);
+                }
+
+                if (data.syncedLyrics) {
+                    return data.syncedLyrics;
+                }
+
+                if (data.synced_lyrics) {
+                    return data.synced_lyrics;
+                }
+            }
+
+            return "";
         }
 
-        if (data.synced_lyrics) {
-            return data.synced_lyrics;
-        }
 
-        if (data.lrc) {
-            return data.lrc;
-        }
+        /* =========================
+           LRC TIME
+           ========================= */
 
-        if (data.plainLyrics) {
-            return data.plainLyrics;
-        }
-
-        if (data.lyrics) {
-
-            return lyricDataToString(
-                data.lyrics
-            );
-
-        }
-
-        if (data.text) {
-            return data.text;
-        }
-
-        if (data.lines) {
-
-            return lyricDataToString(
-                data.lines
-            );
-
-        }
-
-    }
-
-
-    return "";
-}
-
-
-function secondsToLRC(seconds) {
-
-    const mins =
-        Math.floor(
-            seconds / 60
-        );
-
-
-    const secs =
-        seconds -
-        mins * 60;
-
-
-    const secString =
-        secs
-            .toFixed(2)
-            .padStart(5, "0");
-
-
-    return `[${String(mins).padStart(2, "0")}:${secString}]`;
-}
-
-
-/* =========================================================
-   LRC PARSER
-========================================================= */
-
-function parseLRC(lrc) {
-
-    if (!lrc) {
-        return [];
-    }
-
-
-    const lines =
-        lrc.split(/\r?\n/);
-
-
-    const parsed = [];
-
-
-    const regex =
-        /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
-
-
-    for (
-        const line of lines
-    ) {
-
-        let match;
-
-        const timestamps = [];
-
-
-        regex.lastIndex = 0;
-
-
-        while (
-            (match =
-                regex.exec(line)) !== null
-        ) {
+        function secondsToLRC(seconds) {
 
             const minutes =
-                parseInt(
-                    match[1],
-                    10
-                );
+                Math.floor(seconds / 60);
+
+            const remaining =
+                seconds % 60;
+
+            return (
+                "[" +
+                String(minutes).padStart(2, "0") +
+                ":" +
+                remaining.toFixed(2).padStart(5, "0") +
+                "]"
+            );
+        }
 
 
-            const seconds =
-                parseInt(
-                    match[2],
-                    10
-                );
+        /* =========================
+           PARSE LRC
+           ========================= */
 
+        function parseLRC(lrc) {
 
-            let fraction = 0;
+            const lines = [];
 
-
-            if (match[3]) {
-
-                const value =
-                    match[3];
-
-
-                if (value.length === 1) {
-
-                    fraction =
-                        parseInt(
-                            value,
-                            10
-                        ) / 10;
-
-                }
-
-                else if (
-                    value.length === 2
-                ) {
-
-                    fraction =
-                        parseInt(
-                            value,
-                            10
-                        ) / 100;
-
-                }
-
-                else {
-
-                    fraction =
-                        parseInt(
-                            value,
-                            10
-                        ) / 1000;
-
-                }
-
+            if (!lrc) {
+                return lines;
             }
 
+            const regex =
+                /\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]/g;
 
-            timestamps.push(
+            for (const rawLine of lrc.split("\n")) {
 
-                minutes * 60 +
-                seconds +
-                fraction
+                const text =
+                    rawLine
+                        .replace(regex, "")
+                        .trim();
 
+                if (!text) {
+                    continue;
+                }
+
+                regex.lastIndex = 0;
+
+                const match =
+                    regex.exec(rawLine);
+
+                if (!match) {
+                    continue;
+                }
+
+                const minutes =
+                    parseInt(match[1], 10);
+
+                const seconds =
+                    parseInt(match[2], 10);
+
+                let fraction = 0;
+
+                if (match[3]) {
+
+                    const digits =
+                        match[3].length;
+
+                    fraction =
+                        parseInt(match[3], 10) /
+                        Math.pow(10, digits);
+                }
+
+                lines.push({
+                    time:
+                        minutes * 60 +
+                        seconds +
+                        fraction,
+
+                    text
+                });
+            }
+
+            lines.sort(
+                (a, b) =>
+                    a.time - b.time
             );
 
+            return lines;
         }
 
 
-        const text =
-            line
-                .replace(regex, "")
-                .trim();
+        /* =========================
+           DISPLAY LYRICS
+           ========================= */
 
+        function displayLyrics(lyrics) {
 
-        if (!text) {
-            continue;
-        }
+            lyricsContainer.innerHTML = "";
 
+            lyricLines = [];
 
-        for (
-            const time of timestamps
-        ) {
+            currentIndex = -1;
 
-            parsed.push({
+            const lyricText =
+                lyricDataToString(lyrics);
 
-                time,
-                text
+            if (!lyricText) {
 
-            });
+                lyricsContainer.innerHTML =
+                    `<div class="lyric-line">
+                        Lyrics not found
+                    </div>`;
 
-        }
+                return;
+            }
 
-    }
+            lyricLines =
+                parseLRC(lyricText);
 
+            if (lyricLines.length === 0) {
 
-    parsed.sort(
-        (a, b) =>
-            a.time - b.time
-    );
+                const plainLines =
+                    lyricText
+                        .split("\n")
+                        .map(x => x.trim())
+                        .filter(Boolean);
 
+                lyricLines =
+                    plainLines.map(text => ({
+                        time: 0,
+                        text
+                    }));
+            }
 
-    return parsed;
-}
+            lyricLines.forEach(
+                (line, index) => {
 
+                    const element =
+                        document.createElement("div");
 
-/* =========================================================
-   DISPLAY LYRICS
-========================================================= */
+                    element.className =
+                        "lyric-line";
 
-function displayLyrics(lyricsData) {
+                    element.textContent =
+                        line.text;
 
-    const rawLyrics =
-        lyricDataToString(
-            lyricsData
-        );
+                    element.dataset.index =
+                        index;
 
+                    element.addEventListener(
+                        "click",
+                        () => {
 
-    lyricLines =
-        parseLRC(
-            rawLyrics
-        );
-
-
-    lyricsContainer.innerHTML = "";
-
-
-    currentIndex = -1;
-
-
-    if (!rawLyrics) {
-
-        lyricsContainer.innerHTML = `
-
-            <div class="lyric-line active">
-                Lyrics not found
-            </div>
-
-        `;
-
-        return;
-    }
-
-
-    /*
-       SYNCED LYRICS
-    */
-
-    if (lyricLines.length > 0) {
-
-        lyricLines.forEach(
-            (line, index) => {
-
-                const element =
-                    document.createElement(
-                        "div"
+                            startEstimatedSync(
+                                line.time,
+                                false
+                            );
+                        }
                     );
 
-
-                element.className =
-                    "lyric-line";
-
-
-                element.textContent =
-                    line.text;
-
-
-                /*
-                   TAP LYRIC TO SYNC
-                */
-
-                element.addEventListener(
-                    "click",
-                    () => {
-
-                        startEstimatedSync(
-                            line.time,
-                            false
-                        );
-
-                    }
-                );
+                    lyricsContainer.appendChild(
+                        element
+                    );
+                }
+            );
+        }
 
 
-                lyricsContainer.appendChild(
-                    element
-                );
+        /* =========================
+           UPDATE ACTIVE LYRIC
+           ========================= */
 
+        function updateActiveLyric(time) {
+
+            if (!lyricLines.length) {
+                return;
             }
-        );
 
+            let index = 0;
 
-        return;
-    }
-
-
-    /*
-       PLAIN LYRICS
-    */
-
-    const plainLines =
-        rawLyrics
-            .split(/\r?\n/)
-            .map(
-                line =>
-                    line.trim()
-            )
-            .filter(Boolean);
-
-
-    lyricLines =
-        plainLines.map(
-            text => ({
-
-                time: 0,
-
-                text
-
-            })
-        );
-
-
-    plainLines.forEach(
-        text => {
-
-            const element =
-                document.createElement(
-                    "div"
-                );
-
-
-            element.className =
-                "lyric-line";
-
-
-            element.textContent =
-                text;
-
-
-            lyricsContainer.appendChild(
-                element
-            );
-
-        }
-    );
-}
-
-
-/* =========================================================
-   LYRIC SYNC
-========================================================= */
-
-function updateActiveLyric(time) {
-
-    if (!lyricLines.length) {
-        return;
-    }
-
-
-    let index = 0;
-
-
-    for (
-        let i = 0;
-        i < lyricLines.length;
-        i++
-    ) {
-
-        if (
-            lyricLines[i].time <= time
-        ) {
-
-            index = i;
-
-        }
-
-        else {
-
-            break;
-
-        }
-
-    }
-
-
-    if (index === currentIndex) {
-        return;
-    }
-
-
-    currentIndex = index;
-
-
-    const elements =
-        lyricsContainer.querySelectorAll(
-            ".lyric-line"
-        );
-
-
-    elements.forEach(
-        (element, i) => {
-
-            element.classList.toggle(
-                "active",
-                i === currentIndex
-            );
-
-        }
-    );
-
-
-    const active =
-        elements[currentIndex];
-
-
-    if (active) {
-
-        active.scrollIntoView({
-
-            behavior: "smooth",
-
-            block: "center"
-
-        });
-
-    }
-}
-
-
-function findCurrentLyric(time) {
-
-    let index = 0;
-
-
-    for (
-        let i = 0;
-        i < lyricLines.length;
-        i++
-    ) {
-
-        if (
-            lyricLines[i].time <= time
-        ) {
-
-            index = i;
-
-        }
-
-        else {
-
-            break;
-
-        }
-
-    }
-
-
-    return index;
-}
-
-
-function startEstimatedSync(
-    startAt = 0,
-    applyOffset = true
-) {
-
-    stopEstimatedSync();
-
-
-    const offset =
-        applyOffset
-            ? SYNC_OFFSET
-            : 0;
-
-
-    audioStartTime =
-        performance.now() / 1000 -
-        startAt +
-        offset;
-
-
-    recognitionTimer =
-        setInterval(
-            () => {
-
-                const now =
-                    performance.now() / 1000;
-
-
-                const elapsed =
-                    now -
-                    audioStartTime;
-
-
-                updateActiveLyric(
-                    elapsed
-                );
-
-            },
-            100
-        );
-
-
-    updateActiveLyric(
-        startAt - offset
-    );
-}
-
-
-function stopEstimatedSync() {
-
-    if (recognitionTimer) {
-
-        clearInterval(
-            recognitionTimer
-        );
-
-        recognitionTimer = null;
-    }
-}
-
-
-/* =========================================================
-   SAFE SONG DATA
-========================================================= */
-
-function getSafeTitle(data) {
-
-    return (
-
-        data?.song?.title ||
-
-        data?.track?.title ||
-
-        data?.title ||
-
-        "Unknown Song"
-
-    );
-}
-
-
-function getSafeArtist(data) {
-
-    return (
-
-        data?.song?.subtitle ||
-
-        data?.track?.subtitle ||
-
-        data?.artist ||
-
-        data?.artistName ||
-
-        "Unknown Artist"
-
-    );
-}
-
-
-/* =========================================================
-   RECENT SONGS
-========================================================= */
-
-const RECENTS_KEY =
-    "musicLyricsRecentSongs";
-
-
-const MAX_RECENTS = 20;
-
-
-let recentSongs = [];
-
-
-function loadRecentSongs() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(
-                RECENTS_KEY
-            );
-
-
-        if (saved) {
-
-            const parsed =
-                JSON.parse(
-                    saved
-                );
-
-
-            if (
-                Array.isArray(parsed)
+            for (
+                let i = 0;
+                i < lyricLines.length;
+                i++
             ) {
 
-                recentSongs =
-                    parsed;
-
+                if (
+                    lyricLines[i].time <= time
+                ) {
+                    index = i;
+                } else {
+                    break;
+                }
             }
 
+            if (index === currentIndex) {
+                return;
+            }
+
+            currentIndex = index;
+
+            const elements =
+                lyricsContainer.querySelectorAll(
+                    ".lyric-line"
+                );
+
+            elements.forEach(
+                (element, i) => {
+
+                    element.classList.toggle(
+                        "active",
+                        i === currentIndex
+                    );
+                }
+            );
+
+            const active =
+                elements[currentIndex];
+
+            if (active) {
+
+                active.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }
         }
 
-    }
 
-    catch (error) {
+        /* =========================
+           ESTIMATED SYNC
+           ========================= */
 
-        console.log(
-            "Could not load recent songs:",
-            error
-        );
+        function startEstimatedSync(
+            startAt = 0,
+            applyOffset = true
+        ) {
 
+            stopEstimatedSync();
 
-        recentSongs = [];
+            const offset =
+                applyOffset
+                    ? SYNC_OFFSET
+                    : 0;
 
-    }
-}
+            audioStartTime =
+                Date.now() / 1000 -
+                startAt -
+                offset;
 
+            recognitionTimer =
+                setInterval(() => {
 
-function saveRecentSongs() {
+                    const elapsed =
+                        Date.now() / 1000 -
+                        audioStartTime;
 
-    try {
+                    updateActiveLyric(
+                        elapsed
+                    );
 
-        localStorage.setItem(
+                }, 100);
+        }
 
-            RECENTS_KEY,
 
-            JSON.stringify(
-                recentSongs
-            )
+        function stopEstimatedSync() {
 
-        );
+            if (recognitionTimer) {
 
-    }
-
-    catch (error) {
-
-        console.log(
-            "Could not save recent songs:",
-            error
-        );
-
-    }
-}
-
-
-/* =========================================================
-   GET ARTWORK
-========================================================= */
-
-function getArtwork(data) {
-
-    try {
-
-        const song =
-            data?.song ||
-            data?.track ||
-            {};
-
-
-        const images =
-            song.images ||
-            data?.images ||
-            {};
-
-
-        return (
-
-            images.coverarthq ||
-
-            images.coverart ||
-
-            images.background ||
-
-            song.share?.image ||
-
-            data?.artwork ||
-
-            data?.image ||
-
-            ""
-
-        );
-
-    }
-
-    catch {
-
-        return "";
-
-    }
-}
-
-
-/* =========================================================
-   SAVE RECENT SONG
-========================================================= */
-
-function saveRecentSong({
-
-    title,
-
-    artist,
-
-    lyrics,
-
-    artwork,
-
-    matchPosition
-
-}) {
-
-    if (!title) {
-        return;
-    }
-
-
-    /*
-       Remove duplicate.
-    */
-
-    recentSongs =
-        recentSongs.filter(
-            song => !(
-                song.title === title &&
-                song.artist === artist
-            )
-        );
-
-
-    /*
-       Newest first.
-    */
-
-    recentSongs.unshift({
-
-        title,
-
-        artist,
-
-        lyrics,
-
-        artwork:
-            artwork || "",
-
-        matchPosition:
-            Number.isFinite(
-                matchPosition
-            )
-                ? matchPosition
-                : 0,
-
-        savedAt:
-            Date.now()
-
-    });
-
-
-    /*
-       Keep latest 20.
-    */
-
-    recentSongs =
-        recentSongs.slice(
-            0,
-            MAX_RECENTS
-        );
-
-
-    saveRecentSongs();
-
-
-    renderRecentSongs();
-}
-
-
-/* =========================================================
-   RECENTS DISPLAY
-========================================================= */
-
-const recentPanel =
-    document.getElementById(
-        "recentPanel"
-    );
-
-
-const recentList =
-    document.getElementById(
-        "recentList"
-    );
-
-
-const recentButton =
-    document.getElementById(
-        "recentButton"
-    );
-
-
-const closeRecent =
-    document.getElementById(
-        "closeRecent"
-    );
-
-
-function formatRecentDate(
-    timestamp
-) {
-
-    if (!timestamp) {
-        return "";
-    }
-
-
-    const date =
-        new Date(timestamp);
-
-
-    const now =
-        new Date();
-
-
-    const diff =
-        now.getTime() -
-        date.getTime();
-
-
-    const minutes =
-        Math.floor(
-            diff / 60000
-        );
-
-
-    if (minutes < 1) {
-        return "Just now";
-    }
-
-
-    if (minutes < 60) {
-
-        return `${minutes}m ago`;
-
-    }
-
-
-    const hours =
-        Math.floor(
-            minutes / 60
-        );
-
-
-    if (hours < 24) {
-
-        return `${hours}h ago`;
-
-    }
-
-
-    const days =
-        Math.floor(
-            hours / 24
-        );
-
-
-    if (days < 7) {
-
-        return `${days}d ago`;
-
-    }
-
-
-    return date.toLocaleDateString();
-}
-
-
-/* =========================================================
-   RENDER RECENTS
-========================================================= */
-
-function renderRecentSongs() {
-
-    recentList.innerHTML = "";
-
-
-    if (!recentSongs.length) {
-
-        recentList.innerHTML = `
-
-            <div class="recent-empty">
-
-                Songs you recognize
-                will appear here.
-
-            </div>
-
-        `;
-
-        return;
-    }
-
-
-    recentSongs.forEach(
-        (song, index) => {
-
-            const item =
-                document.createElement(
-                    "div"
+                clearInterval(
+                    recognitionTimer
                 );
 
-
-            item.className =
-                "recent-item";
-
-
-            const artwork =
-                document.createElement(
-                    "img"
-                );
+                recognitionTimer = null;
+            }
+        }
 
 
-            artwork.className =
-                "recent-art";
+        /* =========================
+           SAFE TEXT
+           ========================= */
+
+        function getSafeTitle(data) {
+
+            return (
+                data?.title ||
+                data?.song?.title ||
+                data?.track?.title ||
+                "Unknown Song"
+            );
+        }
 
 
-            artwork.alt = "";
+        function getSafeArtist(data) {
+
+            return (
+                data?.artist ||
+                data?.artistName ||
+                data?.song?.artist ||
+                data?.song?.subtitle ||
+                data?.track?.artist ||
+                "Unknown Artist"
+            );
+        }
 
 
-            if (song.artwork) {
+        /* =========================
+           FIND ARTWORK
+           ========================= */
 
-                artwork.src =
-                    song.artwork;
+        function getArtwork(data) {
 
+            const possibleImages = [
+
+                data?.song?.images?.background,
+
+                data?.song?.images?.coverarthq,
+
+                data?.song?.images?.coverart,
+
+                data?.song?.artwork,
+
+                data?.artwork,
+
+                data?.coverart,
+
+                data?.coverArt,
+
+                data?.image,
+
+                data?.song?.share?.image,
+
+                data?.share?.image,
+
+                data?.track?.images?.coverart
+
+            ];
+
+            for (
+                const image of possibleImages
+            ) {
+
+                if (
+                    typeof image === "string" &&
+                    image.startsWith("http")
+                ) {
+
+                    return image;
+                }
             }
 
-
-            const details =
-                document.createElement(
-                    "div"
-                );
+            return "";
+        }
 
 
-            details.className =
-                "recent-details";
+        /* =========================
+           SET ALBUM BACKGROUND
+           ========================= */
 
+        function setAlbumBackground(data) {
 
-            const title =
-                document.createElement(
-                    "div"
-                );
+            const artwork =
+                getArtwork(data);
 
-
-            title.className =
-                "recent-title";
-
-
-            title.textContent =
-                song.title ||
-                "Unknown Song";
-
-
-            const artist =
-                document.createElement(
-                    "div"
-                );
-
-
-            artist.className =
-                "recent-artist";
-
-
-            artist.textContent =
-                song.artist ||
-                "Unknown Artist";
-
-
-            const time =
-                document.createElement(
-                    "div"
-                );
-
-
-            time.className =
-                "recent-time";
-
-
-            time.textContent =
-                formatRecentDate(
-                    song.savedAt
-                );
-
-
-            details.appendChild(
-                title
-            );
-
-
-            details.appendChild(
-                artist
-            );
-
-
-            details.appendChild(
-                time
-            );
-
-
-            item.appendChild(
+            console.log(
+                "Artwork URL:",
                 artwork
             );
 
+            if (!artwork) {
 
-            item.appendChild(
-                details
-            );
+                albumBackground.style.opacity =
+                    "0";
 
+                albumBackground.style.backgroundImage =
+                    "none";
 
-            item.addEventListener(
-                "click",
-                () => {
+                return;
+            }
 
-                    loadRecentSong(
-                        index
-                    );
+            albumBackground.style.backgroundImage =
+                `url("${artwork}")`;
 
-                }
-            );
-
-
-            recentList.appendChild(
-                item
-            );
-
+            albumBackground.style.opacity =
+                "1";
         }
-    );
-}
 
 
-/* =========================================================
-   LOAD RECENT SONG
-========================================================= */
+        /* =========================
+           RECENT SONGS
+           ========================= */
 
-function loadRecentSong(index) {
+        function getRecentSongs() {
 
-    const song =
-        recentSongs[index];
+            try {
 
+                return JSON.parse(
+                    localStorage.getItem(
+                        RECENT_STORAGE_KEY
+                    ) || "[]"
+                );
 
-    if (!song) {
-        return;
-    }
+            } catch (error) {
 
+                console.error(
+                    "Could not load recents:",
+                    error
+                );
 
-    stopEstimatedSync();
-
-
-    songInfo.style.display =
-        "block";
-
-
-    songTitle.textContent =
-        song.title ||
-        "Unknown Song";
-
-
-    songArtist.textContent =
-        song.artist ||
-        "Unknown Artist";
+                return [];
+            }
+        }
 
 
-    /*
-       Restore album background.
-    */
+        function saveRecentSong(data) {
 
-    if (song.artwork) {
+            const title =
+                getSafeTitle(data);
 
-        albumBackground.style.backgroundImage =
-            `url("${song.artwork}")`;
+            const artist =
+                getSafeArtist(data);
 
+            const artwork =
+                getArtwork(data);
 
-        albumBackground.style.opacity =
-            "1";
+            const lyrics =
+                lyricDataToString(
+                    data?.lyrics ||
+                    data?.syncedLyrics ||
+                    data?.synced_lyrics ||
+                    data?.lyricText ||
+                    data?.lrc ||
+                    data?.lines ||
+                    data?.lyricData ||
+                    data?.lyric_data
+                );
 
-    }
+            const matchPosition =
+                Number(
+                    data?.matchPosition ??
+                    data?.timecode ??
+                    data?.song?.matchPosition ??
+                    0
+                );
 
+            let recent =
+                getRecentSongs();
 
-    /*
-       Restore lyrics.
-    */
+            recent =
+                recent.filter(song =>
+                    !(
+                        song.title === title &&
+                        song.artist === artist
+                    )
+                );
 
-    displayLyrics(
-        song.lyrics
-    );
+            recent.unshift({
 
+                title,
 
-    /*
-       Close recents.
-    */
+                artist,
 
-    recentPanel.style.display =
-        "none";
+                lyrics,
 
+                artwork,
 
-    statusElement.textContent =
-        "Loaded from Recents";
+                matchPosition,
 
+                savedAt:
+                    Date.now()
+            });
 
-    /*
-       Start lyric timeline.
-    */
+            recent =
+                recent.slice(
+                    0,
+                    MAX_RECENT
+                );
 
-    startEstimatedSync(
-        song.matchPosition || 0,
-        false
-    );
-}
-
-
-/* =========================================================
-   RECENTS BUTTON
-========================================================= */
-
-recentButton.addEventListener(
-    "click",
-    () => {
-
-        renderRecentSongs();
-
-
-        recentPanel.style.display =
-            "block";
-
-    }
-);
-
-
-closeRecent.addEventListener(
-    "click",
-    () => {
-
-        recentPanel.style.display =
-            "none";
-
-    }
-);
-
-
-/* =========================================================
-   SHAZAM RECOGNITION
-========================================================= */
-
-async function recognizeSong() {
-
-    if (
-        button.classList.contains(
-            "listening"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    button.classList.add(
-        "listening"
-    );
-
-
-    recognizingElement.style.display =
-        "flex";
-
-
-    statusElement.textContent =
-        "Listening...";
-
-
-    try {
-
-        const stream =
-            await navigator
-                .mediaDevices
-                .getUserMedia({
-
-                    audio: true
-
-                });
-
-
-        const mediaRecorder =
-            new MediaRecorder(
-                stream
+            localStorage.setItem(
+                RECENT_STORAGE_KEY,
+                JSON.stringify(recent)
             );
 
+            renderRecentSongs();
+        }
 
-        const chunks = [];
+
+        /* =========================
+           RECENT TIME
+           ========================= */
+
+        function relativeTime(timestamp) {
+
+            const seconds =
+                Math.floor(
+                    (Date.now() - timestamp) /
+                    1000
+                );
+
+            if (seconds < 60) {
+                return "Just now";
+            }
+
+            const minutes =
+                Math.floor(
+                    seconds / 60
+                );
+
+            if (minutes < 60) {
+                return (
+                    minutes +
+                    (minutes === 1
+                        ? " minute ago"
+                        : " minutes ago")
+                );
+            }
+
+            const hours =
+                Math.floor(
+                    minutes / 60
+                );
+
+            if (hours < 24) {
+                return (
+                    hours +
+                    (hours === 1
+                        ? " hour ago"
+                        : " hours ago")
+                );
+            }
+
+            const days =
+                Math.floor(
+                    hours / 24
+                );
+
+            return (
+                days +
+                (days === 1
+                    ? " day ago"
+                    : " days ago")
+            );
+        }
 
 
-        mediaRecorder.ondataavailable =
-            event => {
+        /* =========================
+           RENDER RECENTS
+           ========================= */
 
-                if (
-                    event.data &&
-                    event.data.size > 0
-                ) {
+        function renderRecentSongs() {
 
-                    chunks.push(
-                        event.data
-                    );
+            const recent =
+                getRecentSongs();
 
+            recentList.innerHTML = "";
+
+            if (!recent.length) {
+
+                recentList.innerHTML =
+                    `<div class="emptyRecent">
+                        No recent songs yet.
+                    </div>`;
+
+                return;
+            }
+
+            recent.forEach(song => {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "recentItem";
+
+                const artwork =
+                    document.createElement("img");
+
+                artwork.className =
+                    "recentArtwork";
+
+                if (song.artwork) {
+
+                    artwork.src =
+                        song.artwork;
+
+                } else {
+
+                    artwork.style.display =
+                        "none";
                 }
 
-            };
+                const text =
+                    document.createElement("div");
+
+                text.className =
+                    "recentText";
+
+                text.innerHTML = `
+                    <div class="recentTitle">
+                        ${escapeHtml(song.title)}
+                    </div>
+
+                    <div class="recentArtist">
+                        ${escapeHtml(song.artist)}
+                    </div>
+
+                    <div class="recentTime">
+                        ${relativeTime(song.savedAt)}
+                    </div>
+                `;
+
+                item.appendChild(
+                    artwork
+                );
+
+                item.appendChild(
+                    text
+                );
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        loadRecentSong(
+                            song
+                        );
+                    }
+                );
+
+                recentList.appendChild(
+                    item
+                );
+            });
+        }
 
 
-        const recording =
-            new Promise(
-                resolve => {
+        /* =========================
+           ESCAPE HTML
+           ========================= */
 
-                    mediaRecorder.onstop =
-                        () => {
+        function escapeHtml(value) {
 
-                            resolve(
+            return String(value)
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+        }
 
-                                new Blob(
-                                    chunks,
-                                    {
-                                        type:
-                                            mediaRecorder
-                                                .mimeType ||
-                                            "audio/webm"
-                                    }
-                                )
 
-                            );
+        /* =========================
+           LOAD RECENT
+           ========================= */
 
-                        };
+        function loadRecentSong(song) {
 
-                }
+            stopEstimatedSync();
+
+            songTitle.textContent =
+                song.title;
+
+            songArtist.textContent =
+                song.artist;
+
+            songInfo.style.display =
+                "block";
+
+            displayLyrics(
+                song.lyrics
             );
 
+            if (song.artwork) {
 
-        mediaRecorder.start();
+                albumBackground.style.backgroundImage =
+                    `url("${song.artwork}")`;
+
+                albumBackground.style.opacity =
+                    "1";
+
+            } else {
+
+                albumBackground.style.opacity =
+                    "0";
+            }
+
+            recentPanel.style.display =
+                "none";
+
+            statusElement.textContent =
+                "Loaded from Recents";
+
+            startEstimatedSync(
+                Number(
+                    song.matchPosition || 0
+                ),
+                false
+            );
+        }
 
 
-        /*
-           Existing 8-second recording.
-        */
+        /* =========================
+           OPEN RECENTS
+           ========================= */
 
-        setTimeout(
+        recentButton.addEventListener(
+            "click",
             () => {
 
-                if (
-                    mediaRecorder.state !==
-                    "inactive"
-                ) {
+                renderRecentSongs();
 
-                    mediaRecorder.stop();
-
-                }
-
-
-                stream
-                    .getTracks()
-                    .forEach(
-                        track =>
-                            track.stop()
-                    );
-
-            },
-            8000
-        );
-
-
-        const blob =
-            await recording;
-
-
-        await sendAudio(
-            blob
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Recognition error:",
-            error
-        );
-
-
-        statusElement.textContent =
-            "Could not recognize song.";
-
-    }
-
-    finally {
-
-        button.classList.remove(
-            "listening"
-        );
-
-
-        recognizingElement.style.display =
-            "none";
-
-    }
-}
-
-
-/* =========================================================
-   SEND AUDIO TO SERVER
-========================================================= */
-
-async function sendAudio(blob) {
-
-    statusElement.textContent =
-        "Identifying song...";
-
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "audio",
-        blob,
-        "recording.webm"
-    );
-
-
-    const response =
-        await fetch(
-            "/identify-shazam",
-            {
-
-                method: "POST",
-
-                body: formData
-
+                recentPanel.style.display =
+                    "flex";
             }
         );
 
 
-    if (!response.ok) {
+        /* =========================
+           CLOSE RECENTS
+           ========================= */
 
-        throw new Error(
-            `Server returned ${response.status}`
+        closeRecent.addEventListener(
+            "click",
+            () => {
+
+                recentPanel.style.display =
+                    "none";
+            }
         );
 
-    }
+
+        /* =========================
+           RECOGNIZE SONG
+           ========================= */
+
+        async function recognizeSong() {
+
+            try {
+
+                button.classList.add(
+                    "listening"
+                );
+
+                recognizingElement.style.display =
+                    "flex";
+
+                statusElement.textContent =
+                    "Listening...";
+
+                const stream =
+                    await navigator.mediaDevices
+                        .getUserMedia({
+                            audio: true
+                        });
+
+                const mediaRecorder =
+                    new MediaRecorder(
+                        stream
+                    );
+
+                const chunks = [];
+
+                mediaRecorder.ondataavailable =
+                    event => {
+
+                        if (
+                            event.data &&
+                            event.data.size > 0
+                        ) {
+
+                            chunks.push(
+                                event.data
+                            );
+                        }
+                    };
+
+                mediaRecorder.onstop =
+                    async () => {
+
+                        stream
+                            .getTracks()
+                            .forEach(
+                                track =>
+                                    track.stop()
+                            );
+
+                        const blob =
+                            new Blob(
+                                chunks,
+                                {
+                                    type:
+                                        "audio/webm"
+                                }
+                            );
+
+                        await sendAudio(
+                            blob
+                        );
+                    };
+
+                mediaRecorder.start();
+
+                setTimeout(
+                    () => {
+
+                        if (
+                            mediaRecorder.state !==
+                            "inactive"
+                        ) {
+
+                            mediaRecorder.stop();
+                        }
+
+                    },
+                    8000
+                );
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+                recognizingElement.style.display =
+                    "none";
+
+                button.classList.remove(
+                    "listening"
+                );
+
+                statusElement.textContent =
+                    "Microphone permission denied";
+            }
+        }
 
 
-    const data =
-        await response.json();
+        /* =========================
+           SEND AUDIO
+           ========================= */
+
+        async function sendAudio(blob) {
+
+            try {
+
+                statusElement.textContent =
+                    "Identifying...";
+
+                const formData =
+                    new FormData();
+
+                formData.append(
+                    "audio",
+                    blob,
+                    "recording.webm"
+                );
+
+                const response =
+                    await fetch(
+                        "/identify-shazam",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Server returned " +
+                        response.status
+                    );
+                }
+
+                const data =
+                    await response.json();
+
+                console.log(
+                    "Shazam response:",
+                    data
+                );
+
+                const title =
+                    getSafeTitle(data);
+
+                const artist =
+                    getSafeArtist(data);
+
+                const lyrics =
+                    data.lyrics ||
+                    data.syncedLyrics ||
+                    data.synced_lyrics ||
+                    data.lyricText ||
+                    data.lrc ||
+                    data.lines ||
+                    data.lyricData ||
+                    data.lyric_data ||
+                    "";
+
+                const matchPosition =
+                    Number(
+                        data.matchPosition ??
+                        data.timecode ??
+                        data.song?.matchPosition ??
+                        0
+                    );
+
+                songTitle.textContent =
+                    title;
+
+                songArtist.textContent =
+                    artist;
+
+                songInfo.style.display =
+                    "block";
+
+                setAlbumBackground(
+                    data
+                );
+
+                displayLyrics(
+                    lyrics
+                );
+
+                saveRecentSong(
+                    data
+                );
+
+                statusElement.textContent =
+                    title +
+                    " • " +
+                    artist;
+
+                startEstimatedSync(
+                    matchPosition,
+                    true
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Recognition error:",
+                    error
+                );
+
+                statusElement.textContent =
+                    "Could not recognize song";
+
+            } finally {
+
+                recognizingElement.style.display =
+                    "none";
+
+                button.classList.remove(
+                    "listening"
+                );
+            }
+        }
 
 
-    console.log(
-        "Shazam response:",
-        data
-    );
+        /* =========================
+           BUTTON
+           ========================= */
+
+        button.addEventListener(
+            "click",
+            recognizeSong
+        );
 
 
-    /*
-       Song information.
-    */
+        /* =========================
+           INITIALIZE
+           ========================= */
 
-    const title =
-        getSafeTitle(data);
+        renderRecentSongs();
 
-
-    const artist =
-        getSafeArtist(data);
-
-
-    songTitle.textContent =
-        title;
-
-
-    songArtist.textContent =
-        artist;
-
-
-    songInfo.style.display =
-        "block";
-
-
-    /*
-       ALBUM BLUR
-    */
-
-    setAlbumBackground(
-        data
-    );
-
-
-    /*
-       Find match position.
-    */
-
-    let matchPosition = 0;
-
-
-    if (
-        typeof data?.matchPosition ===
-        "number"
-    ) {
-
-        matchPosition =
-            data.matchPosition;
-
-    }
-
-    else if (
-        typeof data?.timecode ===
-        "number"
-    ) {
-
-        matchPosition =
-            data.timecode;
-
-    }
-
-    else if (
-        typeof data?.song?.matchPosition ===
-        "number"
-    ) {
-
-        matchPosition =
-            data.song.matchPosition;
-
-    }
-
-    else if (
-        typeof data?.track?.matchPosition ===
-        "number"
-    ) {
-
-        matchPosition =
-            data.track.matchPosition;
-
-    }
-
-
-    /* =====================================================
-       FIND LYRICS
-    ===================================================== */
-
-    const lyricsData =
-        data.lyrics ??
-        data.syncedLyrics ??
-        data.synced_lyrics ??
-        data.lyricText ??
-        data.lrc ??
-        data.lines ??
-        data.lyricData ??
-        data.lyric_data ??
-        "";
-
-
-    /*
-       Display lyrics.
-    */
-
-    displayLyrics(
-        lyricsData
-    );
-
-
-    /*
-       SAVE TO RECENTS
-    */
-
-    saveRecentSong({
-
-        title,
-
-        artist,
-
-        lyrics:
-            lyricsData,
-
-        artwork:
-            getArtwork(data),
-
-        matchPosition
-
-    });
-
-
-    /*
-       Existing sync behavior.
-       SYNC_OFFSET remains 4.
-    */
-
-    startEstimatedSync(
-        matchPosition,
-        true
-    );
-
-
-    statusElement.textContent =
-        "Song recognized";
-}
-
-
-/* =========================================================
-   BUTTON
-========================================================= */
-
-button.addEventListener(
-    "click",
-    recognizeSong
-);
-
-
-/* =========================================================
-   STARTUP
-========================================================= */
-
-loadRecentSongs();
-
-renderRecentSongs();
-
-</script>
+    </script>
 
 </body>
 </html>
