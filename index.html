@@ -392,7 +392,7 @@
         }
 
         #recognizeButton::before {
-            content: "?";
+            content: "♫";
         }
 
         #recognizeButton:active {
@@ -689,15 +689,19 @@
 
             if (view === "home") {
 
-                if (currentSong) {
-                    lyricsScreen.classList.add("active");
-                    subtitle.textContent = "Now playing";
-                } else {
-                    homeScreen.classList.add("active");
-                    subtitle.textContent = "Discover what's playing";
-                }
-
+                homeScreen.classList.add("active");
                 homeTab.classList.add("active");
+
+                subtitle.textContent = "Discover what's playing";
+                button.style.display = "flex";
+                statusElement.style.display = "block";
+
+            } else if (view === "lyrics") {
+
+                lyricsScreen.classList.add("active");
+                homeTab.classList.add("active");
+
+                subtitle.textContent = "Now playing";
                 button.style.display = "flex";
                 statusElement.style.display = "block";
 
@@ -707,7 +711,6 @@
                 recentsTab.classList.add("active");
 
                 subtitle.textContent = "Your listening history";
-
                 button.style.display = "none";
                 statusElement.style.display = "none";
 
@@ -1287,7 +1290,7 @@
             statusElement.textContent =
                 "Loaded from Recents";
 
-            showScreen("home");
+            showScreen("lyrics");
 
             startEstimatedSync(
                 Number(song.matchPosition || 0),
@@ -1324,7 +1327,7 @@
 
             statusElement.textContent = title + " • " + artist;
 
-            showScreen("home");
+            showScreen("lyrics");
 
             startEstimatedSync(matchPosition, true);
         }
