@@ -513,6 +513,172 @@ function findArtwork(data) {
 }
 
 /* =========================================================
+   RESOLVE ARTWORK
+   Picks the best cover link, checks that it really is an
+   image, and falls back to an iTunes lookup if it is not.
+========================================================= */
+
+function cleanArtworkUrl(url) {
+    if (typeof url !== "string") {
+        return "";
+    }
+
+    url = url
+        .trim()
+        .replace(/\{w\}/g, "600")
+        .replace(/\{h\}/g, "600")
+        .replace(/\{c\}/g, "cc")
+        .replace(/\{f\}/g, "jpg")
+        .replace(/^http:\/\//i, "https://");
+
+    return /^https:\/\//i.test(url)
+        ? url
+        : "";
+}
+
+function pickTrackArtwork(track, data) {
+    const candidates = [
+        track?.images?.coverarthq,
+        track?.images?.coverart,
+        track?.images?.background,
+        track?.share?.image,
+        track?.coverart,
+        track?.artwork
+    ];
+
+    for (const candidate of candidates) {
+        const url =
+            cleanArtworkUrl(candidate);
+
+        if (url) {
+            return url;
+        }
+    }
+
+    return cleanArtworkUrl(
+        findArtwork(data)
+    );
+}
+
+async function isImageUrl(url) {
+    const controller =
+        new AbortController();
+
+    const timer =
+        setTimeout(
+            () => controller.abort(),
+            4000
+        );
+
+    try {
+        const response =
+            await fetch(url, {
+                signal: controller.signal
+            });
+
+        const type =
+            response.headers.get(
+                "content-type"
+            ) || "";
+
+        controller.abort();
+
+        return (
+            response.ok &&
+            type.startsWith("image/")
+        );
+
+    } catch (error) {
+        return false;
+
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function lookupItunesArtwork(title, artist) {
+    const controller =
+        new AbortController();
+
+    const timer =
+        setTimeout(
+            () => controller.abort(),
+            4000
+        );
+
+    try {
+        const term =
+            encodeURIComponent(
+                title + " " + artist
+            );
+
+        const response =
+            await fetch(
+                "https://itunes.apple.com/search?term=" +
+                term +
+                "&entity=song&limit=5",
+                {
+                    signal: controller.signal
+                }
+            );
+
+        if (!response.ok) {
+            return "";
+        }
+
+        const json =
+            await response.json();
+
+        const match =
+            (json.results || []).find(
+                item =>
+                    typeof item.artworkUrl100 ===
+                    "string"
+            );
+
+        if (!match) {
+            return "";
+        }
+
+        return match.artworkUrl100.replace(
+            /\/\d+x\d+bb\.(jpg|png)/,
+            "/600x600bb.$1"
+        );
+
+    } catch (error) {
+        return "";
+
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function resolveArtwork(data, track, title, artist) {
+    const candidate =
+        pickTrackArtwork(track, data);
+
+    if (
+        candidate &&
+        await isImageUrl(candidate)
+    ) {
+        return candidate;
+    }
+
+    console.log(
+        "Artwork link was missing or not an image, trying iTunes:",
+        candidate || "(none)"
+    );
+
+    const fallback =
+        await lookupItunesArtwork(
+            title,
+            artist
+        );
+
+    return fallback || candidate;
+}
+
+/* =========================================================
    LRCLIB USER AGENT
 ========================================================= */
 
@@ -1564,8 +1730,11 @@ app.post(
                 );
 
             const artwork =
-                findArtwork(
-                    shazamData
+                await resolveArtwork(
+                    shazamData,
+                    track,
+                    title,
+                    artist
                 );
 
             /*
