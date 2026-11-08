@@ -361,11 +361,12 @@
 
         #recognizeButton {
             position: fixed;
-            bottom: calc(88px + env(safe-area-inset-bottom));
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            width: 62px;
-            height: 62px;
+            bottom: auto;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
             border: none;
             border-radius: 50%;
             background: linear-gradient(
@@ -379,14 +380,14 @@
                 #ff00c8
             );
             color: white;
-            font-size: 32px;
+            font-size: 76px;
             font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 1000;
-            box-shadow: 0 0 12px rgba(255,255,255,0.5);
+            box-shadow: 0 0 25px rgba(255,255,255,0.5);
             animation: rainbow 4s linear infinite,
                        pulse 1.5s ease-in-out infinite;
         }
@@ -397,7 +398,7 @@
 
         #recognizeButton:active {
             animation: none;
-            transform: translateX(-50%) scale(0.92);
+            transform: translate(-50%, -50%) scale(0.92);
         }
 
         #recognizeButton:disabled {
@@ -406,11 +407,11 @@
 
         @keyframes pulse {
             0%, 100% {
-                transform: translateX(-50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
                 box-shadow: 0 0 10px rgba(255,255,255,0.4);
             }
             50% {
-                transform: translateX(-50%) scale(1.15);
+                transform: translate(-50%, -50%) scale(1.15);
                 box-shadow: 0 0 30px rgba(255,255,255,0.9);
             }
         }
@@ -427,10 +428,10 @@
 
         @keyframes listeningPulse {
             0%, 100% {
-                transform: translateX(-50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
             }
             50% {
-                transform: translateX(-50%) scale(1.25);
+                transform: translate(-50%, -50%) scale(1.25);
             }
         }
 
@@ -621,6 +622,13 @@
         </button>
 
         <button class="tabButton"
+                id="lyricsTab"
+                type="button">
+            <span class="tabIcon">♫</span>
+            <span>Lyrics</span>
+        </button>
+
+        <button class="tabButton"
                 id="recentsTab"
                 type="button">
 
@@ -653,6 +661,7 @@
 
         const homeTab = document.getElementById("homeTab");
         const recentsTab = document.getElementById("recentsTab");
+        const lyricsTab = document.getElementById("lyricsTab");
 
         const recentList = document.getElementById("recentList");
         const recentCount = document.getElementById("recentCount");
@@ -685,46 +694,44 @@
             recentsScreen.classList.remove("active");
 
             homeTab.classList.remove("active");
+            lyricsTab.classList.remove("active");
             recentsTab.classList.remove("active");
 
             if (view === "home") {
-
                 homeScreen.classList.add("active");
                 homeTab.classList.add("active");
-
                 subtitle.textContent = "Discover what's playing";
                 button.style.display = "flex";
                 statusElement.style.display = "block";
+                statusElement.textContent = currentSong
+                    ? currentSong.title + " • " + currentSong.artist
+                    : "Ready";
 
             } else if (view === "lyrics") {
-
                 lyricsScreen.classList.add("active");
-                homeTab.classList.add("active");
-
+                lyricsTab.classList.add("active");
                 subtitle.textContent = "Now playing";
-                button.style.display = "flex";
-                statusElement.style.display = "block";
-
-            } else if (view === "recents") {
-
-                recentsScreen.classList.add("active");
-                recentsTab.classList.add("active");
-
-                subtitle.textContent = "Your listening history";
                 button.style.display = "none";
                 statusElement.style.display = "none";
 
+            } else if (view === "recents") {
+                recentsScreen.classList.add("active");
+                recentsTab.classList.add("active");
+                subtitle.textContent = "Your listening history";
+                button.style.display = "none";
+                statusElement.style.display = "none";
                 renderRecentSongs();
             }
         }
 
-        homeTab.addEventListener("click", () => {
-            showScreen("home");
+        homeTab.addEventListener("click", () => showScreen("home"));
+
+        lyricsTab.addEventListener("click", () => {
+            if (currentSong) showScreen("lyrics");
+            else showScreen("home");
         });
 
-        recentsTab.addEventListener("click", () => {
-            showScreen("recents");
-        });
+        recentsTab.addEventListener("click", () => showScreen("recents"));
 
         /* LYRIC DATA */
 
@@ -1488,7 +1495,7 @@
         /* INITIALIZE */
 
         renderRecentSongs();
-        showScreen("home");
+        showScreen("lyrics");
 
     </script>
 
