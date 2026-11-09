@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -597,8 +596,6 @@
         const button = document.getElementById("recognizeButton");
         const lyricsContainer = document.getElementById("lyricsContainer");
         const statusElement = document.getElementById("status");
-        
-        
 
         const songInfo = document.getElementById("songInfo");
         const songTitle = document.getElementById("songTitle");
@@ -1303,9 +1300,6 @@
                 button.classList.add("listening");
                 button.disabled = true;
 
-                
-                
-
                 statusElement.textContent = "Listening...";
 
                 const stream = await navigator.mediaDevices.getUserMedia({
@@ -1351,8 +1345,6 @@
 
                 console.error(error);
 
-                
-
                 button.classList.remove("listening");
                 button.disabled = false;
                 isRecognizing = false;
@@ -1368,7 +1360,6 @@
 
             try {
 
-                
                 statusElement.textContent = "Identifying...";
 
                 const formData = new FormData();
@@ -1431,8 +1422,6 @@
 
             } finally {
 
-                
-
                 button.classList.remove("listening");
                 button.disabled = false;
                 isRecognizing = false;
@@ -1446,7 +1435,7 @@
         /* INITIALIZE */
 
         renderRecentSongs();
-        showScreen("lyrics");
+        showScreen("home");
 
     </script>
 
