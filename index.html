@@ -1391,7 +1391,7 @@
 
         /* SHOW RECOGNIZED SONG */
 
-        function showRecognizedSong(data, lyrics, matchPosition, recordedAt) {
+        function showRecognizedSong(data, lyrics, matchPosition, listenStartedAt) {
 
             const title = getSafeTitle(data);
             const artist = getSafeArtist(data);
@@ -1420,12 +1420,13 @@
 
             showScreen("lyrics");
 
-            // Seconds that passed since the recording ended (upload,
-            // identifying, finding lyrics). The song kept playing that
-            // whole time, so the lyrics must start that far in.
-            const delay = recordedAt
-                ? (Date.now() - recordedAt) / 1000
-                : SYNC_OFFSET;
+            // Shazam's match position is where in the song the recording
+            // STARTED. Since then the song kept playing during the whole
+            // recording (about 8 seconds) plus the upload, identifying
+            // and finding lyrics. So the lyrics must start that far in.
+            const delay = listenStartedAt
+                ? (Date.now() - listenStartedAt) / 1000
+                : SYNC_OFFSET + 8;
 
             startEstimatedSync(matchPosition + delay, false);
         }
@@ -1452,6 +1453,10 @@
                 const mediaRecorder = new MediaRecorder(stream);
                 const chunks = [];
 
+                // when the recording began (Shazam's match position
+                // refers to the start of the recorded sample)
+                let listenStartedAt = 0;
+
                 mediaRecorder.ondataavailable = event => {
 
                     if (event.data && event.data.size > 0) {
@@ -1465,16 +1470,16 @@
 
                 mediaRecorder.onstop = async () => {
 
-                    const recordedAt = Date.now();
-
                     stream.getTracks().forEach(track => track.stop());
 
                     const blob = new Blob(chunks, {
                         type: "audio/webm"
                     });
 
-                    await sendAudio(blob, recordedAt);
+                    await sendAudio(blob, listenStartedAt);
                 };
+
+                listenStartedAt = Date.now();
 
                 mediaRecorder.start();
 
@@ -1501,7 +1506,7 @@
 
         /* SEND AUDIO */
 
-        async function sendAudio(blob, recordedAt) {
+        async function sendAudio(blob, listenStartedAt) {
 
             try {
 
@@ -1556,7 +1561,7 @@
                     data,
                     lyrics,
                     matchPosition,
-                    recordedAt
+                    listenStartedAt
                 );
 
             } catch (error) {
