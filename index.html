@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0,
-          maximum-scale=1.0, user-scalable=no">
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -396,49 +398,6 @@
             content: "♫";
         }
 
-        /* SYNC FINE-TUNING (Lyrics screen only) */
-
-        #syncControls {
-            display: none;
-            position: absolute;
-            left: 50%;
-            bottom: calc(84px + env(safe-area-inset-bottom));
-            transform: translateX(-50%);
-            align-items: center;
-            gap: 8px;
-            padding: 6px;
-            border-radius: 999px;
-            background: rgba(20,20,20,0.82);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 25;
-            white-space: nowrap;
-        }
-
-        #syncControls button {
-            border: none;
-            border-radius: 999px;
-            padding: 9px 14px;
-            background: rgba(255,255,255,0.12);
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        #syncControls button:active {
-            background: rgba(255,255,255,0.3);
-        }
-
-        #syncValue {
-            min-width: 70px;
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.7;
-            font-variant-numeric: tabular-nums;
-        }
-
         #recognizeButton:active {
             animation: none;
             transform: translate(-50%, -50%) scale(0.92);
@@ -593,21 +552,12 @@
 
         <div id="status">Ready</div>
 
-        <div id="syncControls">
-            <button id="syncEarlier" type="button"
-                    aria-label="Lyrics are early, hold them back">Hold back</button>
-            <span id="syncValue">Sync 0.0s</span>
-            <button id="syncLater" type="button"
-                    aria-label="Lyrics are late, skip them ahead">Skip ahead</button>
-        </div>
-
         <button id="recognizeButton"
                 aria-label="Recognize song"
                 type="button">
         </button>
 
     </div>
-
 
     <!-- BOTTOM NAVIGATION -->
 
@@ -666,42 +616,14 @@
         const recentCount = document.getElementById("recentCount");
         const subtitle = document.getElementById("subtitle");
 
-        const syncControls = document.getElementById("syncControls");
-        const syncEarlier = document.getElementById("syncEarlier");
-        const syncLater = document.getElementById("syncLater");
-        const syncValue = document.getElementById("syncValue");
 
         /* SETTINGS */
 
-        // Fallback delay (seconds) used only if the real delay is unknown.
-        // Normally the app measures the real delay after each listen.
         const SYNC_OFFSET = 4;
-        const SYNC_NUDGE_KEY = "musicLyricsSyncNudge";
-        const SYNC_NUDGE_STEP = 0.5;
         const RECENT_STORAGE_KEY = "musicLyricsRecentSongs";
         const MAX_RECENT = 20;
 
-        /* SYNC FINE-TUNING */
-
-        function loadSyncNudge() {
-
-            try {
-
-                const saved = parseFloat(
-                    localStorage.getItem(SYNC_NUDGE_KEY)
-                );
-
-                return Number.isFinite(saved) ? saved : 0;
-
-            } catch (error) {
-
-                return 0;
-            }
-        }
-
         /* STATE */
-
-        let syncNudge = loadSyncNudge();
 
         let lyricLines = [];
         let currentIndex = -1;
@@ -716,9 +638,6 @@
         function showScreen(view) {
 
             currentView = view;
-
-            syncControls.style.display =
-                view === "lyrics" ? "flex" : "none";
 
             homeScreen.classList.remove("active");
             lyricsScreen.classList.remove("active");
@@ -937,7 +856,7 @@
             const offset = applyOffset ? SYNC_OFFSET : 0;
 
             audioStartTime =
-                Date.now() / 1000 - startAt - offset - syncNudge;
+                Date.now() / 1000 - startAt - offset;
 
             recognitionTimer = setInterval(() => {
 
@@ -955,58 +874,6 @@
                 recognitionTimer = null;
             }
         }
-
-        /* NUDGE: positive = lyrics move ahead, negative = hold back */
-
-        function updateSyncLabel() {
-
-            syncValue.textContent =
-                "Sync " +
-                (syncNudge > 0 ? "+" : "") +
-                syncNudge.toFixed(1) +
-                "s";
-        }
-
-        function adjustSync(delta) {
-
-            syncNudge =
-                Math.round((syncNudge + delta) * 10) / 10;
-
-            try {
-
-                localStorage.setItem(
-                    SYNC_NUDGE_KEY,
-                    String(syncNudge)
-                );
-
-            } catch (error) {
-                // storage unavailable, the setting just won't be remembered
-            }
-
-            // apply right away to the song that is playing
-            if (recognitionTimer) {
-
-                audioStartTime -= delta;
-
-                updateActiveLyric(
-                    Date.now() / 1000 - audioStartTime
-                );
-            }
-
-            updateSyncLabel();
-        }
-
-        syncLater.addEventListener(
-            "click",
-            () => adjustSync(SYNC_NUDGE_STEP)
-        );
-
-        syncEarlier.addEventListener(
-            "click",
-            () => adjustSync(-SYNC_NUDGE_STEP)
-        );
-
-        updateSyncLabel();
 
         /* SAFE SONG INFO */
 
@@ -1420,10 +1287,8 @@
 
             showScreen("lyrics");
 
-            // Shazam's match position is where in the song the recording
-            // STARTED. Since then the song kept playing during the whole
-            // recording (about 8 seconds) plus the upload, identifying
-            // and finding lyrics. So the lyrics must start that far in.
+            // Measure the time from the start of recording through
+            // recognition and lyrics retrieval for better synchronization.
             const delay = listenStartedAt
                 ? (Date.now() - listenStartedAt) / 1000
                 : SYNC_OFFSET + 8;
@@ -1453,8 +1318,6 @@
                 const mediaRecorder = new MediaRecorder(stream);
                 const chunks = [];
 
-                // when the recording began (Shazam's match position
-                // refers to the start of the recorded sample)
                 let listenStartedAt = 0;
 
                 mediaRecorder.ondataavailable = event => {
