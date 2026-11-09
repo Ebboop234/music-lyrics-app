@@ -193,8 +193,16 @@
 
         #songInfo {
             display: none;
-            padding: 15px 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            padding: 15px 12px 16px;
+            margin: 0 -20px;
             text-align: center;
+            background: rgba(12,12,12,0.82);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
 
         #songTitle {
@@ -653,9 +661,11 @@
                 subtitle.textContent = "Discover what's playing";
                 button.style.display = "flex";
                 statusElement.style.display = "block";
-                statusElement.textContent = currentSong
-                    ? currentSong.title + " • " + currentSong.artist
-                    : "Ready";
+
+                // Keep Home clean: remove the previous song title
+                // and clear the album artwork background.
+                clearBackground();
+                statusElement.textContent = "Ready";
 
             } else if (view === "lyrics") {
                 lyricsScreen.classList.add("active");
@@ -1018,13 +1028,17 @@
             }
         }
 
-        function saveRecentSong(data) {
+        function saveRecentSong(data, recognizedLyrics) {
 
             const title = getSafeTitle(data);
             const artist = getSafeArtist(data);
             const artwork = getArtwork(data);
 
+            // Save the lyrics passed into the recognition screen too.
+            // This makes sure lyrics are stored even when the recognition
+            // response itself does not contain a lyrics field.
             const lyrics = lyricDataToString(
+                recognizedLyrics ||
                 data?.lyrics ||
                 data?.syncedLyrics ||
                 data?.synced_lyrics ||
@@ -1281,7 +1295,8 @@
             setAlbumBackground(data);
             displayLyrics(lyrics);
 
-            saveRecentSong(data);
+            // Save the actual lyrics that were retrieved for this song.
+            saveRecentSong(data, lyrics);
 
             statusElement.textContent = title + " • " + artist;
 
