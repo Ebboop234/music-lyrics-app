@@ -3,15 +3,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport"
-          content="width=device-width,
-                   initial-scale=1.0,
-                   maximum-scale=1.0,
-                   user-scalable=no">
+          content="width=device-width, initial-scale=1.0,
+                   maximum-scale=1.0, user-scalable=no">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MUSIC Lyrics">
 
     <title>MUSIC Lyrics</title>
@@ -38,8 +36,6 @@
             position: relative;
         }
 
-        /* BACKGROUND */
-
         #albumBackground {
             position: fixed;
             inset: 0;
@@ -64,8 +60,6 @@
             pointer-events: none;
         }
 
-        /* APP */
-
         .app {
             position: relative;
             width: 100%;
@@ -76,8 +70,6 @@
             overflow: hidden;
             z-index: 2;
         }
-
-        /* HEADER */
 
         .header {
             position: absolute;
@@ -108,8 +100,6 @@
             font-size: 14px;
             opacity: 0.7;
         }
-
-        /* SCREENS */
 
         .screen {
             display: none;
@@ -142,50 +132,7 @@
             justify-content: center;
         }
 
-        .homeIcon {
-            width: 112px;
-            height: 112px;
-            border-radius: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 68px;
-            font-weight: 800;
-            background: linear-gradient(
-                135deg,
-                #ff0055,
-                #ff7a00,
-                #ffe600,
-                #00e676,
-                #00b8ff,
-                #6c4cff,
-                #ff00c8
-            );
-            box-shadow: 0 0 35px rgba(255,255,255,0.2);
-            margin-bottom: 28px;
-        }
-
-        .homeHeading {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.7px;
-        }
-
-        .homeDescription {
-            font-size: 15px;
-            opacity: 0.65;
-            margin-top: 10px;
-            line-height: 1.6;
-            max-width: 280px;
-        }
-
-        .homeHint {
-            margin-top: 28px;
-            font-size: 12px;
-            opacity: 0.45;
-        }
-
-        /* LYRICS SCREEN */
+        /* LYRICS */
 
         #lyricsScreen {
             padding: 0 20px;
@@ -246,7 +193,7 @@
             transform: scale(1.03);
         }
 
-        /* RECENTS SCREEN */
+        /* RECENTS */
 
         #recentsScreen {
             padding: 15px 18px 30px;
@@ -353,6 +300,112 @@
             line-height: 1.6;
         }
 
+        /* SONG DETAILS */
+
+        #detailsScreen {
+            padding: 15px 24px 35px;
+            text-align: center;
+        }
+
+        .detailsBack {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: max-content;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 8px 0;
+            margin-bottom: 20px;
+            cursor: pointer;
+            opacity: 0.85;
+        }
+
+        .detailsBack:active {
+            opacity: 0.55;
+        }
+
+        #detailsArtwork {
+            width: min(72vw, 280px);
+            height: min(72vw, 280px);
+            max-width: 280px;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+            margin: 5px auto 24px;
+            display: block;
+        }
+
+        #detailsTitle {
+            font-size: 27px;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            overflow-wrap: anywhere;
+        }
+
+        #detailsArtist {
+            font-size: 17px;
+            opacity: 0.68;
+            margin-top: 9px;
+        }
+
+        .detailsMetadata {
+            margin-top: 28px;
+            padding: 5px 17px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            text-align: left;
+        }
+
+        .metadataRow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.09);
+            font-size: 14px;
+        }
+
+        .metadataRow:last-child {
+            border-bottom: none;
+        }
+
+        .metadataLabel {
+            opacity: 0.55;
+        }
+
+        .metadataValue {
+            font-weight: 600;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        #viewLyricsButton {
+            width: 100%;
+            margin-top: 25px;
+            padding: 17px;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            color: black;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.15s ease,
+                        opacity 0.15s ease;
+        }
+
+        #viewLyricsButton:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
         /* STATUS */
 
         #status {
@@ -374,7 +427,6 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            bottom: auto;
             transform: translate(-50%, -50%);
             width: 150px;
             height: 150px;
@@ -437,12 +489,11 @@
                        listeningPulse 0.9s ease-in-out infinite;
         }
 
-        /* Expanding sound rings appear only while the microphone listens. */
         #recognizeButton.listening::after {
             content: "";
             position: absolute;
             inset: -15px;
-            border: 2px solid rgba(120, 210, 255, 0.8);
+            border: 2px solid rgba(120,210,255,0.8);
             border-radius: 50%;
             pointer-events: none;
             animation: soundRing 1.8s ease-out infinite;
@@ -468,7 +519,6 @@
             }
         }
 
-        /* Small animated sound-wave indicator below the status text. */
         #status.listening {
             opacity: 1;
             font-weight: 600;
@@ -484,7 +534,7 @@
             letter-spacing: 3px;
             line-height: 1;
             color: #9bdcff;
-            text-shadow: 0 0 12px rgba(80, 190, 255, 0.75);
+            text-shadow: 0 0 12px rgba(80,190,255,0.75);
             animation: waveBounce 0.75s ease-in-out infinite alternate;
         }
 
@@ -499,7 +549,7 @@
             }
         }
 
-        /* SEPARATE CIRCULAR BOTTOM NAVIGATION */
+        /* BOTTOM NAVIGATION */
 
         #tabBar {
             position: fixed;
@@ -515,8 +565,6 @@
             gap: 18px;
             background: transparent;
             border: none;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
             z-index: 4000;
         }
 
@@ -548,7 +596,8 @@
             background: rgba(18,18,18,0.78);
             border: 1px solid rgba(255,255,255,0.13);
             box-shadow: 0 5px 18px rgba(0,0,0,0.22);
-            transition: background 0.2s ease, border-color 0.2s ease,
+            transition: background 0.2s ease,
+                        border-color 0.2s ease,
                         transform 0.2s ease;
         }
 
@@ -567,7 +616,6 @@
             transform: scale(0.92);
         }
 
-        /* On Lyrics, use the song information as the top header. */
         .app.lyrics-view .header {
             display: none;
         }
@@ -588,22 +636,14 @@
             border-bottom: none;
         }
 
-        /* SMALL SCREENS */
-
         @media (max-height: 650px) {
-            .homeIcon {
-                width: 85px;
-                height: 85px;
-                font-size: 52px;
-                margin-bottom: 18px;
+            #detailsArtwork {
+                width: 190px;
+                height: 190px;
             }
 
-            .homeHeading {
-                font-size: 24px;
-            }
-
-            .homeHint {
-                margin-top: 15px;
+            #detailsScreen {
+                padding-top: 8px;
             }
         }
     </style>
@@ -618,15 +658,17 @@
 
         <header class="header">
             <div class="title">MUSIC Lyrics</div>
-            <div class="subtitle" id="subtitle">Discover what's playing</div>
+            <div class="subtitle" id="subtitle">
+                Discover what's playing
+            </div>
         </header>
 
-        <!-- HOME SCREEN -->
+        <!-- HOME -->
 
         <section id="homeScreen" class="screen active">
         </section>
 
-        <!-- LYRICS SCREEN -->
+        <!-- LYRICS -->
 
         <section id="lyricsScreen" class="screen">
 
@@ -639,7 +681,7 @@
 
         </section>
 
-        <!-- RECENTS SCREEN -->
+        <!-- RECENTS -->
 
         <section id="recentsScreen" class="screen">
 
@@ -649,6 +691,28 @@
             </div>
 
             <div id="recentList"></div>
+
+        </section>
+
+        <!-- SONG DETAILS -->
+
+        <section id="detailsScreen" class="screen">
+
+            <button class="detailsBack" id="detailsBack" type="button">
+                <span>‹</span>
+                <span>Back to Recents</span>
+            </button>
+
+            <img id="detailsArtwork" alt="Album artwork">
+
+            <div id="detailsTitle"></div>
+            <div id="detailsArtist"></div>
+
+            <div class="detailsMetadata" id="detailsMetadata"></div>
+
+            <button id="viewLyricsButton" type="button">
+                View Lyrics
+            </button>
 
         </section>
 
@@ -668,10 +732,8 @@
         <button class="tabButton active"
                 id="homeTab"
                 type="button">
-
             <span class="tabIcon">⌂</span>
             <span>Home</span>
-
         </button>
 
         <button class="tabButton"
@@ -684,16 +746,13 @@
         <button class="tabButton"
                 id="recentsTab"
                 type="button">
-
             <span class="tabIcon">◷</span>
             <span>Recents</span>
-
         </button>
 
     </nav>
 
     <script>
-
         /* ELEMENTS */
 
         const app = document.querySelector(".app");
@@ -710,6 +769,7 @@
         const homeScreen = document.getElementById("homeScreen");
         const lyricsScreen = document.getElementById("lyricsScreen");
         const recentsScreen = document.getElementById("recentsScreen");
+        const detailsScreen = document.getElementById("detailsScreen");
 
         const homeTab = document.getElementById("homeTab");
         const recentsTab = document.getElementById("recentsTab");
@@ -719,6 +779,12 @@
         const recentCount = document.getElementById("recentCount");
         const subtitle = document.getElementById("subtitle");
 
+        const detailsBack = document.getElementById("detailsBack");
+        const detailsArtwork = document.getElementById("detailsArtwork");
+        const detailsTitle = document.getElementById("detailsTitle");
+        const detailsArtist = document.getElementById("detailsArtist");
+        const detailsMetadata = document.getElementById("detailsMetadata");
+        const viewLyricsButton = document.getElementById("viewLyricsButton");
 
         /* SETTINGS */
 
@@ -734,6 +800,7 @@
         let audioStartTime = 0;
         let currentView = "home";
         let currentSong = null;
+        let selectedRecentSong = null;
         let isRecognizing = false;
 
         /* NAVIGATION */
@@ -746,48 +813,74 @@
             homeScreen.classList.remove("active");
             lyricsScreen.classList.remove("active");
             recentsScreen.classList.remove("active");
+            detailsScreen.classList.remove("active");
 
             homeTab.classList.remove("active");
             lyricsTab.classList.remove("active");
             recentsTab.classList.remove("active");
 
             if (view === "home") {
+
                 homeScreen.classList.add("active");
                 homeTab.classList.add("active");
+
                 subtitle.textContent = "Discover what's playing";
+
                 button.style.display = "flex";
                 statusElement.style.display = "block";
 
-                // Keep Home clean: remove the previous song title
-                // and clear the album artwork background.
                 clearBackground();
                 statusElement.textContent = "Ready";
 
             } else if (view === "lyrics") {
+
                 lyricsScreen.classList.add("active");
                 lyricsTab.classList.add("active");
+
                 subtitle.textContent = "";
                 button.style.display = "none";
                 statusElement.style.display = "none";
 
             } else if (view === "recents") {
+
                 recentsScreen.classList.add("active");
                 recentsTab.classList.add("active");
+
                 subtitle.textContent = "Your listening history";
+
                 button.style.display = "none";
                 statusElement.style.display = "none";
+
                 renderRecentSongs();
+
+            } else if (view === "details") {
+
+                detailsScreen.classList.add("active");
+
+                subtitle.textContent = "Song Details";
+
+                button.style.display = "none";
+                statusElement.style.display = "none";
             }
         }
 
         homeTab.addEventListener("click", () => showScreen("home"));
 
         lyricsTab.addEventListener("click", () => {
-            if (currentSong) showScreen("lyrics");
-            else showScreen("home");
+            if (currentSong) {
+                showScreen("lyrics");
+            } else {
+                showScreen("home");
+            }
         });
 
-        recentsTab.addEventListener("click", () => showScreen("recents"));
+        recentsTab.addEventListener("click", () => {
+            showScreen("recents");
+        });
+
+        detailsBack.addEventListener("click", () => {
+            showScreen("recents");
+        });
 
         /* LYRIC DATA */
 
@@ -836,7 +929,6 @@
             for (const rawLine of lrc.split("\n")) {
 
                 const matches = [...rawLine.matchAll(regex)];
-
                 const text = rawLine.replace(regex, "").trim();
 
                 if (!text || !matches.length) continue;
@@ -1001,6 +1093,58 @@
                 "Unknown Artist";
         }
 
+        function getSafeAlbum(data) {
+
+            return data?.album ||
+                data?.albumName ||
+                data?.song?.album ||
+                data?.track?.album ||
+                "";
+        }
+
+        function getSafeReleaseDate(data) {
+
+            return data?.releaseDate ||
+                data?.release_date ||
+                data?.releaseYear ||
+                data?.release_year ||
+                data?.song?.releaseDate ||
+                data?.song?.release_date ||
+                data?.track?.releaseDate ||
+                data?.track?.release_date ||
+                "";
+        }
+
+        function getSafeDuration(data) {
+
+            const duration =
+                data?.duration ??
+                data?.durationSeconds ??
+                data?.duration_seconds ??
+                data?.song?.duration ??
+                data?.track?.duration ??
+                "";
+
+            if (duration === "" || duration === null) return "";
+
+            if (typeof duration === "string" &&
+                duration.includes(":")) {
+                return duration;
+            }
+
+            const seconds = Number(duration);
+
+            if (!Number.isFinite(seconds) || seconds <= 0) {
+                return "";
+            }
+
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+
+            return minutes + ":" +
+                String(remainingSeconds).padStart(2, "0");
+        }
+
         /* ARTWORK */
 
         function getArtwork(data) {
@@ -1130,9 +1274,6 @@
             const artist = getSafeArtist(data);
             const artwork = getArtwork(data);
 
-            // Save the lyrics passed into the recognition screen too.
-            // This makes sure lyrics are stored even when the recognition
-            // response itself does not contain a lyrics field.
             const lyrics = lyricDataToString(
                 recognizedLyrics ||
                 data?.lyrics ||
@@ -1161,6 +1302,9 @@
             recent.unshift({
                 title,
                 artist,
+                album: getSafeAlbum(data),
+                releaseDate: getSafeReleaseDate(data),
+                duration: getSafeDuration(data),
                 lyrics,
                 artwork,
                 matchPosition,
@@ -1189,7 +1333,8 @@
         function deleteRecentSong(song) {
 
             const recent = getRecentSongs().filter(saved =>
-                !(saved.title === song.title && saved.artist === song.artist)
+                !(saved.title === song.title &&
+                  saved.artist === song.artist)
             );
 
             try {
@@ -1202,6 +1347,14 @@
             } catch (error) {
 
                 console.error("Could not delete recent song:", error);
+            }
+
+            if (
+                selectedRecentSong &&
+                selectedRecentSong.title === song.title &&
+                selectedRecentSong.artist === song.artist
+            ) {
+                selectedRecentSong = null;
             }
 
             renderRecentSongs();
@@ -1239,6 +1392,68 @@
                 ? " day ago"
                 : " days ago");
         }
+
+        /* SONG DETAILS */
+
+        function addMetadataRow(label, value) {
+
+            if (!value) return;
+
+            const row = document.createElement("div");
+            row.className = "metadataRow";
+
+            const labelElement = document.createElement("span");
+            labelElement.className = "metadataLabel";
+            labelElement.textContent = label;
+
+            const valueElement = document.createElement("span");
+            valueElement.className = "metadataValue";
+            valueElement.textContent = value;
+
+            row.appendChild(labelElement);
+            row.appendChild(valueElement);
+
+            detailsMetadata.appendChild(row);
+        }
+
+        function openSongDetails(song) {
+
+            selectedRecentSong = song;
+
+            detailsTitle.textContent = song.title || "Unknown Song";
+            detailsArtist.textContent = song.artist || "Unknown Artist";
+
+            detailsArtwork.src = song.artwork || "";
+            detailsArtwork.style.display = song.artwork ? "block" : "none";
+
+            detailsMetadata.innerHTML = "";
+
+            addMetadataRow("Album", song.album);
+            addMetadataRow("Release Date", song.releaseDate);
+            addMetadataRow("Duration", song.duration);
+
+            if (!detailsMetadata.children.length) {
+                const row = document.createElement("div");
+                row.className = "metadataRow";
+                row.textContent = "No additional song information available";
+                row.style.opacity = "0.55";
+                row.style.justifyContent = "center";
+                detailsMetadata.appendChild(row);
+            }
+
+            showScreen("details");
+        }
+
+        /* VIEW LYRICS */
+
+        function viewSelectedLyrics() {
+
+            if (!selectedRecentSong) return;
+
+            loadRecentSong(selectedRecentSong);
+        }
+
+        viewLyricsButton.addEventListener("click", viewSelectedLyrics);
 
         /* ESCAPE HTML */
 
@@ -1315,6 +1530,7 @@
                 deleteButton.className = "recentDelete";
                 deleteButton.type = "button";
                 deleteButton.textContent = "×";
+
                 deleteButton.setAttribute(
                     "aria-label",
                     "Delete " + (song.title || "song")
@@ -1331,14 +1547,14 @@
                 item.appendChild(deleteButton);
 
                 item.addEventListener("click", () => {
-                    loadRecentSong(song);
+                    openSongDetails(song);
                 });
 
                 recentList.appendChild(item);
             });
         }
 
-        /* LOAD RECENT SONG */
+        /* LOAD RECENT SONG LYRICS */
 
         function loadRecentSong(song) {
 
@@ -1355,9 +1571,6 @@
 
             showBackground(song.artwork || "");
 
-            statusElement.textContent =
-                "Loaded from Recents";
-
             showScreen("lyrics");
 
             startEstimatedSync(
@@ -1368,7 +1581,12 @@
 
         /* SHOW RECOGNIZED SONG */
 
-        function showRecognizedSong(data, lyrics, matchPosition, listenStartedAt) {
+        function showRecognizedSong(
+            data,
+            lyrics,
+            matchPosition,
+            listenStartedAt
+        ) {
 
             const title = getSafeTitle(data);
             const artist = getSafeArtist(data);
@@ -1377,6 +1595,9 @@
             currentSong = {
                 title,
                 artist,
+                album: getSafeAlbum(data),
+                releaseDate: getSafeReleaseDate(data),
+                duration: getSafeDuration(data),
                 lyrics: lyricDataToString(lyrics),
                 artwork,
                 matchPosition,
@@ -1391,15 +1612,10 @@
             setAlbumBackground(data);
             displayLyrics(lyrics);
 
-            // Save the actual lyrics that were retrieved for this song.
             saveRecentSong(data, lyrics);
-
-            statusElement.textContent = title + " • " + artist;
 
             showScreen("lyrics");
 
-            // Measure the time from the start of recording through
-            // recognition and lyrics retrieval for better synchronization.
             const delay = listenStartedAt
                 ? (Date.now() - listenStartedAt) / 1000
                 : SYNC_OFFSET + 8;
@@ -1472,6 +1688,7 @@
 
                 button.classList.remove("listening");
                 statusElement.classList.remove("listening");
+
                 button.disabled = false;
                 isRecognizing = false;
 
@@ -1484,8 +1701,6 @@
 
         async function sendAudio(blob, listenStartedAt) {
 
-            // The microphone has stopped recording; switch from the
-            // listening animation to the identification status.
             button.classList.remove("listening");
             statusElement.classList.remove("listening");
 
@@ -1556,6 +1771,7 @@
 
                 button.classList.remove("listening");
                 statusElement.classList.remove("listening");
+
                 button.disabled = false;
                 isRecognizing = false;
             }
