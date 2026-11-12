@@ -21,7 +21,10 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #000;
+    background: #090a10;
+    background-image:
+        radial-gradient(ellipse at 50% -15%, rgba(105,82,180,.18), transparent 55%),
+        linear-gradient(180deg,#0b0c13 0%,#08090e 100%);
     color: white;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Arial, sans-serif;
 }
@@ -40,7 +43,7 @@ html, body {
 #albumOverlay {
     position: fixed;
     inset: 0;
-    background: linear-gradient(to bottom,rgba(0,0,0,.78),rgba(0,0,0,.48) 45%,rgba(0,0,0,.85));
+    background: linear-gradient(to bottom,rgba(7,8,14,.78),rgba(7,8,14,.48) 45%,rgba(7,8,14,.9));
     z-index: 1;
     pointer-events: none;
 }
@@ -65,20 +68,21 @@ html, body {
     padding: max(20px,env(safe-area-inset-top)) 20px 10px;
     text-align: center;
     z-index: 20;
-    background: linear-gradient(to bottom,rgba(0,0,0,.7),transparent);
+    background: linear-gradient(to bottom,rgba(9,10,16,.92),rgba(9,10,16,.25));
 }
 
 .title {
     margin-top: 12px;
-    font-size: 28px;
+    font-size: 27px;
     font-weight: 800;
-    letter-spacing: -.8px;
+    letter-spacing: -1px;
 }
 
 .subtitle {
     margin-top: 4px;
     font-size: 14px;
-    opacity: .7;
+    color: #b9b7c8;
+    opacity: .78;
 }
 
 .screen {
@@ -121,8 +125,8 @@ html, body {
     padding: 15px 12px;
     margin: 0 -20px;
     text-align: center;
-    background: rgba(12,12,12,.82);
-    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: rgba(13,14,22,.84);
+    border-bottom: 1px solid rgba(255,255,255,.07);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
 }
@@ -160,52 +164,66 @@ html, body {
     opacity: 1;
     font-size: 25px;
     transform: scale(1.03);
+    color: #e0d5ff;
+    text-shadow: 0 0 22px rgba(180,150,255,.18);
 }
 
 /* RECENTS AND FAVORITES */
 
 #recentsScreen,
 #favoritesScreen {
-    padding: 15px 18px 30px;
+    padding: 22px 18px 34px;
+    background: linear-gradient(180deg,rgba(18,19,29,.5),rgba(9,10,16,.08));
 }
 
 .recentHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
+    padding: 0 2px 13px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
 }
 
 .recentHeader h2 {
     margin: 0;
-    font-size: 25px;
+    font-size: 24px;
+    letter-spacing: -.65px;
+    font-weight: 750;
 }
 
 .recentCount {
     font-size: 12px;
-    opacity: .55;
+    color: #aaa7bb;
 }
 
 .recentItem {
     display: flex;
     align-items: center;
-    gap: 13px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 14px;
-    background: rgba(255,255,255,.09);
+    gap: 14px;
+    padding: 11px;
+    margin-bottom: 11px;
+    border: 1px solid rgba(255,255,255,.075);
+    border-radius: 17px;
+    background: linear-gradient(135deg,rgba(34,35,49,.88),rgba(20,21,31,.88));
+    box-shadow: 0 7px 20px rgba(0,0,0,.16);
     cursor: pointer;
+    transition: transform .18s ease,border-color .18s ease;
 }
 
-.recentItem:active { transform: scale(.98); }
+.recentItem:active {
+    transform: scale(.975);
+    border-color: rgba(183,157,255,.38);
+}
 
 .recentArtwork {
-    width: 58px;
-    height: 58px;
-    border-radius: 9px;
+    width: 60px;
+    height: 60px;
+    border-radius: 11px;
     object-fit: cover;
     background: rgba(255,255,255,.1);
     flex-shrink: 0;
+    box-shadow: 0 3px 12px rgba(0,0,0,.28);
 }
 
 .recentText {
@@ -214,7 +232,8 @@ html, body {
 }
 
 .recentTitle {
-    font-size: 16px;
+    font-size: 15px;
+    letter-spacing: -.15px;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
@@ -224,7 +243,8 @@ html, body {
 .recentArtist {
     margin-top: 3px;
     font-size: 13px;
-    opacity: .65;
+    color: #c1bfd0;
+    opacity: .8;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -233,17 +253,18 @@ html, body {
 .recentTime {
     margin-top: 4px;
     font-size: 11px;
-    opacity: .45;
+    color: #aaa7bb;
+    opacity: .75;
 }
 
 .recentDelete {
     flex-shrink: 0;
     width: 34px;
     height: 34px;
-    border: none;
+    border: 1px solid rgba(255,255,255,.08);
     border-radius: 50%;
-    background: rgba(255,255,255,.12);
-    color: white;
+    background: rgba(255,255,255,.07);
+    color: #c7c4d2;
     font-size: 19px;
     cursor: pointer;
 }
@@ -254,10 +275,14 @@ html, body {
 
 .emptyRecent {
     text-align: center;
-    margin-top: 65px;
-    opacity: .55;
+    margin: 76px 14px 0;
+    padding: 25px 20px;
+    border: 1px dashed rgba(255,255,255,.14);
+    border-radius: 18px;
+    background: rgba(255,255,255,.025);
+    color: #c2bfd0;
     font-size: 15px;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 /* SONG DETAILS */
@@ -288,7 +313,8 @@ html, body {
     max-height: 280px;
     object-fit: cover;
     border-radius: 20px;
-    box-shadow: 0 15px 45px rgba(0,0,0,.5);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 18px 48px rgba(0,0,0,.48);
     margin: 5px auto 24px;
     display: block;
 }
@@ -311,26 +337,30 @@ html, body {
 #favoriteButton {
     margin-top: 18px;
     padding: 12px 24px;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(190,170,255,.25);
     border-radius: 30px;
-    background: rgba(255,255,255,.08);
+    background: rgba(153,126,220,.11);
     color: white;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
+    transition: transform .18s ease,background .18s ease;
 }
 
+#favoriteButton:active { transform: scale(.96); }
+
 #favoriteButton.favorited {
-    color: #ff4d6d;
-    border-color: rgba(255,77,109,.5);
-    background: rgba(255,77,109,.12);
+    color: #ff7895;
+    border-color: rgba(255,120,149,.4);
+    background: rgba(255,90,125,.12);
 }
 
 .detailsMetadata {
     margin-top: 25px;
     padding: 5px 17px;
+    border: 1px solid rgba(255,255,255,.07);
     border-radius: 16px;
-    background: rgba(255,255,255,.07);
+    background: rgba(25,26,37,.72);
     text-align: left;
 }
 
@@ -361,6 +391,7 @@ html, body {
     top: calc(50% + 95px);
     text-align: center;
     font-size: 14px;
+    color: #d4d0e2;
     opacity: .7;
     z-index: 15;
     pointer-events: none;
@@ -373,20 +404,22 @@ html, body {
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    width: 150px;
-    height: 150px;
-    border: none;
+    width: 142px;
+    height: 142px;
+    border: 5px solid rgba(255,255,255,.09);
     border-radius: 50%;
     background: linear-gradient(135deg,#ff0055,#ff7a00,#ffe600,#00e676,#00b8ff,#6c4cff,#ff00c8);
     color: white;
-    font-size: 76px;
+    font-size: 70px;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 1000;
-    box-shadow: 0 0 25px rgba(255,255,255,.5);
+    box-shadow:
+        0 0 0 10px rgba(255,255,255,.025),
+        0 12px 45px rgba(100,70,180,.28);
     animation: rainbow 4s linear infinite,pulse 1.5s ease-in-out infinite;
 }
 
@@ -425,54 +458,61 @@ html, body {
     bottom: calc(12px + env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
-    width: min(360px,96vw);
-    height: 76px;
+    width: min(370px,94vw);
+    height: 82px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 4px;
-    background: transparent;
+    gap: 2px;
+    padding: 5px 8px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 27px;
+    background: rgba(17,18,27,.88);
+    box-shadow: 0 12px 34px rgba(0,0,0,.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     z-index: 4000;
 }
 
 .tabButton {
     flex: 1;
     min-width: 0;
-    height: 76px;
+    height: 70px;
     padding: 0;
     border: none;
     background: transparent;
-    color: rgba(255,255,255,.58);
+    color: #9997a8;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    font-size: 11px;
+    gap: 4px;
+    font-size: 10px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .tabIcon {
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 23px;
-    background: rgba(18,18,18,.78);
-    border: 1px solid rgba(255,255,255,.13);
-    box-shadow: 0 5px 18px rgba(0,0,0,.22);
+    background: transparent;
+    border: 1px solid transparent;
+    box-shadow: none;
     transition: background .2s,border-color .2s,transform .2s;
 }
 
-.tabButton.active { color: white; }
+.tabButton.active { color: #d4c5ff; }
 
 .tabButton.active .tabIcon {
-    background: rgba(255,255,255,.19);
-    border-color: rgba(255,255,255,.48);
-    box-shadow: 0 0 18px rgba(255,255,255,.16);
+    color: #e1d6ff;
+    background: rgba(165,137,235,.17);
+    border-color: rgba(190,170,255,.2);
+    box-shadow: 0 0 20px rgba(155,125,230,.12);
     transform: translateY(-2px);
 }
 
@@ -1169,10 +1209,8 @@ function deleteRecentSong(song) {
 
     saveStoredSongs(RECENT_STORAGE_KEY,recent);
 
-    /*
-       Favorites are intentionally stored separately.
-       Deleting from Recents does not delete Favorites.
-    */
+    /* Favorites are stored separately. Deleting from Recents
+       does not delete the song from Favorites. */
 
     renderRecentSongs();
 }
