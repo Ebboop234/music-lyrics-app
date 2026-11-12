@@ -434,7 +434,29 @@
 
         #recognizeButton.listening {
             animation: rainbow 2s linear infinite,
-                       listeningPulse 0.65s ease-in-out infinite;
+                       listeningPulse 0.9s ease-in-out infinite;
+        }
+
+        /* Expanding sound rings appear only while the microphone listens. */
+        #recognizeButton.listening::after {
+            content: "";
+            position: absolute;
+            inset: -15px;
+            border: 2px solid rgba(120, 210, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: soundRing 1.8s ease-out infinite;
+        }
+
+        @keyframes soundRing {
+            0% {
+                transform: scale(0.88);
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(1.55);
+                opacity: 0;
+            }
         }
 
         @keyframes listeningPulse {
@@ -442,7 +464,38 @@
                 transform: translate(-50%, -50%) scale(1);
             }
             50% {
-                transform: translate(-50%, -50%) scale(1.25);
+                transform: translate(-50%, -50%) scale(1.12);
+            }
+        }
+
+        /* Small animated sound-wave indicator below the status text. */
+        #status.listening {
+            opacity: 1;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        #status.listening::after {
+            content: "▂ ▄ ▆ ▄ ▂";
+            display: block;
+            margin: 10px auto 0;
+            width: max-content;
+            font-size: 21px;
+            letter-spacing: 3px;
+            line-height: 1;
+            color: #9bdcff;
+            text-shadow: 0 0 12px rgba(80, 190, 255, 0.75);
+            animation: waveBounce 0.75s ease-in-out infinite alternate;
+        }
+
+        @keyframes waveBounce {
+            from {
+                transform: scaleY(0.72);
+                opacity: 0.65;
+            }
+            to {
+                transform: scaleY(1.15);
+                opacity: 1;
             }
         }
 
@@ -1365,6 +1418,7 @@
             try {
 
                 button.classList.add("listening");
+                statusElement.classList.add("listening");
                 button.disabled = true;
 
                 statusElement.textContent = "Listening...";
@@ -1417,6 +1471,7 @@
                 console.error(error);
 
                 button.classList.remove("listening");
+                statusElement.classList.remove("listening");
                 button.disabled = false;
                 isRecognizing = false;
 
@@ -1428,6 +1483,11 @@
         /* SEND AUDIO */
 
         async function sendAudio(blob, listenStartedAt) {
+
+            // The microphone has stopped recording; switch from the
+            // listening animation to the identification status.
+            button.classList.remove("listening");
+            statusElement.classList.remove("listening");
 
             try {
 
@@ -1495,6 +1555,7 @@
             } finally {
 
                 button.classList.remove("listening");
+                statusElement.classList.remove("listening");
                 button.disabled = false;
                 isRecognizing = false;
             }
