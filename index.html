@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -326,6 +325,27 @@ html, body {
     background: rgba(255,77,109,.12);
 }
 
+/* BACK TO LYRICS BUTTON */
+
+#detailsLyricsButton {
+    display: block;
+    margin: 10px auto 0;
+    padding: 11px 22px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 30px;
+    background: rgba(255,255,255,.07);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease;
+}
+
+#detailsLyricsButton:active {
+    transform: scale(.96);
+    background: rgba(255,255,255,.12);
+}
+
 .detailsMetadata {
     margin-top: 25px;
     padding: 5px 17px;
@@ -545,6 +565,10 @@ html, body {
         ♡ Add to Favorites
     </button>
 
+    <button id="detailsLyricsButton" type="button">
+        ♫ Back to Lyrics
+    </button>
+
     <div class="detailsMetadata" id="detailsMetadata"></div>
 </section>
 
@@ -618,6 +642,7 @@ const favoriteCount = document.getElementById("favoriteCount");
 const favoriteButton = document.getElementById("favoriteButton");
 
 const detailsBack = document.getElementById("detailsBack");
+const detailsLyricsButton = document.getElementById("detailsLyricsButton");
 const backLabel = document.getElementById("backLabel");
 const detailsArtwork = document.getElementById("detailsArtwork");
 const detailsTitle = document.getElementById("detailsTitle");
@@ -1108,6 +1133,16 @@ function toggleFavorite() {
 }
 
 favoriteButton.addEventListener("click",toggleFavorite);
+
+/* BACK TO LYRICS BUTTON */
+
+detailsLyricsButton.addEventListener("click",() => {
+    if (selectedRecentSong) {
+        loadRecentSong(selectedRecentSong);
+    } else if (currentSong) {
+        showScreen("lyrics");
+    }
+});
 
 /* SAVE RECENT SONG */
 
