@@ -1767,11 +1767,9 @@ app.post(
             const artwork =
                 req.query.resync === "1"
                     ? ""
-                    : await resolveArtwork(
-                        shazamData,
+                    : pickTrackArtwork(
                         track,
-                        title,
-                        artist
+                        shazamData
                     );
 
             /*

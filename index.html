@@ -355,6 +355,25 @@ html, body {
     background: rgba(255,90,125,.12);
 }
 
+#detailsLyricsButton {
+    display: block;
+    margin: 10px auto 0;
+    padding: 11px 22px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 30px;
+    background: rgba(255,255,255,.07);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease;
+}
+
+#detailsLyricsButton:active {
+    transform: scale(.96);
+    background: rgba(255,255,255,.12);
+}
+
 .detailsMetadata {
     margin-top: 25px;
     padding: 5px 17px;
@@ -583,6 +602,10 @@ html, body {
 
     <button id="favoriteButton" type="button">
         ♡ Add to Favorites
+    </button>
+
+    <button id="detailsLyricsButton" type="button">
+        ♫ Back to Lyrics
     </button>
 
     <div class="detailsMetadata" id="detailsMetadata"></div>
@@ -1157,6 +1180,14 @@ function toggleFavorite() {
 
 favoriteButton.addEventListener("click",toggleFavorite);
 
+document.getElementById("detailsLyricsButton").addEventListener("click",() => {
+    if (selectedRecentSong) {
+        loadRecentSong(selectedRecentSong);
+    } else if (currentSong) {
+        showScreen("lyrics");
+    }
+});
+
 /* SAVE RECENT SONG */
 
 function saveRecentSong(data,recognizedLyrics) {
@@ -1645,7 +1676,11 @@ function showRecognizedSong(data,lyrics,matchPosition,listenStartedAt) {
 
     startEstimatedSync(matchPosition + delay,false);
 
-    startSmartResync(currentSong);
+    setTimeout(() => {
+        if (currentSong) {
+            startSmartResync(currentSong);
+        }
+    },250);
 }
 
 /* RECOGNIZE SONG */
