@@ -1231,7 +1231,6 @@ async function processOfflineQueue() {
     if (!navigator.onLine || offlineQueueProcessing) return;
 
     offlineQueueProcessing = true;
-
     let completed = 0;
 
     try {
@@ -1241,18 +1240,8 @@ async function processOfflineQueue() {
             if (!navigator.onLine) break;
 
             try {
-                if (currentView !== "lyrics") {
-                    statusElement.textContent = "Identifying saved recording...";
-                    statusElement.style.display = "block";
-                }
-
                 const formData = new FormData();
-
-                formData.append(
-                    "audio",
-                    recording.blob,
-                    "offline-recording.webm"
-                );
+                formData.append("audio", recording.blob, "offline-recording.webm");
 
                 const response = await fetch("/identify-shazam", {
                     method: "POST",
@@ -1265,33 +1254,25 @@ async function processOfflineQueue() {
 
                 const data = await response.json();
 
-                if (!data || data.success === false || !data.song) {
-                    throw new Error("The recording could not be identified.");
+                if (!data || data.success !== true || !data.song) {
+                    throw new Error(data?.error || "The recording could not be identified.");
                 }
 
                 const lyrics =
-                    data.lyrics ||
-                    data.syncedLyrics ||
-                    data.synced_lyrics ||
-                    data.lyricText ||
-                    data.lrc ||
-                    data.lines ||
-                    data.lyricData ||
-                    data.lyric_data ||
+                    data.lyrics?.syncedLyrics ||
+                    data.lyrics?.lyrics ||
+                    data.lyrics?.text ||
                     "";
 
-                // Save the identified song into the normal Recents list.
+                // These were recorded offline earlier. Add them to Recents,
+                // but do not interrupt whatever screen the user is viewing.
                 saveRecentSong(data, lyrics);
 
-                // Only delete the audio after identification and saving succeed.
                 await deleteOfflineRecording(recording.id);
-
                 completed++;
 
             } catch (error) {
-                console.error("Offline recording is still waiting:", error);
-
-                // Keep this recording so it can be retried later.
+                console.error("Recording is still waiting:", error);
                 break;
             }
         }
@@ -1299,7 +1280,7 @@ async function processOfflineQueue() {
         if (completed > 0) {
             renderRecentSongs();
 
-            if (currentView !== "lyrics") {
+            if (currentView === "home") {
                 statusElement.textContent =
                     completed === 1
                         ? "1 saved recording added to Recents!"
@@ -1704,11 +1685,13 @@ async function sendAudio(blob,listenStartedAt) {
     button.classList.remove("listening");
     statusElement.classList.remove("listening");
 
+    let recordingId = null;
+
     try {
         statusElement.textContent = "Saving recording on this device...";
 
-        // Save first, before attempting internet recognition.
-        await saveOfflineRecording(blob, listenStartedAt);
+        // Save first, so a connection failure never loses the recording.
+        recordingId = await saveOfflineRecording(blob, listenStartedAt);
 
         if (!navigator.onLine) {
             statusElement.textContent =
@@ -1718,21 +1701,58 @@ async function sendAudio(blob,listenStartedAt) {
 
         statusElement.textContent = "Identifying song...";
 
-        await processOfflineQueue();
+        // Process this just-recorded clip directly. This guarantees that
+        // an older offline recording cannot block the current song's lyrics.
+        const formData = new FormData();
+        formData.append("audio", blob, "recording.webm");
 
-        const remaining = await getOfflineRecordings();
+        const response = await fetch("/identify-shazam", {
+            method: "POST",
+            body: formData
+        });
 
-        if (remaining.length > 0) {
-            statusElement.textContent =
-                "Recording saved. It will retry when internet is available.";
+        if (!response.ok) {
+            throw new Error("Recognition server returned " + response.status);
         }
 
+        const data = await response.json();
+
+        if (!data || data.success !== true || !data.song) {
+            throw new Error(data?.error || "The song could not be identified.");
+        }
+
+        const lyrics =
+            data.lyrics?.syncedLyrics ||
+            data.lyrics?.lyrics ||
+            data.lyrics?.text ||
+            "";
+
+        // Online recordings open Lyrics immediately and are also saved
+        // to Recents by showRecognizedSong().
+        showRecognizedSong(
+            data,
+            lyrics,
+            Number(data.song.matchPosition ?? data.matchPosition ?? 0),
+            listenStartedAt
+        );
+
+        // The online recording is safely recognized; remove its backup.
+        await deleteOfflineRecording(recordingId);
+        recordingId = null;
+
+        // Process recordings from earlier offline sessions in the background.
+        processOfflineQueue();
+
     } catch (error) {
-        console.error("Recording or offline queue error:", error);
+        console.error("Recording or recognition error:", error);
 
-        statusElement.textContent =
-            "Could not save the recording. Please try again.";
-
+        if (recordingId !== null) {
+            statusElement.textContent =
+                "Recording saved. It will retry when internet is available.";
+        } else {
+            statusElement.textContent =
+                "Could not save the recording. Please try again.";
+        }
     } finally {
         button.classList.remove("listening");
         statusElement.classList.remove("listening");
@@ -1771,6 +1791,9 @@ if ("serviceWorker" in navigator) {
 renderRecentSongs();
 renderFavorites();
 showScreen("home");
+
+// Automatically retry recordings left from an earlier offline session.
+processOfflineQueue();
 
 </script>
 </body>
