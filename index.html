@@ -706,11 +706,16 @@ function showScreen(view) {
     }
 
     else if (view === "lyrics") {
-        lyricsScreen.classList.add("active");
-        lyricsTab.classList.add("active");
-        button.style.display = "none";
-        statusElement.style.display = "none";
+    lyricsScreen.classList.add("active");
+    lyricsTab.classList.add("active");
+    button.style.display = "none";
+    statusElement.style.display = "none";
+
+    // Restore the current song's album background.
+    if (currentSong?.artwork) {
+        showBackground(currentSong.artwork);
     }
+}
 
     else if (view === "recents") {
         recentsScreen.classList.add("active");
