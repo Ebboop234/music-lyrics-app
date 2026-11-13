@@ -656,6 +656,10 @@ const SYNC_OFFSET = 4;
 const RECENT_STORAGE_KEY = "musicLyricsRecentSongs";
 const FAVORITES_STORAGE_KEY = "musicLyricsFavorites";
 const MAX_RECENT = 20;
+const OFFLINE_DB_NAME = "musicLyricsOffline";
+const OFFLINE_DB_VERSION = 1;
+let offlineQueueProcessing = false;
+
 
 /* STATE */
 
@@ -1144,6 +1148,173 @@ detailsLyricsButton.addEventListener("click",() => {
     }
 });
 
+
+/* OFFLINE RECORDING STORAGE */
+
+function openOfflineDatabase() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(
+            OFFLINE_DB_NAME,
+            OFFLINE_DB_VERSION
+        );
+
+        request.onupgradeneeded = () => {
+            const db = request.result;
+
+            if (!db.objectStoreNames.contains("recordings")) {
+                db.createObjectStore("recordings", {
+                    keyPath: "id",
+                    autoIncrement: true
+                });
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function saveOfflineRecording(blob, listenStartedAt) {
+    const db = await openOfflineDatabase();
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("recordings", "readwrite");
+        const store = transaction.objectStore("recordings");
+
+        const request = store.add({
+            blob,
+            listenStartedAt,
+            createdAt: Date.now()
+        });
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+
+        transaction.oncomplete = () => db.close();
+        transaction.onerror = () => reject(transaction.error);
+    });
+}
+
+async function getOfflineRecordings() {
+    const db = await openOfflineDatabase();
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("recordings", "readonly");
+        const request = transaction.objectStore("recordings").getAll();
+
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+
+        transaction.oncomplete = () => db.close();
+        transaction.onerror = () => reject(transaction.error);
+    });
+}
+
+async function deleteOfflineRecording(id) {
+    const db = await openOfflineDatabase();
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction("recordings", "readwrite");
+        const request = transaction.objectStore("recordings").delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+
+        transaction.oncomplete = () => db.close();
+        transaction.onerror = () => reject(transaction.error);
+    });
+}
+
+/* AUTOMATICALLY PROCESS SAVED RECORDINGS */
+
+async function processOfflineQueue() {
+    if (!navigator.onLine || offlineQueueProcessing) return;
+
+    offlineQueueProcessing = true;
+
+    let completed = 0;
+
+    try {
+        const recordings = await getOfflineRecordings();
+
+        for (const recording of recordings) {
+            if (!navigator.onLine) break;
+
+            try {
+                if (currentView !== "lyrics") {
+                    statusElement.textContent = "Identifying saved recording...";
+                    statusElement.style.display = "block";
+                }
+
+                const formData = new FormData();
+
+                formData.append(
+                    "audio",
+                    recording.blob,
+                    "offline-recording.webm"
+                );
+
+                const response = await fetch("/identify-shazam", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Recognition server returned " + response.status);
+                }
+
+                const data = await response.json();
+
+                if (!data || data.success === false || !data.song) {
+                    throw new Error("The recording could not be identified.");
+                }
+
+                const lyrics =
+                    data.lyrics ||
+                    data.syncedLyrics ||
+                    data.synced_lyrics ||
+                    data.lyricText ||
+                    data.lrc ||
+                    data.lines ||
+                    data.lyricData ||
+                    data.lyric_data ||
+                    "";
+
+                // Save the identified song into the normal Recents list.
+                saveRecentSong(data, lyrics);
+
+                // Only delete the audio after identification and saving succeed.
+                await deleteOfflineRecording(recording.id);
+
+                completed++;
+
+            } catch (error) {
+                console.error("Offline recording is still waiting:", error);
+
+                // Keep this recording so it can be retried later.
+                break;
+            }
+        }
+
+        if (completed > 0) {
+            renderRecentSongs();
+
+            if (currentView !== "lyrics") {
+                statusElement.textContent =
+                    completed === 1
+                        ? "1 saved recording added to Recents!"
+                        : completed + " saved recordings added to Recents!";
+                statusElement.style.display = "block";
+            }
+        }
+
+    } catch (error) {
+        console.error("Could not process offline queue:", error);
+    } finally {
+        offlineQueueProcessing = false;
+    }
+}
+
 /* SAVE RECENT SONG */
 
 function saveRecentSong(data,recognizedLyrics) {
@@ -1534,54 +1705,33 @@ async function sendAudio(blob,listenStartedAt) {
     statusElement.classList.remove("listening");
 
     try {
-        statusElement.textContent = "Identifying...";
+        statusElement.textContent = "Saving recording on this device...";
 
-        const formData = new FormData();
+        // Save first, before attempting internet recognition.
+        await saveOfflineRecording(blob, listenStartedAt);
 
-        formData.append("audio",blob,"recording.webm");
-
-        const response = await fetch("/identify-shazam",{
-            method:"POST",
-            body:formData
-        });
-
-        if (!response.ok) {
-            throw new Error("Server returned " + response.status);
+        if (!navigator.onLine) {
+            statusElement.textContent =
+                "Recording saved! Waiting for internet to identify it.";
+            return;
         }
 
-        const data = await response.json();
+        statusElement.textContent = "Identifying song...";
 
-        console.log("Shazam response:",data);
+        await processOfflineQueue();
 
-        const lyrics =
-            data.lyrics ||
-            data.syncedLyrics ||
-            data.synced_lyrics ||
-            data.lyricText ||
-            data.lrc ||
-            data.lines ||
-            data.lyricData ||
-            data.lyric_data ||
-            "";
+        const remaining = await getOfflineRecordings();
 
-        const matchPosition = Number(
-            data.matchPosition ??
-            data.timecode ??
-            data.song?.matchPosition ??
-            0
-        );
-
-        showRecognizedSong(
-            data,
-            lyrics,
-            matchPosition,
-            listenStartedAt
-        );
+        if (remaining.length > 0) {
+            statusElement.textContent =
+                "Recording saved. It will retry when internet is available.";
+        }
 
     } catch (error) {
-        console.error("Recognition error:",error);
+        console.error("Recording or offline queue error:", error);
 
-        statusElement.textContent = "Could not recognize song. Try again.";
+        statusElement.textContent =
+            "Could not save the recording. Please try again.";
 
     } finally {
         button.classList.remove("listening");
@@ -1594,6 +1744,27 @@ async function sendAudio(blob,listenStartedAt) {
 /* BUTTON */
 
 button.addEventListener("click",recognizeSong);
+
+/* OFFLINE / ONLINE CONNECTION */
+
+window.addEventListener("online", () => {
+    statusElement.textContent = "Internet connection restored. Checking saved recordings...";
+    statusElement.style.display = "block";
+    processOfflineQueue();
+});
+
+window.addEventListener("offline", () => {
+    if (currentView === "home") {
+        statusElement.textContent =
+            "Offline. Recordings will be saved on this device.";
+    }
+});
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js")
+        .then(() => console.log("Offline app support is ready."))
+        .catch(error => console.error("Service worker registration failed:", error));
+}
 
 /* INITIALIZE */
 
