@@ -419,6 +419,41 @@ function findMatchPosition(data) {
     return search(data) || 0;
 }
 
+function hasMatchPosition(data) {
+    const keys = [
+        "offset",
+        "matchOffset",
+        "matchPosition",
+        "position"
+    ];
+
+    function search(object) {
+        if (!object || typeof object !== "object") {
+            return false;
+        }
+
+        for (const key of keys) {
+            if (
+                typeof object[key] === "number" &&
+                Number.isFinite(object[key]) &&
+                object[key] >= 0
+            ) {
+                return true;
+            }
+        }
+
+        for (const key of Object.keys(object)) {
+            if (search(object[key])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    return search(data);
+}
+
 /* =========================================================
    FIND ALBUM
 ========================================================= */
@@ -1730,12 +1765,14 @@ app.post(
                 );
 
             const artwork =
-                await resolveArtwork(
-                    shazamData,
-                    track,
-                    title,
-                    artist
-                );
+                req.query.resync === "1"
+                    ? ""
+                    : await resolveArtwork(
+                        shazamData,
+                        track,
+                        title,
+                        artist
+                    );
 
             /*
              * Shazam match position
@@ -1755,6 +1792,20 @@ app.post(
                 matchPosition < 0
             ) {
                 matchPosition = 0;
+            }
+
+            if (req.query.resync === "1") {
+                return res.json({
+                    success: true,
+                    song: {
+                        title: title,
+                        artist: artist,
+                        matchPosition: matchPosition,
+                        timecode: matchPosition
+                    },
+                    matchPosition: matchPosition,
+                    hasMatchPosition: hasMatchPosition(shazamData)
+                });
             }
 
             console.log(

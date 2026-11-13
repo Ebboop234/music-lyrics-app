@@ -684,6 +684,10 @@ let selectedRecentSong = null;
 let detailsReturnView = "recents";
 let isRecognizing = false;
 
+let smartResyncRequest = 0;
+let smartResyncRecorder = null;
+let smartResyncStream = null;
+
 /* NAVIGATION */
 
 function showScreen(view) {
@@ -712,7 +716,7 @@ function showScreen(view) {
         subtitle.textContent = "Discover what's playing";
         button.style.display = "flex";
         statusElement.style.display = "block";
-        clearBackground();
+        albumBackground.style.opacity = "0";
         statusElement.textContent = "Ready";
     }
 
@@ -721,6 +725,10 @@ function showScreen(view) {
         lyricsTab.classList.add("active");
         button.style.display = "none";
         statusElement.style.display = "none";
+
+        if (currentSong?.artwork) {
+            showBackground(currentSong.artwork);
+        }
     }
 
     else if (view === "recents") {
@@ -1430,6 +1438,176 @@ function loadRecentSong(song) {
     );
 }
 
+/* SMART RE-SYNC */
+
+function normalizeSongIdentity(value) {
+    return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "")
+        .replace(/[^a-z0-9\\s]/g, " ")
+        .replace(/\\s+/g, " ")
+        .trim();
+}
+
+function cancelSmartResync() {
+    smartResyncRequest++;
+
+    if (
+        smartResyncRecorder &&
+        smartResyncRecorder.state !== "inactive"
+    ) {
+        try {
+            smartResyncRecorder.stop();
+        } catch (error) {
+            console.warn("Could not stop previous re-sync:", error);
+        }
+    }
+
+    if (smartResyncStream) {
+        smartResyncStream.getTracks().forEach(track => track.stop());
+    }
+
+    smartResyncRecorder = null;
+    smartResyncStream = null;
+}
+
+async function startSmartResync(song) {
+    cancelSmartResync();
+
+    const requestId = smartResyncRequest;
+    const expectedTitle = normalizeSongIdentity(song.title);
+    const expectedArtist = normalizeSongIdentity(song.artist);
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+        });
+
+        if (requestId !== smartResyncRequest) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+        }
+
+        smartResyncStream = stream;
+
+        const recorder = new MediaRecorder(stream);
+        smartResyncRecorder = recorder;
+
+        const chunks = [];
+        const sampleStartedAt = Date.now();
+
+        const recordingFinished = new Promise((resolve, reject) => {
+            recorder.ondataavailable = event => {
+                if (event.data && event.data.size > 0) {
+                    chunks.push(event.data);
+                }
+            };
+
+            recorder.onerror = event => {
+                reject(event.error || new Error("Re-sync recording failed."));
+            };
+
+            recorder.onstop = () => {
+                stream.getTracks().forEach(track => track.stop());
+
+                if (smartResyncStream === stream) {
+                    smartResyncStream = null;
+                }
+
+                if (smartResyncRecorder === recorder) {
+                    smartResyncRecorder = null;
+                }
+
+                resolve(new Blob(chunks, {
+                    type: recorder.mimeType || "audio/webm"
+                }));
+            };
+        });
+
+        recorder.start();
+
+        setTimeout(() => {
+            if (recorder.state !== "inactive") {
+                recorder.stop();
+            }
+        }, 5000);
+
+        const blob = await recordingFinished;
+
+        if (requestId !== smartResyncRequest) return;
+        if (!blob || blob.size === 0) return;
+
+        const formData = new FormData();
+        formData.append("audio", blob, "resync.webm");
+
+        const response = await fetch("/identify-shazam?resync=1", {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error("Re-sync server returned " + response.status);
+        }
+
+        const data = await response.json();
+
+        if (requestId !== smartResyncRequest) return;
+        if (!currentSong) return;
+
+        const resultTitle = normalizeSongIdentity(getSafeTitle(data));
+        const resultArtist = normalizeSongIdentity(getSafeArtist(data));
+
+        // Only accept a match for the exact same song.
+        if (
+            resultTitle !== expectedTitle ||
+            resultArtist !== expectedArtist ||
+            normalizeSongIdentity(currentSong.title) !== expectedTitle ||
+            normalizeSongIdentity(currentSong.artist) !== expectedArtist
+        ) {
+            console.log("Smart Re-Sync: different song; keeping current timing.");
+            return;
+        }
+
+        // Do not change timing unless Shazam supplied a real timestamp.
+        if (data.hasMatchPosition !== true) {
+            console.log("Smart Re-Sync: no valid timestamp; keeping current timing.");
+            return;
+        }
+
+        const matchPosition = Number(
+            data.song?.matchPosition ?? data.matchPosition
+        );
+
+        if (!Number.isFinite(matchPosition) || matchPosition < 0) {
+            return;
+        }
+
+        const elapsedSinceSampleStarted =
+            (Date.now() - sampleStartedAt) / 1000;
+
+        startEstimatedSync(
+            matchPosition + elapsedSinceSampleStarted,
+            false
+        );
+
+        console.log("Smart Re-Sync: lyric timing corrected.");
+
+    } catch (error) {
+        console.warn("Smart Re-Sync skipped:", error);
+
+    } finally {
+        if (requestId === smartResyncRequest) {
+            if (smartResyncStream) {
+                smartResyncStream.getTracks().forEach(track => track.stop());
+                smartResyncStream = null;
+            }
+
+            smartResyncRecorder = null;
+        }
+    }
+}
+
 /* SHOW RECOGNIZED SONG */
 
 function showRecognizedSong(data,lyrics,matchPosition,listenStartedAt) {
@@ -1466,6 +1644,8 @@ function showRecognizedSong(data,lyrics,matchPosition,listenStartedAt) {
         : SYNC_OFFSET + 8;
 
     startEstimatedSync(matchPosition + delay,false);
+
+    startSmartResync(currentSong);
 }
 
 /* RECOGNIZE SONG */
